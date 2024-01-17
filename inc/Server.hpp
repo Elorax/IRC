@@ -2,14 +2,17 @@
 
 #include <string>
 #include <iostream>
+#include <netinet/ip.h>
+
 
 class	Server {
 
 	private:
 		std::string	_name;
-		std::string _passWord;
+		std::string _password;
 		int			_port;
 		int			_socketFD;
+		sockaddr_in	_serverAdrr;
 
 	public:
 					Server( void );
