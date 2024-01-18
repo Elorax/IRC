@@ -14,7 +14,7 @@ class	Client {
 		bool		_chanOP;
 
 	public:
-					Client( void );
+					Client(int fd);
 					Client( Client const& src );
 					~Client( void );
 

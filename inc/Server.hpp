@@ -13,6 +13,10 @@ class	Server {
 		int			_port;
 		int			_socketFD;
 		sockaddr_in	_serverAdrr;
+		sockaddr_in	_clientAdrr;	//Non initialise a la construction,
+									//initialisé a l'utilisation de accept pour un nouveau client.
+
+
 
 	public:
 					Server( void );
@@ -20,6 +24,9 @@ class	Server {
 					~Server( void );
 
 					Server& operator=( Server const& rhs );
+					int	getFD();
+					int	getMaxFD();
+					int	addClient(fd_set &readFDs, fd_set &writeFDs);
 
 };
 

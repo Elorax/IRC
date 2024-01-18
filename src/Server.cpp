@@ -29,12 +29,12 @@ Server::server(std::string port, std::string password)
     }
 
     //Configuration adresse et port pour pouvoir lier la socket a une adresse et un port specifique
-    _serverAddress.sin_family = AF_INET;    //IPv4
-    _serverAddress.sin_addr.s_addr = INADDR_ANY;
-    _serverAddress.sin_port = htons(_port);
+    _serverAddr.sin_family = AF_INET;    //IPv4
+    _serverAddr.sin_addr.s_addr = INADDR_ANY;
+    _serverAddr.sin_port = htons(_port);
 
     //Affectation d'un nom a la socket
-    if (bind(_socketFD, (struct sockaddr*)&_serverAddress, sizeof(_serverAddress)) < 0)
+    if (bind(_socketFD, (struct sockaddr*) &_serverAddr, sizeof(_serverAddr)) < 0)
     {
         perror(strerror(errno));
         close(_socketFD);
@@ -48,4 +48,31 @@ Server::server(std::string port, std::string password)
         close(_socketFD);
         exit(errno);
     }
+}
+
+int Server::getFD()
+{
+    return (_socketFD);
+}
+
+int Server::getMaxFD()
+{
+    //Return plus grand des fds entre celui du serveur et celui des clients
+    return (_socketFD);
+    //! ^ solution temporaire pour tests
+}
+
+int	Server::addClient(fd_set &readFDs, fd_set &writeFDs)
+{
+    int fd;
+    fd = accept(_socketFD, (struct sockaddr*) &_clientAdrr, sizeof(_clientAdrr));
+    if (fd == -1)
+        return (-1);
+    Client client(fd);
+    std::cout << "NEW CLIENT\n";    //Useless mais utile pour mon debug
+    this->clients.push_back(client);    //Vecteur<client> a implementer
+    FD_SET(fd, &readFDs);
+    FD_SET(fd, &writeFDs);
+
+    return (0);
 }
