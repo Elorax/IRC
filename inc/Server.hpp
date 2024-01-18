@@ -2,12 +2,18 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include <netinet/ip.h>
+#include "Client.hpp"
 
+class CLient;
+
+typedef std::vector<CLient> vecClient;
 
 class	Server {
 
 	private:
+		vecClient	_clients;
 		std::string	_name;
 		std::string _password;
 		int			_port;

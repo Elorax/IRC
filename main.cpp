@@ -64,4 +64,5 @@ void	handleServer(Server &server)
 	//Ajouter un nouveau client (accept, update les fd sets)
 
 	//Verifier si un client deja accepte fait une action
+	
 }

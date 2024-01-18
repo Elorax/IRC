@@ -68,9 +68,9 @@ int	Server::addClient(fd_set &readFDs, fd_set &writeFDs)
     fd = accept(_socketFD, (struct sockaddr*) &_clientAdrr, sizeof(_clientAdrr));
     if (fd == -1)
         return (-1);
-    Client client(fd);
+    Client newClient(fd);
     std::cout << "NEW CLIENT\n";    //Useless mais utile pour mon debug
-    this->clients.push_back(client);    //Vecteur<client> a implementer
+    _clients.push_back(newClient);    //Vecteur<client> a implementer
     FD_SET(fd, &readFDs);
     FD_SET(fd, &writeFDs);
 
