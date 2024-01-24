@@ -1,17 +1,16 @@
 #pragma once
 
-#include <string>
-#include <iostream>
+#include "IRC.hpp"
 
 class	Client {
 
 	private:
+		std::string	_password;
 		std::string _hostName;
 		std::string _realName;
 		std::string	_userName;
 		std::string	_nickName;
 		int			_clientFD;
-		bool		_chanOP;
 
 	public:
 					Client( int fd );
@@ -22,8 +21,6 @@ class	Client {
 		void		setPassword( std::string const& );
 		void		setNickName( std::string const& );
 		void		setUserName( std::string const& );//set username, realname and hostname: Parameters: <user> <mode> <unused> <realname>
-		//void		setRealName( std::string const& );
-		//void		setHostName( std::string const& );
 
 		/* getters */
 		const		std::string &getHostName( void ) const;

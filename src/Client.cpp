@@ -1,12 +1,7 @@
 #include "Client.hpp"
 
-Client::Client(int fd)
-{
-    _clientFD = fd;
-    _userName = "";
-    _nickName = "";
-    _realName = "";
-    _hostName = "";
+Client::Client(int fd): _clientFD(fd), _password(""), _userName(""),
+						_nickName(""), _realName(""), _hostName("") {
 }
 
 Client::~Client()
