@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <iostream>
+#include "IRC.hpp"
 
 class Message{
     private:
@@ -9,10 +8,10 @@ class Message{
         int         _fd;
 
     public:
-        Message(std::string const &msg, int fd);
+        Message( std::string const& msg, int fd );
         ~Message();
-        const std::string   &getMsg( void ) const;
-        const int           &getFD( void) const;
+
+        const std::string&	getMsg( void ) const;
+        const int&			getFD( void ) const;
 
 }
-
