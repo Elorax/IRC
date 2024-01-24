@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::server(std::string port, std::string password)
+Server::Server(std::string &port, std::string &password)
 {
     //Initialisation des parametres du serveur
     _port = atoi(port);
@@ -75,4 +75,132 @@ int	Server::addClient(fd_set &readFDs, fd_set &writeFDs)
     FD_SET(fd, &writeFDs);
 
     return (0);
+}
+
+eCommand	Server::findCommand( std::string const& line ) {
+
+	std::string	cmd[] = {	"PASS", "NICK", "USER", "INVITE", "JOIN", "KICK",
+							"PART", "TOPIC", "PRIVMSG", "NOTICE", "CAP", "MODE", "WHO", "QUIT" };
+    std::string tmp = line;
+    tmp.erase(tmp.find(' '), tmp.size());
+	for (size_t i = 0; i < 14; i++)
+		if (cmd[i] == line)
+			return ((eCommand)i);
+	
+	return (eNOTFOUND);
+}
+
+std::vector<std::string> buildArgs(std::string line)
+{
+    std::vector<std::string> args;
+    std::string last = line.substr(line.find(':'));
+    std::string tmp = line.substr(0, line.find(':'));
+
+    while (tmp.find(' ') != std::string::npos) {
+		args.push_back(tmp.substr(0, tmp.find(' ')));
+        tmp = tmp.substr(tmp.find(' ') + 1);
+	}
+    args.push_back(last);
+	return (args);
+}
+
+
+void    Server::parseLine(std::string line, int fd)
+{
+    //Si line ne se finit pas par \r\n, return
+    if (line.find("\r\n") == std::string::npos)
+        return ;
+
+    if (line[0] == ':')//Prefixe : ignoré dans le contexte de ft_IRC
+        line = line.substr(line.find(' '));//":prefixe commande arg1 arg2" --> "commande arg1 arg2"
+    std::vector<std::string> args = buildArgs(line);
+
+	switch (findCommand(line))
+	{
+		// case eCAP:
+		case eINVITE:
+			cmdInvite(args, fd);//change by getClient(fd)
+			break;
+		case eJOIN:
+			cmdJoin(args, fd);
+			break;
+		case eMODE:
+			cmdMode(args, fd);
+			break;
+		case eNICK:
+			cmdNick(args, fd);
+			break;
+		case eNOTICE:
+			cmdNotice(args, fd);
+			break;
+		case ePART:
+			cmdPart(args, fd);
+			break;
+		case ePASS:
+			cmdPass(args, fd);
+			break;
+		case ePRIVMSG:
+			cmdPrivmsg(args, fd);
+			break;
+		case eQUIT:
+			cmdQuit(args, fd);
+			break;
+		case eTOPIC:
+			cmdTopic(args, fd);
+			break;
+		case eUSER:
+			cmdUser(args, fd);
+			break;
+		case eWHO:
+			cmdWho(args, fd);
+			break;
+		case eNOTFOUND:
+	}
+}
+
+void	cmdNick( std::vector<std::string>& args, int fd ) {
+
+	if (args.size() != 1)
+		errorCase(ERR_NEEDMOREPARAMS, fd);
+
+	if (!isAvailNick(args[0]))
+		errorCase(ERR_NICKNAMEINUSE, fd);
+
+	if (!isValidNick(args[0]))
+		errorCase(ERR_ERRONEUSNICKNAME, fd);
+
+	else
+		getClient(fd).setNickName(args[0]);
+}
+
+void	cmdPass( std::vector<std::string>& args, int fd ) {
+
+	if(args.empty())
+		errorCase(ERR_NEEDMOREPARAMS, fd);
+
+	// if (getClient(fd).getPassword() != "")
+	// 	errorCase(ERR_ALREADYREGISTERED, fd);
+
+	if (getClient(fd).getPassword() != args[0])
+		errorCase(ERR_PASSWDMISMATCH, fd);
+
+	else
+		getClient(fd).setPassword(args[0]);
+}
+
+void    cmdUser( std::vector<std::string>& args, int fd)
+{
+    if (args.size() < 4)
+        errorCase(ERR_NEEDMOREPARAMS, fd);
+
+	if (args[0] == getClient(fd).getUsername())
+		errorCase(ERR_ALREADYREGISTERED, fd);
+
+	else
+		getClient(fd).setUsername(args);
+}
+
+void		Server::addChannel( Channel& channel )
+{
+    _channels.push_back(channel);
 }
