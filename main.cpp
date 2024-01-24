@@ -1,6 +1,5 @@
 
-#include <iostream>
-#include <ctype.h>
+
 
 bool	isNumber(char *s)
 {
@@ -23,14 +22,14 @@ int	main(int ac, char **av)
 		std::cerr << "Error: PORT must be a number" << std::endl;
 		return (1);
 	}
-	server server(av[1], av[2]);
-	handleServer(server);
+	Server server(av[1], av[2]);
+	run(server);
 	
 	return (0);
 	
 }
 
-void	handleServer(Server &server)
+void	Server::run(Server &server)
 {
 	fd_set readFDs, writeFDs;
 	FD_ZERO(&readFDs);
@@ -55,14 +54,27 @@ void	handleServer(Server &server)
 			}
 		}
 
-		char				buff[1024];
-		int					bytesReceived;
+		int					bytesRead;
+		char				buff[BUFFER_SIZE] = {0};
 		vecClient::iterator	it = _clients.begin();
 
 		for (; it < _clients.end(); it++) {
-			int fd = *it._clientFD;
+
+			int fd = it->_clientFD;
 			if (FD_ISSET(fd, &readFDs)) {
-				bytesReceived = read(fd, buff, sizeof(buff) - 1);
+				bytesRead = recv(fd, buff, BUFFER_SIZE, 0);
+
+				if (bytesRead < 0) {
+					delClient(it);
+					FD_CLR(fd, &readFDS);
+					FD_CLR(fd, &writeFDs);
+					it = _clients.begin();
+				}
+
+				//if the client exceed the IRC allowed amount of bytes, we don't process it.
+				else if (bytesRead <= 512)
+					processClient(buff);
+				memset(buff, '\0', BUFFER_SIZE);
 			}
 		}
 		// faire une fonction qui envoie tous les messages a envoyer (les messages etant des reponses (erreur ou non ERR/RPL/non defini))
@@ -79,7 +91,31 @@ void	handleServer(Server &server)
 
 }
 
-void handleClient() {
+vecClient::iterator	Server::getClientByFD( int fd ) {
+
+	vecClient::iterator	it = _clients.begin();
+	for (; it != _client.end(); i++) {
+		if (it->_client._clientFD == fd);
+			return (it);
+	}
+}
+
+vecClient::iterator	Server::getClientByName( std::string& user ) {
+
+	vecClient::iterator	it = _clients.begin();
+	for (; it != _client.end(); i++) {
+		if (it->_client._UserName == user);
+			return (it);
+	}
+}
+
+void	Server::delClient( vecClient::iterator toDel ) {
+
+	close(toDel->_clientFD);
+	_clients.erase(it);
+}
+
+void processClient( char *buff ) {
 	
 	// Connection Establishment: The IRC client establishes a connection with the IRC server1.
 
@@ -91,13 +127,5 @@ void handleClient() {
 
 	// Error Handling: If a user tries to register with a nickname that is already taken, the server will send back an ERR_NICKNAMEINUSE reply (code 433)2.
 
-	while (1) {
-
-		try {
-			//magienoire
-		}
-		catch(const std::exception &e) {
-			std::cerr e.what();
-		}
-	}
+	while ()
 }
