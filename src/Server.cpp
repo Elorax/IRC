@@ -164,30 +164,33 @@ void    Server::parseLine(std::string line, int fd)
 	}
 }
 
-bool    Server::isAvailNick(const std::string &nick){
-        vecClient::iterator it;
-        for(it = _clients.begin(); it != _clients.end(); it++)
-        {
-            if (it->getNickName() == nick)
-                return (false);
-        }
-        return (true);
-}
-bool    Server::isValidNick(const std::string &nick){
-        std::string special = "[]\\_^{}|`";
-        if (nick.length() > 9)
-            return (false);
-        if (!(special.find(nick[0]) != std::string::npos || isalpha(nick[0])))
-            return (false);
-        std::string::const_iterator it = nick.begin() + 1;
-        for(;it != nick.end(); it++)
-        {
-            if (!isalnum(*it) && special.find(*it) == std::string::npos && *it != '-')
-                return (false);
-        }
-        return (true);
-}
+bool    Server::isAvailNick(const std::string &nick) {
 
+	vecClient::iterator it = _clients.begin();
+	for(; it != _clients.end(); it++)
+		if (it->getNickName() == nick)
+			return (false);
+	return (true);
+}
+bool    Server::isValidNick(const std::string &nick) {
+
+	std::string special = "[]\\_^{}|`";
+
+	if (nick.length() > 9)
+		return (false);
+
+	if (special.find(nick[0]) == std::string::npos && !isalpha(nick[0]))
+		return (false);
+
+	std::string::const_iterator it = nick.begin() + 1;
+	for(;it != nick.end(); it++)
+		if (!isalnum(*it) && special.find(*it) == std::string::npos && *it != '-')
+			return (false);
+	return (true);
+}
+//nickname   =  ( letter / special ) *8( letter / digit / special / "-" )
+//special    =  %x5B-60 / %x7B-7D
+//                   ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
 
 void	Server::cmdNick( std::vector<std::string>& args, int fd ) {
 

@@ -35,29 +35,29 @@ class	Server {
 
 		int					getFD( void );
 		int					getMaxFD( void );
-		eCommand			Server::findCommand( std::string const& line );
-		int					addClient( fd_set& readFDs, fd_set& writeFDs );
-		void				addChannel( Channel& channel );
-		void				run( void );
-		void    			parseLine(std::string line, int fd);
 		vecClient::iterator	getClientByFD( int fd );
 		vecClient::iterator	getClientByName( std::string& user );
+
+		int					addClient( fd_set& readFDs, fd_set& writeFDs );
 		void				delClient( vecClient::iterator toDel );
+		void				addChannel( Channel& channel );
+		void				run( void );
+		void    			parseLine( std::string line, int fd );
+		void				errorCase( int errorCode, int fd );
+	    bool				isAvailNick( const std::string& nick );
+        bool				isValidNick( const std::string& nick );
 
-	    bool				isAvailNick(const std::string &nick);
-        bool				isValidNick(const std::string &nick);
-		void				cmdInvite(std::vector<std::string> &args, int fd);
-		void				cmdJoin(std::vector<std::string> &args, int fd);
-		void				cmdMode(std::vector<std::string> &args, int fd);
-		void				cmdNick(std::vector<std::string> &args, int fd);
-		void				cmdNotice(std::vector<std::string> &args, int fd);
-		void				cmdPart(std::vector<std::string> &args, int fd);
-		void				cmdPass(std::vector<std::string> &args, int fd);
-		void				cmdPrivmsg(std::vector<std::string> &args, int fd);
-		void				cmdQuit(std::vector<std::string> &args, int fd);
-		void				cmdTopic(std::vector<std::string> &args, int fd);
-		void				cmdUser(std::vector<std::string> &args, int fd);
-		void				cmdWho(std::vector<std::string> &args, int fd);
-		void				errorCase(int errorCode, int fd);
-
+		eCommand			findCommand( std::string const& line );
+		void				cmdWho( std::vector<std::string>& args, int fd );
+		void				cmdJoin( std::vector<std::string>& args, int fd );
+		void				cmdMode( std::vector<std::string>& args, int fd );
+		void				cmdNick( std::vector<std::string>& args, int fd );
+		void				cmdPart( std::vector<std::string>& args, int fd );
+		void				cmdPass( std::vector<std::string>& args, int fd );
+		void				cmdQuit( std::vector<std::string>& args, int fd );
+		void				cmdUser( std::vector<std::string>& args, int fd );
+		void				cmdTopic( std::vector<std::string>& args, int fd );
+		void				cmdNotice( std::vector<std::string>& args, int fd );
+		void				cmdInvite( std::vector<std::string>& args, int fd );
+		void				cmdPrivmsg( std::vector<std::string>& args, int fd );
 };

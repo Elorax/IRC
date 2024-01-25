@@ -35,20 +35,20 @@ void	Server::run()
 {
 	FD_ZERO(&_readFDs);
 	FD_ZERO(&_writeFDs);
-	FD_SET(this->getFD(), &_readFDs);
+	FD_SET(getFD(), &_readFDs);
 
 	while (true)	//variable globale mise a zero par une interruption ?
 	{
 	//Penser a une solution de quitter le programme proprement en cas de ctrl c avec des signaux.
-		if (select(this->getMaxFD() + 1, &_readFDs, &_writeFDs, NULL, NULL) < 0)
+		if (select(getMaxFD() + 1, &_readFDs, &_writeFDs, NULL, NULL) < 0)
 		{
 			std::cerr << "error ta mere" << std::endl;
 			break ;
 		}
 
-		if (FD_ISSET(this->getFD(), &_readFDs)) //maginoire listen te titille le this->donc tu rentres 
+		if (FD_ISSET(getFD(), &_readFDs)) //maginoire listen te titille le donc tu rentres 
 		{
-			if (this->addClient(_readFDs, _writeFDs) != 0)   //Ptete ca marche pas avec une ref tavu
+			if (addClient(_readFDs, _writeFDs) != 0)   //Ptete ca marche pas avec une ref tavu
 			{
 				std::cerr << "accept failed" << std::endl;
 				continue;
