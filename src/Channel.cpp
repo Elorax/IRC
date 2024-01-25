@@ -57,3 +57,17 @@ void	Channel::setInviteOnly( bool status ){
 
 	_inviteOnly == status;
 }
+
+//Envoi d'un message a tous les users d'un channel
+//Fonction d'envoi de message prive d'un user a un autre a faire directement depuis le serveur car ne passe pas par un channel ?
+void	Channel::sendMsg( const std::string &msg ) const
+{
+	refClients::iterator it = _chanUsers.begin();
+	for(; it != _chanUsers.end(); it++)
+	{
+		it->getFD();
+		send(it->getFD(), msg.c_str(), msg.size() + 1, 0);	//+1 pour \0 ?
+		//utilisation de IS_SET ? UNSET a la fin de l'envoi ? A verifier, regarder l'envoi de messages sur des githubs.
+	}
+	//Verifier le retour de send ?
+}

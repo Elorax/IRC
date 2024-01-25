@@ -31,6 +31,6 @@ class	Channel {
 		void					setTopic( bool status );
 		void					setInviteOnly( bool status );
 
-		void					sendMsg( std::string msg );
+		void					sendMsg( const std::string &msg ) const;
 
 };
