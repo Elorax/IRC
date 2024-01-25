@@ -19,12 +19,12 @@ void Client::setPassword( std::string const& str ) {
 
 void Client::setNickName(std::string const& str )
 {
-    return (_nickName) ;
+    _nickName = str;
 }
 
 void Client::setUserName(std::string const& str )
 {
-    return (_userName) ;
+    _userName = str;
 }
 
 
@@ -48,5 +48,15 @@ const std::string &Client::getUserName() const
 const std::string &Client::getNickName() const
 {
     return (_nickName) ;
+}
+
+const int &Client::getFD() const
+{
+    return (_clientFD) ;
+}
+
+const		std::string &Client::getPassword( void ) const
+{
+    return (_password);
 }
 

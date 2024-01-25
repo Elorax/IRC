@@ -13,7 +13,7 @@ const std::string   &Message::getMsg( void ) const
     return (_msg);
 }
 
-const int           Message::&getFD( void) const
+const int           &Message::getFD( void) const
 {
     return (_fd);
 }

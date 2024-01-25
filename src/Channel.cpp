@@ -7,7 +7,7 @@
 Channel::Channel( std::string name, Client& client ): _name(name), _password(""),
 _chanCapacity(0), _usersVisible(true), _topicEnabled(false), _inviteOnly(false) {
 
-	getServer().addChannel(*this);
+	//getServer().addChannel(*this);	//A faire dans la commande JOIN, pas ici.
 	_chanUsers.push_back(client);
 	_chanOp.push_back(client);
 }
@@ -16,7 +16,7 @@ _chanCapacity(0), _usersVisible(true), _topicEnabled(false), _inviteOnly(false) 
 /*                                   Getter                                   */
 /* -------------------------------------------------------------------------- */
 
-refClients::iterator Channel::getClientByName( const std::string& name ) {
+refClients::iterator Channel::getClientByName( const std::string& name ) const {
 
     refClients::iterator it = _chanOp.begin();
     for (; it != _chanOp.end(); it++)

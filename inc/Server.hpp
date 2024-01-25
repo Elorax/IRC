@@ -15,6 +15,9 @@ typedef std::vector<Message> vecMessage;
 class	Server {
 
 	private:
+		fd_set		_readFDs;
+		fd_set		_writeFDs;
+
 		int			_port;
 		int			_socketFD;
 		vecClient	_clients;
@@ -22,17 +25,39 @@ class	Server {
 		vecMessage	_messages;
 		std::string	_name;
 		std::string _password;
-		sockaddr_in	_serverAdrr;
-		sockaddr_in	_clientAdrr;	//Non initialise a la construction,
+		sockaddr_in	_serverAddr;
+		sockaddr_in	_clientAddr;	//Non initialise a la construction,
 									//initialisé a l'utilisation de accept pour un nouveau client.
 
 	public:
-					Server( std::string& port, std::string& password );
-					~Server( void );
+							Server( std::string& port, std::string& password );
+							~Server( void );
 
-		int			getFD( void );
-		int			getMaxFD( void );
+		int					getFD( void );
+		int					getMaxFD( void );
+		eCommand			Server::findCommand( std::string const& line );
+		int					addClient( fd_set& readFDs, fd_set& writeFDs );
+		void				addChannel( Channel& channel );
+		void				run( void );
+		void    			parseLine(std::string line, int fd);
+		vecClient::iterator	getClientByFD( int fd );
+		vecClient::iterator	getClientByName( std::string& user );
+		void				delClient( vecClient::iterator toDel );
 
-		int			addClient( fd_set& readFDs, fd_set& writeFDs );
-		void		addChannel( Channel& channel );
+	    bool				isAvailNick(const std::string &nick);
+        bool				isValidNick(const std::string &nick);
+		void				cmdInvite(std::vector<std::string> &args, int fd);
+		void				cmdJoin(std::vector<std::string> &args, int fd);
+		void				cmdMode(std::vector<std::string> &args, int fd);
+		void				cmdNick(std::vector<std::string> &args, int fd);
+		void				cmdNotice(std::vector<std::string> &args, int fd);
+		void				cmdPart(std::vector<std::string> &args, int fd);
+		void				cmdPass(std::vector<std::string> &args, int fd);
+		void				cmdPrivmsg(std::vector<std::string> &args, int fd);
+		void				cmdQuit(std::vector<std::string> &args, int fd);
+		void				cmdTopic(std::vector<std::string> &args, int fd);
+		void				cmdUser(std::vector<std::string> &args, int fd);
+		void				cmdWho(std::vector<std::string> &args, int fd);
+		void				errorCase(int errorCode, int fd);
+
 };

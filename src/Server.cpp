@@ -1,9 +1,9 @@
-#include "Server.hpp"
+#include "../inc/Server.hpp"
 
 Server::Server(std::string &port, std::string &password)
 {
     //Initialisation des parametres du serveur
-    _port = atoi(port);
+    _port = atoi(port.c_str());
     _password = password;
 
     //Initialisation des sockets et ouverture du serveur
@@ -58,14 +58,20 @@ int Server::getFD()
 int Server::getMaxFD()
 {
     //Return plus grand des fds entre celui du serveur et celui des clients
-    return (_socketFD);
-    //! ^ solution temporaire pour tests
+    int fdMax = _socketFD;
+    vecClient::iterator it;
+    for(it = _clients.begin(); it != _clients.end(); it++)
+    {
+        if (it->getFD() > fdMax)
+            fdMax = it->getFD();
+    }
+    return (fdMax);
 }
 
 int	Server::addClient(fd_set &readFDs, fd_set &writeFDs)
 {
     int fd;
-    fd = accept(_socketFD, (struct sockaddr*) &_clientAdrr, sizeof(_clientAdrr));
+    fd = accept(_socketFD, (struct sockaddr*) &_clientAddr, (socklen_t *) sizeof(_clientAddr)); //Pas sur du cast. A voir a la compil
     if (fd == -1)
         return (-1);
     Client newClient(fd);
@@ -158,7 +164,11 @@ void    Server::parseLine(std::string line, int fd)
 	}
 }
 
-void	cmdNick( std::vector<std::string>& args, int fd ) {
+bool    Server::isAvailNick(const std::string &nick){}
+bool    Server::isValidNick(const std::string &nick){}
+
+
+void	Server::cmdNick( std::vector<std::string>& args, int fd ) {
 
 	if (args.size() != 1)
 		errorCase(ERR_NEEDMOREPARAMS, fd);
@@ -170,10 +180,10 @@ void	cmdNick( std::vector<std::string>& args, int fd ) {
 		errorCase(ERR_ERRONEUSNICKNAME, fd);
 
 	else
-		getClient(fd).setNickName(args[0]);
+		getClientByFD(fd)->setNickName(args[0]);
 }
 
-void	cmdPass( std::vector<std::string>& args, int fd ) {
+void	Server::cmdPass( std::vector<std::string>& args, int fd ) {
 
 	if(args.empty())
 		errorCase(ERR_NEEDMOREPARAMS, fd);
@@ -181,26 +191,36 @@ void	cmdPass( std::vector<std::string>& args, int fd ) {
 	// if (getClient(fd).getPassword() != "")
 	// 	errorCase(ERR_ALREADYREGISTERED, fd);
 
-	if (getClient(fd).getPassword() != args[0])
+	if (getClientByFD(fd)->getPassword() != args[0])
 		errorCase(ERR_PASSWDMISMATCH, fd);
 
 	else
-		getClient(fd).setPassword(args[0]);
+		getClientByFD(fd)->setPassword(args[0]);
 }
 
-void    cmdUser( std::vector<std::string>& args, int fd)
+void    Server::cmdUser( std::vector<std::string>& args, int fd)
 {
     if (args.size() < 4)
         errorCase(ERR_NEEDMOREPARAMS, fd);
 
-	if (args[0] == getClient(fd).getUsername())
+	else if (args[0] == getClientByFD(fd)->getUserName())
 		errorCase(ERR_ALREADYREGISTERED, fd);
-
+        
 	else
-		getClient(fd).setUsername(args);
+		getClientByFD(fd)->setUserName(args[0]);
 }
 
 void		Server::addChannel( Channel& channel )
 {
     _channels.push_back(channel);
 }
+
+void					Server::cmdInvite(std::vector<std::string> &args, int fd){}
+void					Server::cmdJoin(std::vector<std::string> &args, int fd){}
+void					Server::cmdMode(std::vector<std::string> &args, int fd){}
+void					Server::cmdNotice(std::vector<std::string> &args, int fd){}
+void					Server::cmdPart(std::vector<std::string> &args, int fd){}
+void					Server::cmdPrivmsg(std::vector<std::string> &args, int fd){}
+void					Server::cmdQuit(std::vector<std::string> &args, int fd){}
+void					Server::cmdTopic(std::vector<std::string> &args, int fd){}
+void					Server::cmdWho(std::vector<std::string> &args, int fd){}

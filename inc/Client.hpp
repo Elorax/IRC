@@ -27,6 +27,8 @@ class	Client {
 		const		std::string &getUserName( void ) const;
 		const		std::string &getNickName( void ) const;
 		const		std::string &getRealName( void ) const;
+		const		std::string &getPassword( void ) const;
+		const		int			&getFD( void) const;
 	
 		//♥w♥
 					Client& operator=( Client const& rhs );

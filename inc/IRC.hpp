@@ -5,10 +5,15 @@
 #include <netinet/ip.h>
 #include <string>
 #include <vector>
+#include <unistd.h>
+#include <cstring>
 
 #include "Server.hpp"
 #include "Client.hpp"
 #include "Message.hpp"
+
+#define BUFFER_SIZE 1024
+#define MAX_CLIENTS 10
 
 # define RPL_WELCOME			001
 # define RPL_YOURHOST			002

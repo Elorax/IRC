@@ -14,4 +14,4 @@ class Message{
         const std::string&	getMsg( void ) const;
         const int&			getFD( void ) const;
 
-}
+};

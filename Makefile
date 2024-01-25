@@ -1,8 +1,18 @@
 NAME		=	ircserv
 
-SRCS		=	src/*
+SRCS		=	src/Channel.cpp	\
+				src/Client.cpp	\
+				src/Message.cpp	\
+				src/Server.cpp	\
+				main.cpp		\
+				
 
-INCS		=	inc/*
+INCS		=	inc/Channel.hpp	\
+				inc/Client.hpp	\
+				inc/IRC.hpp		\
+				inc/Message.hpp	\
+				inc/Server.hpp	\
+
 
 CC			=	c++
 
