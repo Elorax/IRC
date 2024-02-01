@@ -239,19 +239,19 @@ void	Server::addChannel( Channel& channel ) {
 	_channels.push_back(channel);
 }
 
-refChannels	Server::getChannel( std::string channel ) {
+refChannels::iterator	Server::getChannel( std::string channel ) {
 
 	vecChannel::iterator it = _channels.begin();
 
 	for (; it != _channels.end(); it++)
 		if (it->_name == channel)
-			return (&it);
+			return (*it);
 }
 
 void	Server::cmdInvite(std::vector<std::string> &args, int fd) {
 
-	std::string nickname;
-	refChannels	channel;
+	std::string 			nickname;
+	refChannels::iterator	channel;
 
 	if (args.size() != 2)
 		errorCase(ERR_NEEDMOREPARAMS, fd);
@@ -265,7 +265,7 @@ void	Server::cmdInvite(std::vector<std::string> &args, int fd) {
 	if (!channel.isUserOnChan(sender))
 		errorCase(ERR_NOTONCHANNEL, fd);
 
-	if (channel.isInviteOnly(channel) && !channel.isUserChanOp(sender))
+	if (channel.isInviteOnly() && !channel.isUserChanOp(sender))
 		errorCase(ERR_CHANOPRIVSNEEDED, fd);
 
 	if (channel.isUserOnChan(nickname))
@@ -276,7 +276,33 @@ void	Server::cmdInvite(std::vector<std::string> &args, int fd) {
 
 }
 
-void					Server::cmdJoin(std::vector<std::string> &args, int fd){}
+void	Server::cmdJoin(std::vector<std::string> &args, int fd) {
+
+	std::string				key;
+	refChannels::iterator	channel;
+
+	if (!args.size() <= 1)
+		errorCase(ERR_NEEDMOREPARAMS, fd);
+
+	key = args[1];
+	channel = getChannel(args[0]);
+
+	if (!channel)
+		addChannel(args);
+
+	else if (channel.isInviteOnly())
+		errorCase(ERR_INVITEONLYCHAN, fd);
+
+	else if (channel.isFull())
+		errorCase(ERR_CHANNELISFULL, fd);
+
+	else if (!channel.isMatchingKey(key))
+		errorCase(ERR_BADCHANNELKEY, fd);
+
+	else
+		addUserOnChan(getClientByName(sender));
+}
+
 void					Server::cmdMode(std::vector<std::string> &args, int fd){}
 void					Server::cmdNotice(std::vector<std::string> &args, int fd){}
 void					Server::cmdPart(std::vector<std::string> &args, int fd){}
