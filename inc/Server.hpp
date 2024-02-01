@@ -38,14 +38,14 @@ class	Server {
 		vecClient::iterator	getClientByFD( int fd );
 		vecClient::iterator	getClientByName( std::string& user );
 
+	    bool				isAvailNick( const std::string& nick );
+        bool				isValidNick( const std::string& nick );
 		int					addClient( fd_set& readFDs, fd_set& writeFDs );
 		void				delClient( vecClient::iterator toDel );
 		void				addChannel( Channel& channel );
 		void				run( void );
-		void    			parseLine( std::string line, int fd );
 		void				errorCase( int errorCode, int fd );
-	    bool				isAvailNick( const std::string& nick );
-        bool				isValidNick( const std::string& nick );
+		void    			parseLine( std::string line, int fd );
 
 		eCommand			findCommand( std::string const& line );
 		void				cmdWho( std::vector<std::string>& args, int fd );
