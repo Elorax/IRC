@@ -2,8 +2,6 @@
 
 #include "IRC.hpp"
 
-typedef std::vector<Client&> refClients;
-
 class Server;
 
 class	Channel {
@@ -22,15 +20,23 @@ class	Channel {
 								Channel( std::string name, Client &client );
 								~Channel( void );
 
-		refClients::iterator	getClientByName( const std::string& name ) const;
+		/* Getters */
+		refClients::iterator	getChanOp( const std::string& name ) const;
 
+		/* Setters */
 		void					setPassword( std::string& password );
 		void					setChanOP( Client& user );
 		void					unsetChanOP( Client& user );
 		void					setChanCapacity( int capacity );
 		void					setTopic( bool status );
 		void					setInviteOnly( bool status );
+		void					addUserOnChan( vecClient::iterator user );
 
-		void					sendMsg( const std::string &msg ) const;
+		/* Checkers */
+		bool					isInviteOnly( void );
+		bool					isUserOnChan( const std::string& nickname );
+
+		/* Misc */
+		void					sendMsg( const std::string& msg ) const;
 
 };

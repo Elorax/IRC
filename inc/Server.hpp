@@ -6,10 +6,6 @@ class Client;
 class Channel;
 class Message;
 
-typedef std::vector<Client>	 vecClient;
-typedef std::vector<Channel> vecChannel;
-typedef std::vector<Message> vecMessage;
-
 //Un message est une classe simple disposant d'un fd et d'une string a lui envoyer
 
 class	Server {
@@ -35,6 +31,7 @@ class	Server {
 
 		int					getFD( void );
 		int					getMaxFD( void );
+		refChannels			getChannel( std::string channel );
 		vecClient::iterator	getClientByFD( int fd );
 		vecClient::iterator	getClientByName( std::string& user );
 

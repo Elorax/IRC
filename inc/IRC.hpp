@@ -113,7 +113,11 @@ enum	eCommand {
 	eNOTFOUND
 };
 
-typedef std::vector<Client> vecClient;
+typedef std::vector<Client>	 vecClient;
+typedef std::vector<Channel> vecChannel;
+typedef std::vector<Message> vecMessage;
+typedef std::vector<Client&> refClients;
+typedef std::vector<Channel&> refChannels;
 
 // void	cmd_cap( void );
 void	cmd_invite( std::vector<std::string>& args, int fd );

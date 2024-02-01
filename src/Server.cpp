@@ -234,12 +234,48 @@ void    Server::cmdUser( std::vector<std::string>& args, int fd)
 		getClientByFD(fd)->setUserName(args[0]);
 }
 
-void		Server::addChannel( Channel& channel )
-{
-    _channels.push_back(channel);
+void	Server::addChannel( Channel& channel ) {
+
+	_channels.push_back(channel);
 }
 
-void					Server::cmdInvite(std::vector<std::string> &args, int fd){}
+refChannels	Server::getChannel( std::string channel ) {
+
+	vecChannel::iterator it = _channels.begin();
+
+	for (; it != _channels.end(); it++)
+		if (it->_name == channel)
+			return (&it);
+}
+
+void	Server::cmdInvite(std::vector<std::string> &args, int fd) {
+
+	std::string nickname;
+	refChannels	channel;
+
+	if (args.size() != 2)
+		errorCase(ERR_NEEDMOREPARAMS, fd);
+
+	nickname = args[0];
+	channel = getChannel(args[1]);
+
+	if (!isValidNick(nickname))
+		errorCase(ERR_NOSUCHNICK, fd);
+
+	if (!channel.isUserOnChan(sender))
+		errorCase(ERR_NOTONCHANNEL, fd);
+
+	if (channel.isInviteOnly(channel) && !channel.isUserChanOp(sender))
+		errorCase(ERR_CHANOPRIVSNEEDED, fd);
+
+	if (channel.isUserOnChan(nickname))
+		errorCase(ERR_USERONCHANNEL, fd);
+
+	else
+		channel.addUserOnChan(getClientByName(nickname));
+
+}
+
 void					Server::cmdJoin(std::vector<std::string> &args, int fd){}
 void					Server::cmdMode(std::vector<std::string> &args, int fd){}
 void					Server::cmdNotice(std::vector<std::string> &args, int fd){}
