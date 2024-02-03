@@ -13,15 +13,15 @@ class	Channel {
 		bool					_usersVisible;
 		bool					_topicEnabled;
 		bool					_inviteOnly;
-		refClients				_chanUsers;
-		refClients				_chanOp;
+		refClient				_chanUsers;
+		refClient				_chanOp;
 
 	public:
-								Channel( std::string name, Client &client );
+								Channel( std::string name, Client& client );
 								~Channel( void );
 
 		/* Getters */
-		refClients::iterator	getChanOp( const std::string& name ) const;
+		refClient				getChanOp( const std::string& name ) const;
 
 		/* Setters */
 		void					setPassword( std::string& password );
@@ -30,10 +30,13 @@ class	Channel {
 		void					setChanCapacity( int capacity );
 		void					setTopic( bool status );
 		void					setInviteOnly( bool status );
-		void					addUserOnChan( vecClient::iterator user );
+		void					addUserOnChan( Client& user );
+		void					delUserOfChan( Client& user );
 
 		/* Checkers */
+		bool					isFull( void );
 		bool					isInviteOnly( void );
+		bool					isMatchingKey( const std::string& key );
 		bool					isUserOnChan( const std::string& nickname );
 
 		/* Misc */

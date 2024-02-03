@@ -10,6 +10,7 @@
 
 #include "Server.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
 #include "Message.hpp"
 
 #define BUFFER_SIZE 1024
@@ -116,8 +117,8 @@ enum	eCommand {
 typedef std::vector<Client>	 vecClient;
 typedef std::vector<Channel> vecChannel;
 typedef std::vector<Message> vecMessage;
-typedef std::vector<Client&> refClients;
-typedef std::vector<Channel&> refChannels;
+typedef std::vector<Client&> refClient;// voir diff entre ref et Refclient
+typedef std::vector<Channel&>refChannel;
 
 // void	cmd_cap( void );
 void	cmd_invite( std::vector<std::string>& args, int fd );

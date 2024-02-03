@@ -29,17 +29,17 @@ class	Server {
 								Server( std::string& port, std::string& password );
 								~Server( void );
 
-		int						getFD( void );
-		int						getMaxFD( void );
-		refChannels::iterator	getChannel( std::string channel );
-		vecClient::iterator		getClientByFD( int fd );
-		vecClient::iterator		getClientByName( std::string& user );
+		int&					getFD( void ) const;
+		int&					getMaxFD( void ) const;
+		Channel&				getChannel( const std::string channel ) const;
+		refClient::iterator		getClientByFD( const int fd ) const;
+		refClient::iterator		getClientByName( const std::string& user ) const;
 
 	    bool					isAvailNick( const std::string& nick );
         bool					isValidNick( const std::string& nick );
 		int						addClient( fd_set& readFDs, fd_set& writeFDs );
 		void					delClient( vecClient::iterator toDel );
-		void					addChannel( Channel& channel );
+		void					addChannel( refChannel toJoin, const std::string& key );
 		void					run( void );
 		void					errorCase( int errorCode, int fd );
 		void    				parseLine( std::string line, int fd );

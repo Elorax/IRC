@@ -1,4 +1,4 @@
-#include "../inc/Server.hpp"
+#include "Server.hpp"
 
 Server::Server(std::string &port, std::string &password)
 {
@@ -50,13 +50,12 @@ Server::Server(std::string &port, std::string &password)
     }
 }
 
-int Server::getFD()
-{
-    return (_socketFD);
+int& Server::getFD( void ) const {
+
+	return (_socketFD);
 }
 
-int Server::getMaxFD()
-{
+int& Server::getMaxFD( void ) const {
     //Return plus grand des fds entre celui du serveur et celui des clients
     int fdMax = _socketFD;
     vecClient::iterator it;
@@ -234,12 +233,14 @@ void    Server::cmdUser( std::vector<std::string>& args, int fd)
 		getClientByFD(fd)->setUserName(args[0]);
 }
 
-void	Server::addChannel( Channel& channel ) {
+void	Server::addChannel( refChannel newChan, const std::string& key ) {
 
-	_channels.push_back(channel);
+	if (!key.empty())
+		newChan._password = key;
+	_channels.push_back(newChan);
 }
 
-refChannels::iterator	Server::getChannel( std::string channel ) {
+Channel&	Server::getChannel( const std::string& channel ) const {
 
 	vecChannel::iterator it = _channels.begin();
 
@@ -248,65 +249,92 @@ refChannels::iterator	Server::getChannel( std::string channel ) {
 			return (*it);
 }
 
-void	Server::cmdInvite(std::vector<std::string> &args, int fd) {
+void	Server::cmdInvite( std::vector<std::string>& args, int fd ) {
 
-	std::string 			nickname;
-	refChannels::iterator	channel;
 
 	if (args.size() != 2)
 		errorCase(ERR_NEEDMOREPARAMS, fd);
 
-	nickname = args[0];
-	channel = getChannel(args[1]);
+	std::string nickname = args[0];
+	Channel& chan = getChannel(args[1]);
 
 	if (!isValidNick(nickname))
 		errorCase(ERR_NOSUCHNICK, fd);
 
-	if (!channel.isUserOnChan(sender))
+	if (!chan.isUserOnChan(sender))
 		errorCase(ERR_NOTONCHANNEL, fd);
 
-	if (channel.isInviteOnly() && !channel.isUserChanOp(sender))
+	if (chan.isInviteOnly() && !chan.isUserChanOp(sender))
 		errorCase(ERR_CHANOPRIVSNEEDED, fd);
 
-	if (channel.isUserOnChan(nickname))
+	if (chan.isUserOnChan(nickname))
 		errorCase(ERR_USERONCHANNEL, fd);
 
 	else
-		channel.addUserOnChan(getClientByName(nickname));
+		chan.addUserOnChan(getClientByName(nickname));
 
 }
 
-void	Server::cmdJoin(std::vector<std::string> &args, int fd) {
+void	Server::cmdJoin( std::vector<std::string>& args, int fd) {
 
-	std::string				key;
-	refChannels::iterator	channel;
-
-	if (!args.size() <= 1)
+	if (args.size() < 1)
 		errorCase(ERR_NEEDMOREPARAMS, fd);
 
-	key = args[1];
-	channel = getChannel(args[0]);
+	std::vector<std::string>::iterator it = args.begin();
+	for (; it != args.end() - 1; it++) {
 
-	if (!channel)
-		addChannel(args);
+		Channel& toJoin = getChannel(args[0]);
+		std::string	key = *(it + 1);
 
-	else if (channel.isInviteOnly())
-		errorCase(ERR_INVITEONLYCHAN, fd);
+		if (toJoin.is)
+			addChannel(toJoin, key);
 
-	else if (channel.isFull())
-		errorCase(ERR_CHANNELISFULL, fd);
+		else if (toJoin.isInviteOnly())
+			errorCase(ERR_INVITEONLYCHAN, fd);
 
-	else if (!channel.isMatchingKey(key))
-		errorCase(ERR_BADCHANNELKEY, fd);
+		else if (toJoin.isFull())
+			errorCase(ERR_CHANNELISFULL, fd);
 
-	else
-		addUserOnChan(getClientByName(sender));
+		else if (!toJoin.isMatchingKey(key))
+			errorCase(ERR_BADCHANNELKEY, fd);
+
+		else
+			toJoin.addUserOnChan(getClientByName(sender));
+	}
 }
 
-void					Server::cmdMode(std::vector<std::string> &args, int fd){}
-void					Server::cmdNotice(std::vector<std::string> &args, int fd){}
-void					Server::cmdPart(std::vector<std::string> &args, int fd){}
-void					Server::cmdPrivmsg(std::vector<std::string> &args, int fd){}
-void					Server::cmdQuit(std::vector<std::string> &args, int fd){}
-void					Server::cmdTopic(std::vector<std::string> &args, int fd){}
-void					Server::cmdWho(std::vector<std::string> &args, int fd){}
+void	Server::cmdPart( std::vector<std::string>& args, int fd ) {
+
+	if (args.size() < 1)
+		errorCase(ERR_NEEDMOREPARAMS, fd);
+
+	std::vector<std::string>::iterator it = args.begin();
+	for (; it != args.end() - 1; it++) {
+
+		Channel& toPart = Channel(args[0], client);
+		std::string	partMessage = *(it + 1);
+
+		if (toPart.isUserOnChan(sender))
+			errorCase(ERR_NOTONCHANNEL, fd);
+
+		else
+			toPart.delUserOfChan(sender);
+	}
+}
+
+void	Server::cmdTopic( std::vector<std::string>& args, int fd) {
+
+	if (args.size() < 1)
+		errorCase(ERR_NEEDMOREPARAMS, fd);
+
+	refChannel	channel = getChannel(args[0]);
+	std::string	topic = args[1];
+
+}
+
+
+void					Server::cmdMode( std::vector<std::string>& args, int fd ){}
+void					Server::cmdNotice( std::vector<std::string>& args, int fd ){}
+void					Server::cmdPrivmsg( std::vector<std::string>& args, int fd ){}
+void					Server::cmdQuit( std::vector<std::string>& args, int fd ){}
+void					Server::cmdWho( std::vector<std::string>& args, int fd ){}
