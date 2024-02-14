@@ -5,7 +5,7 @@
 /* -------------------------------------------------------------------------- */
 
 Channel::Channel( std::string name, Client& client ): _name(name), _password(""),
-_chanCapacity(0), _usersVisible(true), _topicEnabled(false), _inviteOnly(false) {
+_topic(""), _chanCapacity(0), _usersVisible(true), _inviteOnly(false) {
 
 	_chanUsers.push_back(client);
 	_chanOp.push_back(client);
@@ -21,16 +21,37 @@ Channel::~Channel( void ) {
 refClient Channel::getChanOp( const std::string& name ) const {
 
     refClient::iterator it = _chanOp.begin();
+
     for (; it != _chanOp.end(); it++)
         if (name == it->getUserName())
 	        return (*it);
+}
+
+std::string		Channel::getPassword(void) const
+{
+	return (_password);
+}
+
+std::string		Channel::getName(void) const
+{
+	return (_name);
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
 
-void	Channel::setPassword( std::string &password ) {
+void	Channel::setChanCapacity( int capacity ){
+
+	_chanCapacity = capacity;
+}
+
+void	Channel::setInviteOnly( bool status ) {
+
+	_inviteOnly == status;
+}
+
+void	Channel::setPassword(const std::string& password ) {
 
 	_password = password;
 }
@@ -40,24 +61,19 @@ void	Channel::setChanOP( Client& user ){
 	_chanOp.push_back(user);
 }
 
-void	Channel::unsetChanOP( Client& user ){
+void	Channel::unsetChanOP( const Client& user ) {
 
-	_chanOp.erase(getChanOp(user.getUserName()));
+	std::string name = user.getUserName();
+	refClient::iterator it = _chanOp.begin();
+
+	for(; it != _chanOp.end(); it++)
+		if (name == it->getUserName())
+			_chanOp.erase(it);
 }
 
-void	Channel::setChanCapacity( int capacity ){
+void	Channel::setTopic( const std::string& topic ){
 
-	_chanCapacity = capacity;
-}
-
-void	Channel::setTopic( bool status ){
-
-	_topicEnabled = status;
-}
-
-void	Channel::setInviteOnly( bool status ){
-
-	_inviteOnly == status;
+	_topic = topic;
 }
 
 void	Channel::addUserOnChan( Client& user ) {
@@ -65,9 +81,14 @@ void	Channel::addUserOnChan( Client& user ) {
 	_chanUsers.push_back(user);
 }
 
-void	Channel::delUserOfChan( Client& user ) {
+void	Channel::delUserOfChan( const Client& user ) {
 
-	_chanUsers.erase(user);
+	std::string name = user.getUserName();
+	refClient::iterator it = _chanUsers.begin();
+
+	for(; it != _chanUsers.end(); it++)
+		if (name == it->getUserName())
+			_chanUsers.erase(it);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -94,6 +115,17 @@ bool	Channel::isUserOnChan( const std::string& nickname ) {
 	refClient::iterator it = _chanUsers.begin();
 
 	for (; it != _chanUsers.end(); it++)
+		if (it->_name == nickname)
+			return (true);
+
+	return (false);
+}
+
+bool	Channel::isUserChanOp( const std::string& nickname )
+{
+	refClient::iterator it = _chanOp.begin();
+
+	for (; it != _chanOp.end(); it++)
 		if (it->_name == nickname)
 			return (true);
 
