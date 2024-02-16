@@ -27,15 +27,36 @@ refClient Channel::getChanOp( const std::string& name ) const {
 	        return (*it);
 }
 
-std::string		Channel::getPassword(void) const
+std::string		Channel::getPassword( void ) const
 {
 	return (_password);
 }
 
-std::string		Channel::getName(void) const
+std::string		Channel::getName( void ) const
 {
 	return (_name);
 }
+
+std::string		Channel::getTopic( void ) const {
+
+	return (_topic);
+}
+
+Client&					Channel::getClient(int idx)
+{
+	return (_chanUsers[idx]);
+}
+
+int						Channel::nbClients()
+{
+	refClient::iterator it = _chanUsers.begin();
+	int i = 0;
+	for (; it != _chanUsers.end(); it++)
+		i++;
+	return (i);
+}
+
+
 
 /* -------------------------------------------------------------------------- */
 /*                                   Setters                                  */
@@ -81,7 +102,7 @@ void	Channel::addUserOnChan( Client& user ) {
 	_chanUsers.push_back(user);
 }
 
-void	Channel::delUserOfChan( const Client& user ) {
+void	Channel::delUserOnChan( const Client& user ) {
 
 	std::string name = user.getUserName();
 	refClient::iterator it = _chanUsers.begin();
@@ -127,6 +148,30 @@ bool	Channel::isUserChanOp( const std::string& nickname )
 
 	for (; it != _chanOp.end(); it++)
 		if (it->_name == nickname)
+			return (true);
+
+	return (false);
+}
+
+bool	Channel::isUserOnChan( int fd ) {
+
+	refClient::iterator it = _chanUsers.begin();
+
+	for (; it != _chanUsers.end(); it++)
+		if (it->_clientFD == fd)
+			return (true);
+
+	return (false);
+}
+
+
+
+bool	Channel::isUserChanOp( int fd ) {
+
+	refClient::iterator it = _chanOp.begin();
+
+	for (; it != _chanOp.end(); it++)
+		if (it->_clientFD == fd)
 			return (true);
 
 	return (false);

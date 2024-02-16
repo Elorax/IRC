@@ -22,9 +22,11 @@ class	Channel {
 
 		/* Getters */
 		refClient				getChanOp( const std::string& name ) const;
-		std::string				getTopic( const std::string& topic ) const;
+		std::string				getTopic( void ) const;
 		std::string				getPassword( void ) const;
 		std::string				getName( void ) const;
+		Client&					getClient(int idx);
+		int						nbClients();
 
 		/* Setters */
 		void					setInviteOnly( bool status );
@@ -32,16 +34,18 @@ class	Channel {
 		void					setChanOP( Client& user );
 		void					unsetChanOP( const Client& user );
 		void					addUserOnChan( Client& user );
-		void					delUserOfChan( const Client& user );
+		void					delUserOnChan( const Client& user );
 		void					setTopic( const std::string& status );
 		void					setPassword( const std::string& password );
 
 		/* Checkers */
 		bool					isFull( void );
 		bool					isInviteOnly( void );
-		bool					isMatchingKey( const std::string& key );
+		bool					isUserOnChan( int fd );
+		bool					isUserChanOp( int fd );
 		bool					isUserOnChan( const std::string& nickname );
-		bool					isUserChanOp(const std::string &nickname);
+		bool					isUserChanOp( const std::string& nickname );
+		bool					isMatchingKey( const std::string& key );
 
 		/* Misc */
 		void					sendMsg( const std::string& msg ) const;
