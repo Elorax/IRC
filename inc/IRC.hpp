@@ -47,8 +47,12 @@
 #define RPL_INVITING(user, chan)			chan + " " + user + "\r\n"
 #define RPL_NAMEREPLY(user, chan)			user + " join " + chan + "\r\n"
 #define RPL_NOTOPIC							":No topic is set\r\n"
-#define RPL_TOPIC(chan, topic)				chan + " " + topic "\r\n"
+#define RPL_TOPIC(chan, topic)				chan + " " + topic + "\r\n"
 #define RPL_UNIQOPIS(user, chan, target)	user + " " + chan + " " + target + "\r\n"
+
+#define LEAVENOTICE(user, chan)				user + " has leave the channel " + chan + "\r\n"
+#define INVITENOTICE(user, chan)			user + " invite you to join channel: " + chan + "\r\n"
+#define QUITNOTICE(user, msg)				"User :" + user + " has quit IRC" + msg + "\r\n"
 
 enum	eCommand {
 

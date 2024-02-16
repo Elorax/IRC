@@ -4,11 +4,13 @@
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Channel::Channel( std::string name, Client& client ): _name(name), _password(""),
-_topic(""), _chanCapacity(0), _usersVisible(true), _inviteOnly(false) {
+Channel::Channel( std::string name, Client& client ): _name(name), _password(""), _topic(""),
+_topicPriv(false), _chanCapacity(0), _usersVisible(true), _inviteOnly(false) {
 
+	client.addChanToUser(*this);
 	_chanUsers.push_back(client);
 	_chanOp.push_back(client);
+	_isChanKeySet = false;
 }
 
 Channel::~Channel( void ) {
@@ -18,7 +20,7 @@ Channel::~Channel( void ) {
 /*                                   Getter                                   */
 /* -------------------------------------------------------------------------- */
 
-refClient Channel::getChanOp( const std::string& name ) const {
+const refClient	Channel::getChanOp( const std::string& name ) const {
 
     refClient::iterator it = _chanOp.begin();
 
@@ -27,64 +29,54 @@ refClient Channel::getChanOp( const std::string& name ) const {
 	        return (*it);
 }
 
-std::string		Channel::getPassword( void ) const
-{
+const std::string	Channel::getPassword( void ) const{
 	return (_password);
 }
 
-std::string		Channel::getName( void ) const
-{
+const std::string	Channel::getName( void ) const{
 	return (_name);
 }
 
-std::string		Channel::getTopic( void ) const {
-
+const std::string	Channel::getTopic( void ) const {
 	return (_topic);
 }
 
-Client&					Channel::getClient(int idx)
-{
+const Client&	Channel::getClient(int idx) {
 	return (_chanUsers[idx]);
 }
 
-int						Channel::nbClients()
-{
-	refClient::iterator it = _chanUsers.begin();
+const int	Channel::getNbClients( void ) const { 
+
 	int i = 0;
+	refClient::iterator it = _chanUsers.begin();
 	for (; it != _chanUsers.end(); it++)
 		i++;
 	return (i);
 }
 
-
-
 /* -------------------------------------------------------------------------- */
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
 
-void	Channel::setChanCapacity( int capacity ){
-
+void	Channel::setChanCapacity( const int capacity ){
 	_chanCapacity = capacity;
 }
 
-void	Channel::setInviteOnly( bool status ) {
-
+void	Channel::setInviteOnly( const bool status ) {
 	_inviteOnly == status;
 }
 
 void	Channel::setPassword(const std::string& password ) {
-
 	_password = password;
 }
 
 void	Channel::setChanOP( Client& user ){
-
 	_chanOp.push_back(user);
 }
 
 void	Channel::unsetChanOP( const Client& user ) {
 
-	std::string name = user.getUserName();
+	std::string name = user.getUsername();
 	refClient::iterator it = _chanOp.begin();
 
 	for(; it != _chanOp.end(); it++)
@@ -92,42 +84,59 @@ void	Channel::unsetChanOP( const Client& user ) {
 			_chanOp.erase(it);
 }
 
-void	Channel::setTopic( const std::string& topic ){
+void	Channel::setTopicPriv( const bool status ) {
+	_topicPriv = status;
+}
 
+
+void	Channel::setTopic( const std::string& topic ){
 	_topic = topic;
 }
 
 void	Channel::addUserOnChan( Client& user ) {
 
 	_chanUsers.push_back(user);
+	user.addChanToUser(*this);
 }
 
-void	Channel::delUserOnChan( const Client& user ) {
+void	Channel::delUserOnChan( Client& user ) {
 
-	std::string name = user.getUserName();
+	std::string name = user.getUsername();
 	refClient::iterator it = _chanUsers.begin();
 
 	for(; it != _chanUsers.end(); it++)
-		if (name == it->getUserName())
+		if (name == it->getUserName()) {
 			_chanUsers.erase(it);
+			user.delChanOfUser(*this);
+		}
 }
+
+void	Channel::setChanKeyStatus(bool status) {
+	_isChanKeySet = status;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /*                               Checkers                                     */
 /* -------------------------------------------------------------------------- */
 
 bool	Channel::isInviteOnly( void ) {
-
 	return (_inviteOnly);
 }
 
-bool	Channel::isFull( void ) {
+bool	Channel::isChanKeySet( void ) {
+	return (_isChanKeySet);
+}
 
+bool	Channel::isTopicPrivSet( void ) {
+	return (_topicPriv);
+}
+
+bool	Channel::isFull( void ) {
 	return (_chanCapacity == _chanUsers.size());
 }
 
 bool	Channel::isMatchingKey( const std::string& key ) {
-
 	return (key == _password);
 }
 
@@ -153,24 +162,22 @@ bool	Channel::isUserChanOp( const std::string& nickname )
 	return (false);
 }
 
-bool	Channel::isUserOnChan( int fd ) {
+bool	Channel::isUserChanOp( int fd ) {
 
-	refClient::iterator it = _chanUsers.begin();
+	refClient::iterator it = _chanOp.begin();
 
-	for (; it != _chanUsers.end(); it++)
+	for (; it != _chanOp.end(); it++)
 		if (it->_clientFD == fd)
 			return (true);
 
 	return (false);
 }
 
+bool	Channel::isUserOnChan( int fd ) {
 
+	refClient::iterator it = _chanUsers.begin();
 
-bool	Channel::isUserChanOp( int fd ) {
-
-	refClient::iterator it = _chanOp.begin();
-
-	for (; it != _chanOp.end(); it++)
+	for (; it != _chanUsers.end(); it++)
 		if (it->_clientFD == fd)
 			return (true);
 

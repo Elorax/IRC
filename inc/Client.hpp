@@ -5,33 +5,36 @@
 class	Client {
 
 	private:
-		std::string	_password;
-		std::string _hostName;
-		std::string _realName;
-		std::string	_userName;
-		std::string	_nickName;
-		int			_clientFD;
+		int							_clientFD;
+		std::string					_password;
+		std::string		 			_hostname;
+		std::string		 			_realname;
+		std::string					_username;
+		std::string					_nickname;
+		vecChannel					_userChannels;
 
 	public:
-					Client( int fd );
-					Client( Client const& src );
-					~Client( void );
+									Client( int fd );
+									Client( const Client& src );
+									~Client( void );
 
 		/* setters */
-		void		setPassword( std::string const& );
-		void		setNickName( std::string const& );
-		void		setUserName( std::string const& );//set username, realname and hostname: Parameters: <user> <mode> <unused> <realname>
+		void						setPassword( const std::string& password );
+		void						setNickname( const std::string& nickname );
+		void						setUsername( const std::string& username );//set username, realname and hostname: Parameters: <user> <mode> <unused> <realname>
+		void						addChanToUser( const Channel& add );
+		void						delChanOfUser( const Channel& del );
 
 		/* getters */
-		const		std::string& getHostName( void ) const;
-		const		std::string& getUserName( void ) const;
-		const		std::string& getNickName( void ) const;
-		const		std::string& getRealName( void ) const;
-		const		std::string& getPassword( void ) const;
-		const		int&		 getFD( void) const;
-	
-		//♥w♥
-					Client& operator=( Client const& rhs );
+		const int					getFD( void ) const;
+		const std::string			getHostname( void ) const;
+		const std::string			getUsername( void ) const;
+		const std::string			getNickname( void ) const;
+		const std::string			getRealname( void ) const;
+		const std::string			getPassword( void ) const;
+		const vecChannel&			getUserChanList( void ) const;
 
+		/* checker */
+		bool						isChanInList( Channel& chan );
 };
 

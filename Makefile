@@ -4,6 +4,7 @@ SRCS		=	src/Channel.cpp	\
 				src/Client.cpp	\
 				src/Message.cpp	\
 				src/Server.cpp	\
+				cmd/*.cpp		\
 				main.cpp		\
 				
 

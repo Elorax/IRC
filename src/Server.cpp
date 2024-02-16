@@ -54,7 +54,6 @@ Server::Server(std::string &port, std::string &password)
     }
 }
 
-
 /* -------------------------------------------------------------------------- */
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
@@ -92,19 +91,16 @@ void	Server::addChannel( Channel& newChan, const std::string& key ) {
 /*                                   Getters                                  */
 /* -------------------------------------------------------------------------- */
 
-int Server::getFD( void ) const {
-
+const int Server::getFD( void ) const {
 	return (_socketFD);
 }
 
 //Return plus grand des fds entre celui du serveur et celui des clients
-int Server::getMaxFD( void ) const {
+const int Server::getMaxFD( void ) const {
 
     int fdMax = _socketFD;
     vecClient::const_iterator it;
-
-    for(it = _clients.begin(); it != _clients.end(); it++)
-    {
+    for(it = _clients.begin(); it != _clients.end(); it++) {
         if (it->getFD() > fdMax)
             fdMax = it->getFD();
     }
@@ -112,7 +108,7 @@ int Server::getMaxFD( void ) const {
     return (fdMax);
 }
 
-vecClient::iterator	Server::getClientByFD( int fd ) {
+const vecClient::iterator	Server::getClientByFD( int fd ) {
 
 	vecClient::iterator	it = _clients.begin();
 	for (; it != _clients.end(); it++)
@@ -122,11 +118,11 @@ vecClient::iterator	Server::getClientByFD( int fd ) {
 	return (it);
 }
 
-vecClient::iterator	Server::getClientByName( const std::string& user ) {
+const vecClient::iterator	Server::getClientByName( const std::string& user ) {
 
 	vecClient::iterator	it = _clients.begin();
 	for (; it != _clients.end(); it++)
-		if (it->getUserName() == user);
+		if (it->getUsername() == user);
 			return (it);
 
 	return (it);
@@ -150,7 +146,7 @@ bool    Server::isAvailNick( const std::string& nick ) {
 
 	vecClient::iterator it = _clients.begin();
 	for(; it != _clients.end(); it++)
-		if (it->getNickName() == nick)
+		if (it->getNickname() == nick)
 			return (false);
 	return (true);
 }
@@ -191,292 +187,15 @@ bool	Server::doesUserExist( const std::string& nickname ) {
 	vecClient::iterator it = _clients.begin();
 
 	for (; it != _clients.end(); it++)
-		if (it->getNickName() == nickname)
+		if (it->getNickname() == nickname)
 			return (true);
 
 	return (false);
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                  Commands                                  */
+/*                                    Misc                                    */
 /* -------------------------------------------------------------------------- */
-
-void	Server::cmdNick( std::vector<std::string>& args, int fd ) {
-
-	if (args.size() != 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
-
-	else if (args[0].empty())
-		buildMsg(ERR_NONICKNAMEGIVEN, fd);
-
-	else if (!isAvailNick(args[0]))
-		buildMsg(ERR_NICKNAMEINUSE, fd);
-
-	else if (!isValidNick(args[0]))
-		buildMsg(ERR_ERRONEUSNICKNAME, fd);
-	
-	else
-		getClientByFD(fd)->setNickName(args[0]);
-}
-
-void	Server::cmdPass( std::vector<std::string>& args, int fd ) {
-
-	if(args.empty())
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
-
-	else if (!getClientByFD(fd)->getPassword().empty())
-		buildMsg(ERR_ALREADYREGISTRED, fd);
-
-	else if (getClientByFD(fd)->getPassword() != args[0])
-		buildMsg(ERR_PASSWDMISMATCH, fd);
-
-	else
-		getClientByFD(fd)->setPassword(args[0]);
-}
-
-void    Server::cmdUser( std::vector<std::string>& args, int fd)
-{
-    if (args.size() < 4)
-        buildMsg(ERR_NEEDMOREPARAMS, fd);
-
-	else if (!getClientByFD(fd)->getUserName().empty())
-		buildMsg(ERR_ALREADYREGISTRED, fd);
-
-	else
-		getClientByFD(fd)->setUserName(args[0]);//setrealname, realname can have spaces
-}
-
-
-//Parametres : INVITE <nickname> <channel>
-//Invite un utilisateur a rejoindre un channel, il recoit une notif qui lui dit que qqn veut qu'il rejoigne tel chan
-//Il faut etre membre du chan pour inviter quelqu'un sinon la commande echoue
-//L'utilisateur invite recoit une notif, l'utilisateur qui invite recoit une RPL_INVITING
-//La notification est une repoonse non ERR/RPL
-
-//Reste a faire : Envoi notification, envoi RPL_INVITING.
-
-void	Server::cmdInvite( std::vector<std::string>& args, int fd ) {
-
-
-	if (args.size() != 2)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
-
-	std::string nickname = args[0];
-	Channel& chan = getChannel(args[1]);
-
-	if (!isValidNick(nickname))
-		buildMsg(ERR_NOSUCHNICK, fd);
-
-	else if (!chan.isUserOnChan(fd))
-		buildMsg(ERR_NOTONCHANNEL, fd);
-
-	else if (chan.isInviteOnly() && !chan.isUserChanOp(fd))
-		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
-
-	else if (chan.isUserOnChan(nickname))
-		buildMsg(ERR_USERONCHANNEL, fd);
-
-	else {
-		chan.addUserOnChan(*getClientByName(nickname));
-		buildMsg(RPL_INVITING(args[0], chan.getName()), fd);
-	}
-
-}
-
-//Parametres : JOIN ( <channel> *( "," <channel> ) [ <key> *( "," <key> ) ] ) / "0"
-//Entre crochets : optionnels
-//JOIN 0 --> L'utilisateur quitte tous les channels dont il est membre.
-
-//Parsing supplementaire necessaire : split sur les virgules pour savoir si on veut join 2 chan ou si on veut en rejoindre un seul dont on specifie le mdp
-void	Server::cmdJoin( std::vector<std::string>& args, int fd ) {
-
-	std::string msg;
-
-	if (args.size() < 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
-
-	std::vector<std::string>::iterator it = args.begin();
-	for (; it != args.end() - 1; it++) {
-
-		Channel& toJoin = getChannel(args[0]);
-		std::string	key = *(it + 1);
-		std::string chanName = toJoin.getName();
-		std::string userName = getClientByFD(fd)->getNickName();
-
-		if (!doesChanExist(chanName))
-			addChannel(toJoin, key);
-
-		else if (toJoin.isInviteOnly())		//Attention : L'utilisateur a peut etre ete invite. Verifier ?
-			buildMsg(ERR_INVITEONLYCHAN(userName, chanName), fd);
-
-		else if (toJoin.isFull())
-			buildMsg(ERR_CHANNELISFULL(userName, chanName), fd);
-
-		else if (!toJoin.isMatchingKey(key))
-			buildMsg(ERR_BADCHANNELKEY(userName, key), fd);
-
-		else {
-			toJoin.addUserOnChan(*getClientByFD(fd));
-			buildMsg(RPL_NAMEREPLY(userName, chanName), toJoin);
-			buildMsg(RPL_ENDOFNAMES, toJoin);
-		}
-	}
-}
-
-//Parametres : PART <channel> *( "," <channel> ) [ <Part Message>]
-//Ex : PART chan1 :j'me casse !
-//Ex : PART chan1,chan2 :j'me casse !
-//ex : PART chan1,chan2,chan3
-//Parsing supplementaire pour differencier Part message des differents channels (split ,) comme dans JOIN
-//Si pas de <part message> alors le message par defaut est le nickname
-//Envoyer une reponse non RPL/ERR a tous les autres users du/des channels que l'utilisateur quitte avec part
-//ex : PART chan1,chan2
-void	Server::cmdPart( std::vector<std::string>& args, int fd ) {
-
-	if (args.size() < 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
-
-	std::string partMsg;
-	if (args.back()[0] == ':') {
-		partMsg = args.back();
-	    args.pop_back();
-	}
-	else
-		partMsg = getClientByFD(fd)->getNickName();
-
-	std::vector<std::string>::iterator it = args.begin();
-	for (; it != args.end() - 1; it++) {
-
-		std::istringstream ss(*it);
-        std::string channelName;
-
-		while (std::getline(ss, channelName, ',')) {
-
-			Channel& toPart = getChannel(channelName);
-
-			if (!toPart.isUserOnChan(fd))
-				buildMsg(ERR_NOTONCHANNEL, fd);
-
-			else {
-				toPart.delUserOnChan(fd);
-				buildMsg(partMsg, toPart);
-			}
-		}
-	}
-}
-
-
-//Parametres : TOPIC <channel> [ <topic> ]
-//Si pas de parametre topic, on envoie au user un RPL_TOPIC ou un RPL_NOTOPIC suivant s'il existe ou non
-//Ex : TOPIC chan1 prout -->On remplace le topic existant de chan1 par prout
-//Pour supprimer le TOPIC d'un chan il faut le remplacer par une str vide avec la cmd :
-//TOPIC chan1 :
-//Donc un peu de parsing vite f à faire.
-void	Server::cmdTopic( std::vector<std::string>& args, int fd) {
-
-	if (args.size() < 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
-
-	Channel& chan = getChannel(args[0]);
-
-	if (!chan.isUserOnChan(fd))
-		buildMsg(ERR_NOTONCHANNEL, fd);
-
-	else if (!chan.isUserChanOp(fd))
-		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
-
-	else if (args.size() == 1 && !chan.getTopic().empty())
-		buildMsg(chan.getTopic(), fd);
-
-	else if (args.size() == 1 && chan.getTopic().empty())
-		buildMsg(RPL_NOTOPIC, fd);
-
-	else {
-		chan.setTopic(args[1]);
-		buildMsg(RPL_TOPIC(chan.getName(), chan.getTopic()), chan);
-	}
-}
-
-
-void	Server::cmdMode( const std::vector<std::string>& modes, int fd ) {
-
-	if (!chan.isUserChanOp(fd))
-		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
-
-	else if (!chan.isUserOnChan(fd))
-		buildMsg(ERR_NOTONCHANNEL, fd);
-
-	size_t	i = 0;
-	for (; i < modes.size(); i++) {
-		std::string tmp = modes[i].substr(0, ' ');
-		
-	}
-
-}
-
-void	Server::cmdNotice( std::vector<std::string>& args, int fd ) {
-
-	if (args.size() < 2 )
-		return;
-
-	//Cible : channel
-	if (args[0][0] == '#') {
-
-		if (!doesChanExist(args[0])) {
-			Channel &chan = getChannel(args[0]);
-			if (chan.isUserOnChan(fd))
-				buildMsg(args[1], chan);
-		}
-	}
-
-	else if (doesUserExist(args[0]))
-		if (doesUserExist(args[0]))
-			buildMsg(args[2], getClientByName(args[0])->getFD());
-}
-
-void	Server::cmdPrivmsg( std::vector<std::string>& args, int fd ) {
-
-	if (args.size() < 1)
-		buildMsg(ERR_NORECIPIENT, fd);
-	else if (args.size() < 2)
-		buildMsg(ERR_NOTEXTTOSEND, fd);
-
-	//Cible : channel
-	else if (args[0][0] == '#') {
-
-		if (!doesChanExist(args[0]))
-			buildMsg(ERR_NOSUCHNICK, fd);
-
-		else {
-
-			Channel &chan = getChannel(args[0]);
-			if (!chan.isUserOnChan(fd))
-				buildMsg(ERR_CANNOTSENDTOCHAN, fd);
-			else
-				buildMsg(args[1], chan);
-		}
-	}
-
-	//Cible : user unique.
-	else {
-		if (!doesUserExist(args[0]))
-			buildMsg(ERR_NOSUCHNICK, fd);
-		else
-			buildMsg(args[2], getClientByName(args[0])->getFD());
-	}
-}
-
-
-
-void	Server::cmdQuit( std::vector<std::string>& args, int fd ) {
-
-	
-}
-
-void	Server::cmdWho( std::vector<std::string>& args, int fd ) {
-
-	
-}
 
 eCommand	Server::findCommand( std::string const& line ) {
 
@@ -615,7 +334,7 @@ void	Server::run( void ) {
 
 void	Server::buildMsg(const std::string& msg, Channel &chan)
 {
-	for(int i = 0; i < chan.nbClients(); i++)
+	for(int i = 0; i < chan.getNbClients(); i++)
 	{
 		int fd = chan.getClient(i).getFD();
 		_messages.push_back(Message(msg, fd));
