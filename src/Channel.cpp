@@ -62,7 +62,7 @@ const int	Channel::getNbClients( void ) const {
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
 
-void	Channel::setChanCapacity( const int capacity ){
+void	Channel::setChanCapacity( const size_t capacity ){
 	_chanCapacity = capacity;
 }
 

@@ -78,6 +78,6 @@ enum	eCommand {
 typedef std::vector<Client>			vecClient;
 typedef std::vector<Channel>		vecChannel;
 typedef std::vector<Message>		vecMessage;
-typedef vecString	vecString;
+typedef std::vector<std::string>	vecString;
 typedef std::vector<Client&>		refClient;
 typedef std::vector<Channel&>		refChannel;

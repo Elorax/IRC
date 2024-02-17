@@ -9,9 +9,12 @@
 //i pour set up le channel en inviteonly
 //t et i ne prennent pas de parametre.
 //Lettre inconnue : ERR_UNKNOWNMODE
+// MODE +t 
+// MODE +j
+// MODE +jt
 
 void	Server::cmdMode( vecString& args, int fd ) {
-	
+
 	Channel& chan = getChannel(args[0]);
 
 	if (args.size() < 2)
@@ -25,6 +28,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 
 	else if (!chan.isUserChanOp(fd))
 		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
+
 	vecString::iterator it = args.begin();
 	for(; it != args.end(); it++)
 	{
@@ -86,7 +90,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 						}
 						else
 						{
-							chan.setInviteOnly(true);
+							//chan.setInviteOnly(true);
 							chan.setChanCapacity(atoi(it->c_str()));
 						}
 						break;
@@ -150,7 +154,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 						}
 						else
 						{
-							chan.setInviteOnly(false);
+							// chan.setInviteOnly(false);
 							chan.setChanCapacity(-1);
 						}
 						break;

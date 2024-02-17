@@ -40,10 +40,10 @@ class	Server {
 		const vecClient::iterator	getClientByName( const std::string& user );
 		Channel&					getChannel( const std::string& channel );
 
+
 		/* Runtime */
 		void						run( void );
 		void    					parseLine( std::string& line, int fd );
-
 
 		/* Building args */
 		void						buildMsg(const std::string& msg, int fd );
@@ -76,13 +76,14 @@ class	Server {
 		void						cmdWho( vecString& args, int fd );
 
 		/* Misc */
+		std::string					partMsgInit( vecString& arg, int fd);
+		vecString					splitParamOnComas( std::string& arg );
 		int							createChannel( std::string chanName, std::string key, int fd );
 		void						leaveAllChans( Client& client );
 		void						whoAll( int requester );
 		void						whoClient( const Client& target, int requesterFD );
 		void						whoChannel( const Channel& target, int requesterFD );
-		std::string					partMsgInit( vecString& arg, int fd);
-		vecString					splitParamOnComas( std::string& arg );
-
-
+		void						kickUsers( vecString args, vecString users, vecString chans, int requesterFD );
+		void						kickChans( vecString args, vecString users, vecString chans, int requesterFD );
+		void						kickChansUsers( vecString args, vecString users, vecString chans, int requesterFD );
 };

@@ -10,11 +10,11 @@ class	Channel {
 		std::string				_name;
 		std::string				_password;
 		std::string				_topic;
-		int						_chanCapacity;
 		bool					_isChanKeySet;
 		bool					_usersVisible;
 		bool					_inviteOnly;
 		bool					_topicPriv;
+		size_t					_chanCapacity;
 		refClient				_chanOp;
 		refClient				_banUsers;
 		refClient				_chanUsers;
@@ -41,7 +41,7 @@ class	Channel {
 		void					addUserOnChan( Client& user );
 		void					delUserOnChan( Client& user );
 		void					setChanKeyStatus( const bool status);
-		void					setChanCapacity( const int capacity );
+		void					setChanCapacity( const size_t capacity );
 		void					setTopic( const std::string& status );
 		void					setPassword( const std::string& password );
 
