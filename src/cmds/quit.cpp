@@ -5,14 +5,14 @@
 // Te server acknowledges this by sending an ERROR message to the client.
 //Ex: QUIT :Gone for lunch
 
-void	Server::cmdQuit( std::vector<std::string>& args, int fd ) {
+void	Server::cmdQuit( vecString& args, int fd ) {
 
 	std::string quitmsg;
 	if (args.size() == 1)
 		quitmsg = " :" + args[0];
 
 	Client& client = *getClientByFD(fd);
-	std::vector<std::string> quitAllChans = {"0"};
+	vecString quitAllChans = {"0"};
 	cmdJoin(quitAllChans, fd);
 	buildMsg(QUITNOTICE(client.getNickname(), quitmsg), fd);
 

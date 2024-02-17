@@ -30,7 +30,7 @@ class	Server {
 
 		/* Setters */
 		int							addClient( fd_set& readFDs, fd_set& writeFDs );
-		void						delClient( vecClient::iterator toDel );
+		void						delClient( vecClient::iterator& toDel );
 		void						addChannel( Channel& toJoin, const std::string& key );
 
 		/* Getters */
@@ -52,27 +52,37 @@ class	Server {
 		vecString					buildModes( std::string& line );
 
 		/* Checkers */
-	    bool						isAvailNick( const std::string& nick );
+	    bool						isKeyValid( std::string& key );
+		bool						isChanValid( std::string& chanName );
+		bool						isAvailNick( const std::string& nick );
         bool						isValidNick( const std::string& nick );
 		bool						doesChanExist( const std::string& chan );
 		bool						doesUserExist( const std::string& nickname );
 
 		/* Commands */
 		eCommand					findCommand( const std::string const& line );
-		void						cmdWho( std::vector<std::string>& args, int fd );//comme le docteur
-		void						cmdJoin( std::vector<std::string>& args, int fd );
-		void						cmdMode( std::vector<std::string>& args, int fd );
-		void						cmdNick( std::vector<std::string>& args, int fd );
-		void						cmdPart( std::vector<std::string>& args, int fd );
-		void						cmdPass( std::vector<std::string>& args, int fd );
-		void						cmdQuit( std::vector<std::string>& args, int fd );
-		void						cmdUser( std::vector<std::string>& args, int fd );
-		void						cmdTopic( std::vector<std::string>& args, int fd );
-		void						cmdNotice( std::vector<std::string>& args, int fd );
-		void						cmdInvite( std::vector<std::string>& args, int fd );
-		void						cmdPrivmsg( std::vector<std::string>& args, int fd );
+		void						cmdInvite( vecString& args, int fd );
+		void						cmdJoin( vecString& args, int fd );
+		void						cmdKick( vecString& args, int fd );
+		void						cmdMode( vecString& args, int fd );
+		void						cmdNick( vecString& args, int fd );
+		void						cmdNotice( vecString& args, int fd );
+		void						cmdPart( vecString& args, int fd );
+		void						cmdPass( vecString& args, int fd );
+		void						cmdPrivmsg( vecString& args, int fd );
+		void						cmdQuit( vecString& args, int fd );
+		void						cmdTopic( vecString& args, int fd );
+		void						cmdUser( vecString& args, int fd );
+		void						cmdWho( vecString& args, int fd );
 
 		/* Misc */
-		void						createChannel( std::string chanName, std::string key, int fd );
+		int							createChannel( std::string chanName, std::string key, int fd );
 		void						leaveAllChans( Client& client );
+		void						whoAll( int requester );
+		void						whoClient( const Client& target, int requesterFD );
+		void						whoChannel( const Channel& target, int requesterFD );
+		std::string					partMsgInit( vecString& arg, int fd);
+		vecString					splitParamOnComas( std::string& arg );
+
+
 };

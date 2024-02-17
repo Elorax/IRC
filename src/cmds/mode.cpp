@@ -10,7 +10,7 @@
 //t et i ne prennent pas de parametre.
 //Lettre inconnue : ERR_UNKNOWNMODE
 
-void	Server::cmdMode( std::vector<std::string>& args, int fd ) {
+void	Server::cmdMode( vecString& args, int fd ) {
 	
 	Channel& chan = getChannel(args[0]);
 
@@ -25,7 +25,7 @@ void	Server::cmdMode( std::vector<std::string>& args, int fd ) {
 
 	else if (!chan.isUserChanOp(fd))
 		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
-	std::vector<std::string>::iterator it = args.begin();
+	vecString::iterator it = args.begin();
 	for(; it != args.end(); it++)
 	{
 		std::string tmp = *it;
@@ -46,13 +46,18 @@ void	Server::cmdMode( std::vector<std::string>& args, int fd ) {
 						}
 						else if (chan.isChanKeySet())
 						{
-							buildMsg(ERR_KEYSET(getClientByFD(fd)->getNickName(), chan.getName()), fd);
+							buildMsg(ERR_KEYSET(getClientByFD(fd)->getNickname(), chan.getName()), fd);
 							return ;
 						}
-						else
+						else if (isKeyValid(*it))
 						{
 							chan.setPassword(*it);
 							chan.setChanKeyStatus(true);
+						}
+						else
+						{
+							//Qu'est-ce qu'on envoie au client qui effectue la requete ??
+							buildMsg("key incorrect\r\n", fd);
 						}
 						break;
 					}

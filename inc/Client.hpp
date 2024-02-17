@@ -22,16 +22,19 @@ class	Client {
 		void						setPassword( const std::string& password );
 		void						setNickname( const std::string& nickname );
 		void						setUsername( const std::string& username );//set username, realname and hostname: Parameters: <user> <mode> <unused> <realname>
+		void						setRealname( const std::string& realname );
+		void						setHostname( const std::string& hostname );
+
 		void						addChanToUser( const Channel& add );
 		void						delChanOfUser( const Channel& del );
 
 		/* getters */
-		const int					getFD( void ) const;
-		const std::string			getHostname( void ) const;
-		const std::string			getUsername( void ) const;
-		const std::string			getNickname( void ) const;
-		const std::string			getRealname( void ) const;
-		const std::string			getPassword( void ) const;
+		const int&					getFD( void ) const;
+		const std::string&			getHostname( void ) const;
+		const std::string&			getUsername( void ) const;
+		const std::string&			getNickname( void ) const;
+		const std::string&			getRealname( void ) const;
+		const std::string&			getPassword( void ) const;
 		const vecChannel&			getUserChanList( void ) const;
 
 		/* checker */

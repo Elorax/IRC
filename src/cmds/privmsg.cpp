@@ -4,7 +4,7 @@
 //Ex : PRIVMSG lea :coucou ca va ?
 //Ex : PRIVMSG #iciclafete :salut les zboubs
 
-void	Server::cmdPrivmsg( std::vector<std::string>& args, int fd ) {
+void	Server::cmdPrivmsg( vecString& args, int fd ) {
 
 	if (args.size() < 1)
 		buildMsg(ERR_NORECIPIENT, fd);
@@ -32,6 +32,6 @@ void	Server::cmdPrivmsg( std::vector<std::string>& args, int fd ) {
 		if (!doesUserExist(args[0]))
 			buildMsg(ERR_NOSUCHNICK, fd);
 		else
-			buildMsg(args[2], getClientByName(args[0])->getFD());
+			buildMsg(args[1], getClientByName(args[0])->getFD());
 	}
 }

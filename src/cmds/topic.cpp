@@ -7,7 +7,7 @@
 //TOPIC chan1 :
 //Donc un peu de parsing vite f à faire.
 
-void	Server::cmdTopic( std::vector<std::string>& args, int fd) {
+void	Server::cmdTopic( vecString& args, int fd) {
 
 	if (args.size() < 1)
 		buildMsg(ERR_NEEDMOREPARAMS, fd);

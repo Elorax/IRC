@@ -17,13 +17,24 @@ void    Client::setPassword( std::string const& password ) {
     _password = password;
 }
 
-void    Client::setNickName(std::string const& nickname ) {
+void    Client::setNickname(std::string const& nickname ) {
     _nickname = nickname;
 }
 
-void    Client::setUserName(std::string const& username ) {
+void    Client::setUsername(std::string const& username ) {
     _username = username;
 }
+
+void	Client::setRealname( const std::string& realname )
+{
+    _realname = realname;
+}
+
+void	Client::setHostname( const std::string& hostname )
+{
+    _hostname = hostname;
+}
+
 
 void    Client::addChanToUser( const Channel& add ) {
     _userChannels.push_back(add);

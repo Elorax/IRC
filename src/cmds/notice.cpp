@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 //Param: <msgtarget> <text>
-void	Server::cmdNotice( std::vector<std::string>& args, int fd ) {
+void	Server::cmdNotice( vecString& args, int fd ) {
 
 	if (args.size() < 2 )
 		return;

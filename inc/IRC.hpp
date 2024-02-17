@@ -4,6 +4,7 @@
 #include <iostream>
 #include <netinet/ip.h>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <unistd.h>
 #include <cstring>
@@ -41,6 +42,7 @@
 #define ERR_UNKNOWNMODE(mode, chan)			mode + ":is unknown mode char to me for " + chan + "\r\n"
 #define ERR_USERNOTINCHANNEL				":They aren't on that channel\r\n"
 #define ERR_USERONCHANNEL					":is already on channel\r\n"
+
 #define RPL_CHANNELMODEIS					":" + user + " " + chan + " " + mod + " " + params + "\r\n"
 #define RPL_ENDOFNAMES						":End of NAMES list.\r\n"
 #define RPL_ENDOFWHO						":End of WHO list.\r\n"
@@ -49,8 +51,9 @@
 #define RPL_NOTOPIC							":No topic is set\r\n"
 #define RPL_TOPIC(chan, topic)				chan + " " + topic + "\r\n"
 #define RPL_UNIQOPIS(user, chan, target)	user + " " + chan + " " + target + "\r\n"
+#define RPL_WHOREPLY(user, target)			":ft_irc " + user + " " + target + "\r\n" + RPL_ENDOFWHO
 
-#define LEAVENOTICE(user, chan)				user + " has leave the channel " + chan + "\r\n"
+#define LEAVENOTICE(user, chan)				user + " has left the channel " + chan + "\r\n"
 #define INVITENOTICE(user, chan)			user + " invite you to join channel: " + chan + "\r\n"
 #define QUITNOTICE(user, msg)				"User :" + user + " has quit IRC" + msg + "\r\n"
 
@@ -75,6 +78,6 @@ enum	eCommand {
 typedef std::vector<Client>			vecClient;
 typedef std::vector<Channel>		vecChannel;
 typedef std::vector<Message>		vecMessage;
-typedef std::vector<std::string>	vecString;
+typedef vecString	vecString;
 typedef std::vector<Client&>		refClient;
 typedef std::vector<Channel&>		refChannel;

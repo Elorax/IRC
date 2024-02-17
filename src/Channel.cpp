@@ -29,6 +29,10 @@ const refClient	Channel::getChanOp( const std::string& name ) const {
 	        return (*it);
 }
 
+const refClient	Channel::getChanUsers( void ) const {
+	return (_chanUsers);
+}
+
 const std::string	Channel::getPassword( void ) const{
 	return (_password);
 }

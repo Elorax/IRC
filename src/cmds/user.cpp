@@ -1,13 +1,17 @@
 #include "Server.hpp"
 
-void    Server::cmdUser( std::vector<std::string>& args, int fd)
+void    Server::cmdUser( vecString& args, int fd)
 {
     if (args.size() < 4)
         buildMsg(ERR_NEEDMOREPARAMS, fd);
 
-	else if (!getClientByFD(fd)->getUserName().empty())
+	else if (!getClientByFD(fd)->getUsername().empty())
 		buildMsg(ERR_ALREADYREGISTRED, fd);
 
 	else
-		getClientByFD(fd)->setUserName(args[0]);//setrealname, realname can have spaces
+	{
+		getClientByFD(fd)->setUsername(args[0]);
+		getClientByFD(fd)->setRealname(args[3]);//setrealname, realname can have spaces
+		getClientByFD(fd)->setHostname("Placeholder");
+	}
 }

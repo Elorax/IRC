@@ -15,8 +15,9 @@ class	Channel {
 		bool					_usersVisible;
 		bool					_inviteOnly;
 		bool					_topicPriv;
-		refClient				_chanUsers;
 		refClient				_chanOp;
+		refClient				_banUsers;
+		refClient				_chanUsers;
 
 	public:
 								Channel( std::string name, Client& client );
@@ -25,6 +26,7 @@ class	Channel {
 		/* Getters */
 		const int				getNbClients( void ) const;
 		const Client&			getClient(int idx);
+		const refClient			getChanUsers( void ) const ;
 		const refClient			getChanOp( const std::string& name ) const;
 		const std::string		getTopic( void ) const;
 		const std::string		getPassword( void ) const;

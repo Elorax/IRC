@@ -7,7 +7,7 @@
 //La notification est une repoonse non ERR/RPL
 //Reste a faire : Envoi notification, envoi RPL_INVITING.
 
-void	Server::cmdInvite( std::vector<std::string>& args, int fd ) {
+void	Server::cmdInvite( vecString& args, int fd ) {
 
 
 	if (args.size() != 2)
@@ -16,7 +16,7 @@ void	Server::cmdInvite( std::vector<std::string>& args, int fd ) {
 	std::string nickname = args[0];
 	Channel& chan = getChannel(args[1]);
 
-	if (!isValidNick(nickname))
+	if (!doesChanExist(args[1]) || !doesUserExist(args[0]))
 		buildMsg(ERR_NOSUCHNICK, fd);
 
 	else if (!chan.isUserOnChan(fd))
@@ -33,7 +33,7 @@ void	Server::cmdInvite( std::vector<std::string>& args, int fd ) {
 		 //Send to requester invite in process
 		buildMsg(RPL_INVITING(args[0], chan.getName()), fd);
 		// Send to target invite notice
-		buildMsg(INVITENOTICE(getClientByFD(fd)->getNickName(), chan.getName()), getClientByName(nickname)->getFD());
+		buildMsg(INVITENOTICE(getClientByFD(fd)->getNickname(), chan.getName()), getClientByName(nickname)->getFD());
 	}
 
 }

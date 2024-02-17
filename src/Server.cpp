@@ -219,7 +219,7 @@ void    Server::parseLine(std::string &line, int fd) {
 
 	else if (line[0] == ':')//Prefixe : ignoré dans le contexte de ft_IRC
         line = line.substr(line.find(' '));//":prefixe commande arg1 arg2" --> "commande arg1 arg2"
-    std::vector<std::string> args = buildArgs(line);
+    vecString args = buildArgs(line);
 
 	switch (findCommand(line))
 	{
@@ -347,9 +347,9 @@ void	Server::buildMsg(const std::string& msg, int fd)
 }
 
 
-std::vector<std::string> buildArgs( std::string& line) {
+vecString buildArgs( std::string& line) {
 
-	std::vector<std::string> args;
+	vecString args;
     std::string last = line.substr(line.find(':'));
     std::string tmp = line.substr(0, line.find(':'));
 
@@ -363,9 +363,9 @@ std::vector<std::string> buildArgs( std::string& line) {
 }
 
 
-std::vector<std::string> buildModes( std::string& line ) {
+vecString buildModes( std::string& line ) {
 
-	std::vector<std::string> modes;
+	vecString modes;
 	std::string chan= line.substr(0, ' ');
 	std::string tmp = line.substr(chan.size() + 1, line.find_first_of("+-"));
 

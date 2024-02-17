@@ -11,7 +11,7 @@
 
 //args[0] : Noms de channels, possiblement separes par des virgules.
 //args[1] : Passwords optionnels, possiblement separes par des virgules.
-void	Server::cmdJoin( std::vector<std::string>& args, int fd ) {
+void	Server::cmdJoin( vecString& args, int fd ) {
 
 
 	if (args.size() < 1)
@@ -30,7 +30,6 @@ void	Server::cmdJoin( std::vector<std::string>& args, int fd ) {
 		std::string chanName = *it;
 		std::string key = keyInit(passwords, it_pw);
 
-		// if chan doesnt exist, we create it
 		if (!doesChanExist(chanName))
 			createChannel(chanName, key, fd);
 
@@ -56,9 +55,9 @@ void	Server::cmdJoin( std::vector<std::string>& args, int fd ) {
 
 /* ----------------------------- Function Helper ---------------------------- */
 
-vecString	splitParamOnComas( std::string arg ) {
+vecString	Server::splitParamOnComas( std::string& arg ) {
 
-	std::vector<std::string> ret;
+	vecString ret;
 	size_t pos = 0;
 	while ((pos = arg.find(",")) != std::string::npos) {
 		ret.push_back(arg.substr(0, pos));
@@ -78,10 +77,36 @@ std::string	keyInit( vecString passwords, vecString::iterator it_pw ) {
 	return (key);
 }
 
-void	Server::createChannel( std::string chanName, std::string key, int fd ) {
-
+int	Server::createChannel( std::string chanName, std::string key, int fd ) {
+	if (!isChanValid(chanName) || !isKeyValid(key))
+		return (EXIT_FAILURE);
 	Channel newChan(chanName, *getClientByFD(fd));
 	addChannel(newChan, key);
+	return (EXIT_SUCCESS);
+}
+
+bool	Server::isKeyValid( std::string& key ) {
+
+	if (key.size() > 23)
+		return (false);
+
+	if (!key.empty())
+		for (std::string::iterator it = key.begin(); it != key.end(); it++)
+			if ((*it >= 9 && *it <= 13) || *it == ' ' || *it == ':')
+				return (false);
+	return (true);
+}
+
+bool	Server::isChanValid( std:: string& chanName ) {
+
+	if (chanName[0] != '#')
+		return (false);
+
+	for (std::string::iterator it = chanName.begin(); it != chanName.end(); it++)
+		if (*it == 7 || *it == 13 || *it == 10 || *it == ',' || *it == ':')
+			return (false);
+
+	return (true);
 }
 
 void	Server::leaveAllChans( Client& client ) {
