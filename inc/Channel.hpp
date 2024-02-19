@@ -8,12 +8,12 @@ class	Channel {
 
 	private:
 		std::string				_name;
-		std::string				_password;
+		std::string				_chanKey;
 		std::string				_topic;
 		bool					_isChanKeySet;
 		bool					_inviteOnly;
 		bool					_topicPriv;
-		size_t					_chanCapacity;
+		size_t					_chanLimit;
 		vecClient				_chanOp;
 		vecClient				_chanUsers;
 
@@ -32,16 +32,20 @@ class	Channel {
 
 
 		/* Setters */
-		void					setChanOP( Client& user );
-		void					unsetChanOP( const Client& user );
-		void					setTopicPriv( const bool status );
-		void					setInviteOnly( const bool status );
 		void					addUserOnChan( Client& user );
+		void					setInviteOnly( void );
+		void					setKey( const std::string& key );
+		void					setKey( Server& serv, vecString& args, vecString::iterator it, int fd );
+		void					setLimit( Server& serv, vecString& args, vecString::iterator it, int fd );
+		void					setOP( Server& serv, vecString& args, vecString::iterator it, int fd );
+		void					setTopicPriv( void );
+		/* Unsetters */
 		void					delUserOnChan( Client& user );
-		void					setChanKeyStatus( const bool status);
-		void					setChanCapacity( const size_t capacity );
-		void					setTopic( const std::string& status );
-		void					setPassword( const std::string& password );
+		void					unsetInviteOnly( void );
+		void					unsetKey( void );
+		void					unsetLimit( void );
+		void					unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd );
+		void					unsetTopicPriv( void );
 
 		/* Checkers */
 		bool					isFull( void );
@@ -50,6 +54,7 @@ class	Channel {
 		bool					isTopicPrivSet( void );
 		bool					isUserOnChan( int fd );
 		bool					isUserChanOp( int fd );
+		bool					isKeyValid( const std::string& key );
 		bool					isUserOnChan( const std::string& nickname );
 		bool					isUserChanOp( const std::string& nickname );
 		bool					isMatchingKey( const std::string& key );

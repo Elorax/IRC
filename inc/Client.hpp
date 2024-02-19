@@ -6,7 +6,7 @@ class	Client {
 
 	private:
 		int							_clientFD;
-		std::string					_password;
+		std::string					_chanKey;
 		std::string		 			_hostname;
 		std::string		 			_realname;
 		std::string					_username;

@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client(int fd): _clientFD(fd), _password(""), _username(""),
+Client::Client(int fd): _clientFD(fd), _chanKey(""), _username(""),
 						_nickname(""), _realname(""), _hostname("") {
 }
 
@@ -14,7 +14,7 @@ Client::~Client()
 /* -------------------------------------------------------------------------- */
 
 void    Client::setPassword( std::string const& password ) {
-    _password = password;
+    _chanKey = password;
 }
 
 void    Client::setNickname(std::string const& nickname ) {
@@ -73,7 +73,7 @@ const std::string&  Client::getNickname() const {
 }
 
 const std::string&  Client::getPassword( void ) const {
-    return (_password);
+    return (_chanKey);
 }
 
  vecChannel&   Client::getUserChanList( void ) {

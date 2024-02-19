@@ -6,30 +6,6 @@ class Client;
 class Channel;
 class Message;
 
-
-enum	eCommand {
-
-	eINVITE,
-	eJOIN,
-	eKICK,
-	eMODE,
-	eNICK,
-	eNOTICE,
-	ePART,
-	ePASS,
-	ePRIVMSG,
-	eQUIT,
-	eTOPIC,
-	eUSER,
-	eWHO,
-	eNOTFOUND
-};
-
-typedef std::vector<Client>			vecClient;
-typedef std::vector<Channel>		vecChannel;
-typedef std::vector<Message>		vecMessage;
-typedef std::vector<std::string>	vecString;
-
 class	Server {
 
 	private:
@@ -41,13 +17,13 @@ class	Server {
 		vecChannel					_channels;
 		vecMessage					_messages;
 		std::string					_name;
-		std::string 				_password;
+		std::string 				_chanKey;
 		sockaddr_in					_serverAddr;
 		sockaddr_in					_clientAddr;	//Non initialise a la construction,
 									//initialisé a l'utilisation de accept pour un nouveau client.
 
 	public:
-									Server( std::string& port, std::string& password );
+									Server( std::string& port, std::string& key );
 									~Server( void );
 
 		/* Setters */
@@ -60,7 +36,7 @@ class	Server {
 		int							getMaxFD( void ) const;
 		const vecClient::iterator	getClientByFD( const int fd );
 		const vecClient::iterator	getClientByName( const std::string& user );
-		Channel&					getChannel( const std::string& channel );
+		Channel&					getChannel( const std::string& chan );
 
 
 		/* Runtime */
@@ -77,12 +53,12 @@ class	Server {
 		vecString					buildModes( std::string& line );
 
 		/* Checkers */
-	    bool						isKeyValid( std::string& key );
-		bool						isChanValid( std::string& chanName );
+		bool						isKeyValid( std::string& key );
+		bool						isChanValid( std::string& name );
 		bool						isAvailNick( const std::string& nick );
         bool						isValidNick( const std::string& nick );
 		bool						doesChanExist( const std::string& chan );
-		bool						doesUserExist( const std::string& nickname );
+		bool						doesUserExist( const std::string& nick );
 
 		/* Commands */
 		eCommand					findCommand( const std::string& line );
@@ -106,7 +82,7 @@ class	Server {
 		int							createChannel( std::string chanName, std::string key, int fd );
 		void    					parseLine( std::string& line, int fd );
 		void						leaveAllChans( Client& client );
-		void						whoAll( int requester );
+		void						whoAll( int requesterFD );
 		void						whoClient( Client& target, int requesterFD );
 		void						whoChannel( const Channel& target, int requesterFD );
 		void						kickUsers( vecString args, vecString users, vecString chans, int requesterFD );

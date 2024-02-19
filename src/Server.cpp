@@ -8,7 +8,21 @@ Server::Server(std::string &port, std::string &password)
 {
     //Initialisation des parametres du serveur
     _port = atoi(port.c_str());
-    _password = password;
+    _chanKey = password;
+	cmdMap = {//gngngngngng grrrrrrrrrrrr bbbbbb
+		{eINVITE, &Server::cmdInvite},
+		{eJOIN, &Server::cmdJoin},
+		{eMODE, &Server::cmdMode},
+		{eNICK, &Server::cmdNick},
+		{eNOTICE, &Server::cmdNotice},
+		{ePART, &Server::cmdPart},
+		{ePASS, &Server::cmdPass},
+		{ePRIVMSG, &Server::cmdPrivmsg},
+		{eQUIT, &Server::cmdQuit},
+		{eTOPIC, &Server::cmdTopic},
+		{eUSER, &Server::cmdUser},
+		{eWHO, &Server::cmdWho}
+	};
 
     //Initialisation des sockets et ouverture du serveur
     //AF_INET : IPv4. SOCK_NONBLOCK pour avoir un socket non bloquant pour le multi client sans fork(). 0 pour protocole automatique
@@ -83,7 +97,7 @@ void	Server::delClient( vecClient::iterator& toDel ) {
 void	Server::addChannel( Channel& newChan, const std::string& key ) {
 
 	if (!key.empty())
-		newChan.setPassword(key);
+		newChan.setKey(key);
 	_channels.push_back(newChan);
 }
 
@@ -91,12 +105,11 @@ void	Server::addChannel( Channel& newChan, const std::string& key ) {
 /*                                   Getters                                  */
 /* -------------------------------------------------------------------------- */
 
-const int Server::getFD( void ) const {
+int Server::getFD( void ) const {
 	return (_socketFD);
 }
 
-//Return plus grand des fds entre celui du serveur et celui des clients
-const int Server::getMaxFD( void ) const {
+int Server::getMaxFD( void ) const {
 
     int fdMax = _socketFD;
     vecClient::const_iterator it;
@@ -220,25 +233,11 @@ void    Server::parseLine(std::string &line, int fd) {
 
 	if (line[0] == ':')
         line = line.substr(line.find(' '));
+
     vecString args = buildArgs(line);
 
-	cmdMap = {
-        {eINVITE, &Server::cmdInvite},
-        {eJOIN, &Server::cmdJoin},
-        {eMODE, &Server::cmdMode},
-        {eNICK, &Server::cmdNick},
-        {eNOTICE, &Server::cmdNotice},
-        {ePART, &Server::cmdPart},
-        {ePASS, &Server::cmdPass},
-        {ePRIVMSG, &Server::cmdPrivmsg},
-        {eQUIT, &Server::cmdQuit},
-        {eTOPIC, &Server::cmdTopic},
-        {eUSER, &Server::cmdUser},
-        {eWHO, &Server::cmdWho}
-    };
-
-    if (cmdMap.count(findCommand(line)))
-        (cmdMap[findCommand(line)])(args, fd);
+	if (cmdMap.count(findCommand(line)))
+            (this->*cmdMap[findCommand(line)])(args, fd);
 	else
 		throw std::runtime_error("Command not found :" + line);
 }
@@ -261,7 +260,7 @@ eCommand	Server::findCommand( std::string const& line ) {
 /*                                Building Args                               */
 /* -------------------------------------------------------------------------- */
 
-void	Server::buildMsg(const std::string& msg, Channel &chan) {
+void	Server::buildMsg( const std::string& msg, Channel &chan ) {
 
 	for(int i = 0; i < chan.getNbClients(); i++) {
 		int fd = chan.getClient(i).getFD();
@@ -269,11 +268,11 @@ void	Server::buildMsg(const std::string& msg, Channel &chan) {
 	}
 }
 
-void	Server::buildMsg(const std::string& msg, int fd) {
+void	Server::buildMsg( const std::string& msg, int fd ) {
 	_messages.push_back(Message(msg, fd));
 }
 
-vecString buildArgs( std::string& line) {
+vecString buildArgs( std::string& line ) {
 
 	vecString args;
     std::string last = line.substr(line.find(':'));

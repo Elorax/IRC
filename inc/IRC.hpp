@@ -21,10 +21,6 @@ class Client;
 class Channel;
 class Message;
 
-typedef void (Server::*Cmd)(vecString, int);
-std::map<int, Cmd> cmdMap;
-
-
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
 
@@ -68,3 +64,27 @@ std::map<int, Cmd> cmdMap;
 #define INVITENOTICE(user, chan)			user + " invite you to join channel: " + chan + "\r\n"
 #define QUITNOTICE(user, msg)				"User :" + user + " has quit IRC" + msg + "\r\n"
 
+typedef std::vector<Client>			vecClient;
+typedef std::vector<Channel>		vecChannel;
+typedef std::vector<Message>		vecMessage;
+typedef std::vector<std::string>	vecString;
+typedef void (Server::*Cmd)(vecString, int);
+std::map<int, Cmd> cmdMap;
+
+enum	eCommand {
+
+	eINVITE,
+	eJOIN,
+	eKICK,
+	eMODE,
+	eNICK,
+	eNOTICE,
+	ePART,
+	ePASS,
+	ePRIVMSG,
+	eQUIT,
+	eTOPIC,
+	eUSER,
+	eWHO,
+	eNOTFOUND
+};

@@ -4,8 +4,8 @@
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Channel::Channel( std::string name, Client& client ): _name(name), _password(""), _topic(""),
-_isChanKeySet(false), _inviteOnly(false), _topicPriv(false), _chanCapacity(-1) {
+Channel::Channel( std::string name, Client& client ): _name(name), _chanKey(""), _topic(""),
+_isChanKeySet(false), _inviteOnly(false), _topicPriv(false), _chanLimit(-1) {
 
 	client.addChanToUser(*this);
 	_chanOp.push_back(client);
@@ -35,7 +35,7 @@ const vecClient	Channel::getChanUsers( void ) const {
 }
 
 const std::string	Channel::getPassword( void ) const{
-	return (_password);
+	return (_chanKey);
 }
 
 const std::string	Channel::getName( void ) const{
@@ -64,45 +64,68 @@ size_t	Channel::getNbClients( void ) {
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
 
-void	Channel::setChanCapacity( const size_t capacity ){
-	_chanCapacity = capacity;
-}
-
-void	Channel::setInviteOnly( const bool status ) {
-	_inviteOnly = status;
-}
-
-void	Channel::setPassword(const std::string& password ) {
-	_password = password;
-}
-
-void	Channel::setChanOP( Client& user ){
-	_chanOp.push_back(user);
-}
-
-void	Channel::unsetChanOP( const Client& user ) {
-
-	std::string name = user.getUsername();
-	vecClient::iterator it = _chanOp.begin();
-
-	for(; it != _chanOp.end(); it++)
-		if (name == it->getUsername())
-			_chanOp.erase(it);
-}
-
-void	Channel::setTopicPriv( const bool status ) {
-	_topicPriv = status;
-}
-
-void	Channel::setTopic( const std::string& topic ){
-	_topic = topic;
-}
-
 void	Channel::addUserOnChan( Client& user ) {
 
 	_chanUsers.push_back(user);
 	user.addChanToUser(*this);
 }
+
+void	Channel::setKey( const std::string& key ) {
+
+	if (isKeyValid(key)) {
+		_chanKey = key;
+		_isChanKeySet = true;
+	}
+}
+
+void	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int fd ) {
+
+	if (++it == args.end())
+		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+
+	else if (isChanKeySet())
+		serv.buildMsg(ERR_KEYSET(*it, getName()), fd);
+
+	else if (isKeyValid(*it)) {
+		_chanKey = *it;
+		_isChanKeySet = true;
+	}
+
+	else //Qu'est-ce qu'on envoie au client qui effectue la requete ??
+		serv.buildMsg("Key incorrect\r\n", fd);
+}
+
+void	Channel::setOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
+
+	if (++it == args.end())
+		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+
+	else if (isUserOnChan(*it))
+		serv.buildMsg(ERR_USERNOTINCHANNEL, fd);
+
+	else if (!isUserChanOp(*it))
+		_chanOp.push_back(*serv.getClientByName(*it));
+}
+
+void	Channel::setLimit( Server& serv, vecString& args, vecString::iterator it, int fd ) {
+
+	if (++it == args.end())
+		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+	else
+		_chanLimit = atoi(it->c_str());
+}
+
+void	Channel::setTopicPriv( void ) {
+	_topicPriv = true;
+}
+
+void	Channel::setInviteOnly( void ) {
+	_inviteOnly = true;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  Unsetters                                 */
+/* -------------------------------------------------------------------------- */
 
 void	Channel::delUserOnChan( Client& user ) {
 
@@ -116,10 +139,35 @@ void	Channel::delUserOnChan( Client& user ) {
 		}
 }
 
-void	Channel::setChanKeyStatus(bool status) {
-	_isChanKeySet = status;
+void	Channel::unsetKey( void ) {
+
+	_chanKey = "";
+	_isChanKeySet = false;
 }
 
+void	Channel::unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
+
+	if (++it == args.end())
+		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+
+	else if (isUserOnChan(*it))
+		serv.buildMsg(ERR_USERNOTINCHANNEL, fd);
+
+	else if (isUserChanOp(*it))
+		_chanOp.erase(serv.getClientByName(*it));
+}
+
+void	Channel::unsetLimit( void ) {
+	_chanLimit = -1;
+}
+
+void	Channel::unsetTopicPriv( void ) {
+	_topicPriv = false;
+}
+
+void	Channel::unsetInviteOnly( void ) {
+	_topicPriv = false;
+}
 
 /* -------------------------------------------------------------------------- */
 /*                               Checkers                                     */
@@ -138,11 +186,24 @@ bool	Channel::isTopicPrivSet( void ) {
 }
 
 bool	Channel::isFull( void ) {
-	return (_chanCapacity == _chanUsers.size());
+	return (_chanLimit == _chanUsers.size());
 }
 
 bool	Channel::isMatchingKey( const std::string& key ) {
-	return (key == _password);
+	return (key == _chanKey);
+}
+
+
+bool	Channel::isKeyValid( const std::string& key ) {
+
+	if (key.size() > 23)
+		return (false);
+
+	if (!key.empty())
+		for (std::string::const_iterator it = key.begin(); it != key.end(); it++)
+			if ((*it >= 9 && *it <= 13) || *it == ' ' || *it == ':')
+				return (false);
+	return (true);
 }
 
 bool	Channel::isUserOnChan( const std::string& nickname ) {

@@ -11,7 +11,7 @@ void	Server::cmdPass( vecString& args, int fd ) {
 	else if (!getClientByFD(fd)->getPassword().empty())
 		buildMsg(ERR_ALREADYREGISTRED, fd);
 
-	else if (args[0] != _password)
+	else if (args[0] != _chanKey)
 		buildMsg(ERR_PASSWDMISMATCH, fd);
 
 	else
