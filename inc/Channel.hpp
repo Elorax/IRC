@@ -3,6 +3,7 @@
 #include "IRC.hpp"
 
 class Server;
+class Client;
 
 class	Channel {
 
@@ -30,7 +31,6 @@ class	Channel {
 		const std::string		getPassword( void ) const;
 		const std::string		getName( void ) const;
 
-
 		/* Setters */
 		void					addUserOnChan( Client& user );
 		void					setInviteOnly( void );
@@ -39,6 +39,7 @@ class	Channel {
 		void					setLimit( Server& serv, vecString& args, vecString::iterator it, int fd );
 		void					setOP( Server& serv, vecString& args, vecString::iterator it, int fd );
 		void					setTopicPriv( void );
+		void					setTopic( const std::string& topic );
 		/* Unsetters */
 		void					delUserOnChan( Client& user );
 		void					unsetInviteOnly( void );

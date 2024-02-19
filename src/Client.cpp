@@ -1,11 +1,10 @@
 #include "Client.hpp"
 
-Client::Client(int fd): _clientFD(fd), _chanKey(""), _username(""),
-						_nickname(""), _realname(""), _hostname("") {
+Client::Client(int fd): _clientFD(fd), _chanKey(""), _hostname(""),
+                        _realname(""), _username(""), _nickname("") {
 }
 
-Client::~Client()
-{
+Client::~Client( void ) {
     std::cout << "Client " << _username << " (" << _nickname << ") deleted" << std:: endl;  //debug
 }
 
@@ -34,7 +33,6 @@ void	Client::setHostname( const std::string& hostname )
 {
     _hostname = hostname;
 }
-
 
 void    Client::addChanToUser( const Channel& add ) {
     _userChannels.push_back(add);
@@ -79,7 +77,6 @@ const std::string&  Client::getPassword( void ) const {
  vecChannel&   Client::getUserChanList( void ) {
     return (_userChannels);
 }
-
 
 /* -------------------------------------------------------------------------- */
 /*                                  Checkers                                  */

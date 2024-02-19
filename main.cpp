@@ -1,5 +1,5 @@
 
-#include "inc/IRC.hpp"
+#include "IRC.hpp"
 
 bool	isNumber(char *s)
 {

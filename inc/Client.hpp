@@ -2,6 +2,8 @@
 
 #include "IRC.hpp"
 
+class Channel;
+
 class	Client {
 
 	private:
@@ -15,7 +17,6 @@ class	Client {
 
 	public:
 									Client( int fd );
-									Client( const Client& src );
 									~Client( void );
 
 		/* setters */

@@ -9,42 +9,18 @@ Server::Server(std::string &port, std::string &password)
     //Initialisation des parametres du serveur
     _port = atoi(port.c_str());
     _chanKey = password;
-	cmdMap = {//gngngngngng grrrrrrrrrrrr bbbbbb
-		{eINVITE, &Server::cmdInvite},
-		{eJOIN, &Server::cmdJoin},
-		{eMODE, &Server::cmdMode},
-		{eNICK, &Server::cmdNick},
-		{eNOTICE, &Server::cmdNotice},
-		{ePART, &Server::cmdPart},
-		{ePASS, &Server::cmdPass},
-		{ePRIVMSG, &Server::cmdPrivmsg},
-		{eQUIT, &Server::cmdQuit},
-		{eTOPIC, &Server::cmdTopic},
-		{eUSER, &Server::cmdUser},
-		{eWHO, &Server::cmdWho}
-	};
 
     //Initialisation des sockets et ouverture du serveur
     //AF_INET : IPv4. SOCK_NONBLOCK pour avoir un socket non bloquant pour le multi client sans fork(). 0 pour protocole automatique
     _socketFD = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 
     if (_socketFD < 0)
-    {
-        //socket a échoué
-        //std::cerr << "Error: socket creation" << std::endl;
-        perror(strerror(errno));
-        exit(errno);
-    }
-
-    int optval = 1;
+		throw std::runtime_error("Socket creation failed");
+    
+	int optval = 1;
     // Definir l'option pour la socket
     if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1)
-    {
-        //std::cerr << "Error: socket option configuration" << std::endl;
-        perror(strerror(errno));
-        close(_socketFD);
-        exit(errno);
-    }
+   		throw std::runtime_error("Socket option configuration failed");
 
     //Configuration adresse et port pour pouvoir lier la socket a une adresse et un port specifique
     _serverAddr.sin_family = AF_INET;    //IPv4
@@ -53,19 +29,15 @@ Server::Server(std::string &port, std::string &password)
 
     //Affectation d'un nom a la socket
     if (bind(_socketFD, (struct sockaddr*) &_serverAddr, sizeof(_serverAddr)) < 0)
-    {
-        perror(strerror(errno));
-        close(_socketFD);
-        exit(errno);
-    }
+   		throw std::runtime_error("Socket binding failed");
 
     //indique que le serveur est pret a accepter des connexions clients
     if (listen(_socketFD, MAX_CLIENTS) < 0)
-    {
-        perror(strerror(errno));
-        close(_socketFD);
-        exit(errno);
-    }
+    	throw std::runtime_error("Socket listening failed");
+}
+
+Server::~Server( void ) {
+	//truc dedans
 }
 
 /* -------------------------------------------------------------------------- */
@@ -124,20 +96,20 @@ int Server::getMaxFD( void ) const {
 const vecClient::iterator	Server::getClientByFD( int fd ) {
 
 	vecClient::iterator	it = _clients.begin();
-	for (; it != _clients.end(); it++)
-		if (it->getFD() == fd);
+	for (; it != _clients.end(); it++){
+		if (it->getFD() == fd)
 			return (it);
-
+	}
 	return (it);
 }
 
 const vecClient::iterator	Server::getClientByName( const std::string& user ) {
 
 	vecClient::iterator	it = _clients.begin();
-	for (; it != _clients.end(); it++)
-		if (it->getUsername() == user);
+	for (; it != _clients.end(); it++){
+		if (it->getUsername() == user)
 			return (it);
-
+	}
 	return (it);
 }
 
@@ -145,9 +117,10 @@ Channel&	Server::getChannel( const std::string& channel ) {
 
 	vecChannel::iterator it = _channels.begin();
 
-	for (; it != _channels.end(); it++)
+	for (; it != _channels.end(); it++){
 		if (it->getName() == channel)
 			return (*it);
+	}
 	return (*it);	//Si on arrive ici, on a renvoyé end()
 }
 
@@ -158,9 +131,10 @@ Channel&	Server::getChannel( const std::string& channel ) {
 bool    Server::isAvailNick( const std::string& nick ) {
 
 	vecClient::iterator it = _clients.begin();
-	for(; it != _clients.end(); it++)
+	for(; it != _clients.end(); it++){
 		if (it->getNickname() == nick)
 			return (false);
+	}
 	return (true);
 }
 
@@ -175,9 +149,10 @@ bool    Server::isValidNick( const std::string& nick ) {
 		return (false);
 
 	std::string::const_iterator it = nick.begin() + 1;
-	for(;it != nick.end(); it++)
+	for(;it != nick.end(); it++){
 		if (!isalnum(*it) && special.find(*it) == std::string::npos && *it != '-')
 			return (false);
+	}
 	return (true);
 }
 //nickname   =  ( letter / special ) *8( letter / digit / special / "-" )
@@ -188,10 +163,10 @@ bool	Server::doesChanExist( const std::string& chan ) {
 
 	vecChannel::iterator it = _channels.begin();
 
-	for (; it != _channels.end(); it++)
+	for (; it != _channels.end(); it++){
 		if (it->getName() == chan)
 			return (true);
-
+	}
 	return (false);
 }
 
@@ -199,10 +174,10 @@ bool	Server::doesUserExist( const std::string& nickname ) {
 
 	vecClient::iterator it = _clients.begin();
 
-	for (; it != _clients.end(); it++)
+	for (; it != _clients.end(); it++){
 		if (it->getNickname() == nickname)
 			return (true);
-
+	}
 	return (false);
 }
 
@@ -229,17 +204,30 @@ void	Server::sendMsgs(){
 void    Server::parseLine(std::string &line, int fd) {
 
     if (line.find("\r\n") == std::string::npos)
-        throw std::invalid_argument("Input must be terminated with '\\r\\n'");
+		throw std::invalid_argument("Input must be terminated with '\\r\\n'");
 
 	if (line[0] == ':')
-        line = line.substr(line.find(' '));
+    	line = line.substr(line.find(' '));
 
     vecString args = buildArgs(line);
 
-	if (cmdMap.count(findCommand(line)))
-            (this->*cmdMap[findCommand(line)])(args, fd);
-	else
-		throw std::runtime_error("Command not found :" + line);
+	switch (findCommand(line)) {
+
+		case eINVITE: cmdInvite(args, fd);	break;
+		case eJOIN: cmdJoin(args, fd);		break;
+		case eMODE: cmdMode(args, fd);		break;
+		case eNICK: cmdNick(args, fd);		break;
+		case eNOTICE: cmdNotice(args, fd);	break;
+		case ePART: cmdPart(args, fd);		break;
+		case eKICK: cmdKick(args, fd);		break;
+		case ePASS: cmdPass(args, fd);		break;
+		case ePRIVMSG: cmdPrivmsg(args, fd);break;
+		case eQUIT: cmdQuit(args, fd);		break;
+		case eTOPIC: cmdTopic(args, fd);	break;
+		case eUSER: cmdUser(args, fd);		break;
+		case eWHO: cmdWho(args, fd);		break;
+		case eNOTFOUND: throw std::runtime_error("Command not found :" + line);
+	}
 }
 
 eCommand	Server::findCommand( std::string const& line ) {
@@ -249,10 +237,10 @@ eCommand	Server::findCommand( std::string const& line ) {
     std::string tmp = line;
     tmp.erase(tmp.find(' '), tmp.size());
 
-	for (size_t i = 0; i < 14; i++)
+	for (size_t i = 0; i < 14; i++){
 		if (cmd[i] == line)
 			return ((eCommand)i);
-
+	}
 	return (eNOTFOUND);
 }
 
@@ -262,7 +250,7 @@ eCommand	Server::findCommand( std::string const& line ) {
 
 void	Server::buildMsg( const std::string& msg, Channel &chan ) {
 
-	for(int i = 0; i < chan.getNbClients(); i++) {
+	for(size_t i = 0; i < chan.getNbClients(); i++) {
 		int fd = chan.getClient(i).getFD();
 		_messages.push_back(Message(msg, fd));
 	}
@@ -272,7 +260,7 @@ void	Server::buildMsg( const std::string& msg, int fd ) {
 	_messages.push_back(Message(msg, fd));
 }
 
-vecString buildArgs( std::string& line ) {
+vecString Server::buildArgs( std::string& line ) {
 
 	vecString args;
     std::string last = line.substr(line.find(':'));
@@ -287,7 +275,7 @@ vecString buildArgs( std::string& line ) {
 	return (args);
 }
 
-vecString buildModes( std::string& line ) {
+vecString Server::buildModes( std::string& line ) {
 
 	vecString modes;
 	std::string chan= line.substr(0, ' ');

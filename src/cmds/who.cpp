@@ -21,9 +21,19 @@ void	Server::cmdWho( vecString& args, int fd ) {
 
 /* --------------------------------- Helpers -------------------------------- */
 
+std::string convertVecString( vecString args ) {
+
+	std::string result;
+	vecString::iterator it = args.begin();
+
+	for (; it != args.end(); it++)
+		result += *it;
+	return (result);
+}
+
 void	Server::whoAll( int requester ) {
 
-	std::string	requester = getClientByFD(requester)->getNickname();
+	std::string	nique = getClientByFD(requester)->getNickname();
 	vecChannel::iterator itChan = _channels.begin();
 
 	for (; itChan != _channels.end(); itChan++) {
@@ -70,11 +80,3 @@ void	Server::whoChannel( const Channel& target, int requesterFD ) {
 	buildMsg(RPL_WHOREPLY(getClientByFD(requesterFD)->getNickname(), convertVecString(whoMsg)), requesterFD);
 }
 
-std::string convertVecString( vecString args ) {
-
-	std::string result;
-	vecString::iterator it = args.begin();
-
-	for (; it != args.end(); it++)
-		result += *it;
-}

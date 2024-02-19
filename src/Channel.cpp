@@ -23,10 +23,10 @@ const Client&	Channel::getChanOp( const std::string& name ) {
 
 	vecClient client;
     vecClient::iterator it = _chanOp.begin();
-    for (; it != _chanOp.end(); it++)
+    for (; it != _chanOp.end(); it++) {
         if (name == it->getUsername())
 			return (*it);
-
+	}
 	throw std::runtime_error("No matching Client found");
 }
 
@@ -121,6 +121,10 @@ void	Channel::setTopicPriv( void ) {
 
 void	Channel::setInviteOnly( void ) {
 	_inviteOnly = true;
+}
+
+void	Channel::setTopic( const std::string& topic ) {
+	_topic = topic;
 }
 
 /* -------------------------------------------------------------------------- */

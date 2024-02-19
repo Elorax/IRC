@@ -11,8 +11,19 @@
 
 //args[0] : Noms de channels, possiblement separes par des virgules.
 //args[1] : Passwords optionnels, possiblement separes par des virgules.
-void	Server::cmdJoin( vecString& args, int fd ) {
 
+std::string	keyInit( vecString passwords, vecString::iterator it_pw ) {
+
+	std::string key;
+	if (it_pw >= passwords.end())
+			key = "";
+	else
+		std::string	key = *it_pw;
+
+	return (key);
+}
+
+void	Server::cmdJoin( vecString& args, int fd ) {
 
 	if (args.size() < 1)
 		buildMsg(ERR_NEEDMOREPARAMS, fd);
@@ -66,16 +77,6 @@ vecString	Server::splitParamOnComas( std::string& arg ) {
 	return (ret);
 }
 
-std::string	keyInit( vecString passwords, vecString::iterator it_pw ) {
-
-	std::string key;
-	if (it_pw >= passwords.end())
-			key = "";
-	else
-		std::string	key = *it_pw;
-
-	return (key);
-}
 
 int	Server::createChannel( std::string chanName, std::string key, int fd ) {
 	if (!isChanValid(chanName) || !isKeyValid(key))

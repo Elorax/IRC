@@ -2,6 +2,16 @@
 
 bool isRunning = true;
 
+
+static void signalHandler( int signal ) {
+
+	if (signal == SIGINT) {
+		std::cout << "\n\x1b[1;5;31mServer socket closed\x1b[0m" << std::endl;
+		isRunning = false;
+    }
+}
+
+
 void	Server::run( void ) {
 
 	while (isRunning) {
@@ -20,14 +30,6 @@ void	Server::run( void ) {
 
 		initBuffer();
 	}
-}
-
-static void signalHandler( int signal ) {
-
-	if (signal == SIGINT) {
-		std::cout << "\n\x1b[1;5;31mServer socket closed\x1b[0m" << std::endl;
-		isRunning = false;
-    }
 }
 
 void	Server::initReadFDs( void ) {

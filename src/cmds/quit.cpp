@@ -12,7 +12,8 @@ void	Server::cmdQuit( vecString& args, int fd ) {
 		quitmsg = " :" + args[0];
 
 	Client& client = *getClientByFD(fd);
-	vecString quitAllChans = {"0"};
+	vecString quitAllChans;
+	quitAllChans.push_back("0");
 	cmdJoin(quitAllChans, fd);
 	buildMsg(QUITNOTICE(client.getNickname(), quitmsg), fd);
 

@@ -20,6 +20,7 @@ class	Server {
 		std::string 				_chanKey;
 		sockaddr_in					_serverAddr;
 		sockaddr_in					_clientAddr;	//Non initialise a la construction,
+
 									//initialisé a l'utilisation de accept pour un nouveau client.
 
 	public:
@@ -89,3 +90,4 @@ class	Server {
 		void						kickChans( vecString args, vecString users, vecString chans, int requesterFD );
 		void						kickChansUsers( vecString args, vecString users, vecString chans, int requesterFD );
 };
+

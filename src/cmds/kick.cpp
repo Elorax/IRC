@@ -9,8 +9,6 @@ void	Server::cmdKick( vecString& args, int fd ) {
 
 	vecString chans = splitParamOnComas(args[0]);
 	vecString users = splitParamOnComas(args[1]);
-	vecString::iterator itChan = chans.begin();
-	vecString::iterator itUser = users.begin();
 
 	if (chans.size() == 1 && users.size() >= 1)
 		kickUsers(args, users, chans, fd);
