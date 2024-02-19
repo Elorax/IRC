@@ -50,9 +50,9 @@ const Client&	Channel::getClient(int idx) {
 	return (_chanUsers[idx]);
 }
 
-int	Channel::getNbClients( void ) { 
+size_t	Channel::getNbClients( void ) { 
 
-	int i = 0;
+	size_t i = 0;
 	vecClient::iterator it = _chanUsers.begin();
 	for (; it != _chanUsers.end(); it++)
 		i++;
@@ -93,7 +93,6 @@ void	Channel::unsetChanOP( const Client& user ) {
 void	Channel::setTopicPriv( const bool status ) {
 	_topicPriv = status;
 }
-
 
 void	Channel::setTopic( const std::string& topic ){
 	_topic = topic;

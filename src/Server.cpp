@@ -216,9 +216,9 @@ void	Server::sendMsgs(){
 void    Server::parseLine(std::string &line, int fd) {
 
     if (line.find("\r\n") == std::string::npos)
-        return ;
+        throw std::invalid_argument("Input must be terminated with '\\r\\n'");
 
-	else if (line[0] == ':')
+	if (line[0] == ':')
         line = line.substr(line.find(' '));
     vecString args = buildArgs(line);
 
@@ -239,6 +239,8 @@ void    Server::parseLine(std::string &line, int fd) {
 
     if (cmdMap.count(findCommand(line)))
         (cmdMap[findCommand(line)])(args, fd);
+	else
+		throw std::runtime_error("Command not found :" + line);
 }
 
 eCommand	Server::findCommand( std::string const& line ) {

@@ -6,28 +6,23 @@ bool	isNumber(char *s)
 	while (*s)
 		if (!isdigit(*s++))
 			return (false);
+
 	return (true);
 }
 
-int	main(int ac, char **av)
-{
-	if (ac != 3)
-	{
-		std::cerr << "Error: Wrong number of arguments" << std::endl;
-		return (1);
-	}
-	if(!isNumber(av[1]))
-	{
-		std::cerr << "Error: PORT must be a number" << std::endl;
-		return (1);
-	}
+int	main(int ac, char **av) {
 
 	try {
+		if (ac != 3)
+			throw std::invalid_argument("Wrong parameters.\nUse case: './ircserv <port> <password>'");
+		else if (!isNumber(av[1]))
+			throw std::invalid_argument("Wrong parameters.\n'PORT' must be a number");
 		std::string port(av[1]);
 		std::string password(av[2]);
 		Server server(port, password);
 		server.run();
-	} catch (std::exception& e) {
+	}
+	catch (std::exception& e) {
 		std::cout << e.what() << std::endl;
 	}
 

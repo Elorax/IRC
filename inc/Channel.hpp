@@ -22,7 +22,7 @@ class	Channel {
 								~Channel( void );
 
 		/* Getters */
-		int						getNbClients( void );
+		size_t					getNbClients( void );
 		const Client&			getClient(int idx);
 		const Client&			getChanOp( const std::string& name );
 		const vecClient			getChanUsers( void ) const ;

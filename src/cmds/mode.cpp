@@ -18,65 +18,84 @@ void	Server::cmdMode( vecString& args, int fd ) {
 	Channel& chan = getChannel(args[0]);
 
 	if (args.size() < 2)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
+		return (buildMsg(ERR_NEEDMOREPARAMS, fd));
 
 	else if (!doesChanExist(args[0]))
-		buildMsg(ERR_NOSUCHCHANNEL, fd);
+		return (buildMsg(ERR_NOSUCHCHANNEL, fd));
 
 	else if (!chan.isUserOnChan(fd))
-		buildMsg(ERR_NOTONCHANNEL, fd);
+		return (buildMsg(ERR_NOTONCHANNEL, fd));
 
 	else if (!chan.isUserChanOp(fd))
-		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
+		return (buildMsg(ERR_CHANOPRIVSNEEDED, fd));
 
 	vecString::iterator it = args.begin();
-	for(; it != args.end(); it++)
+	for(; it != args.end(); it++) {
+
+		if (sign == '+') {
+			switch(s) {
+				case 'k': addKey(chan, args, fd); break;
+				case 'o': addOp(chan, args, fd); break;
+				case 'l': addLimit(chan, args, fd); break;
+				case 't': chan.setTopicPriv(true); break;
+				case 'i': chan.setInviteOnly(true); break;
+				default: return buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd);
+			}
+		}
+
+		else if (sign == '-') {
+			switch(s) {
+				case 'k': removeKey(chan); break;
+				case 'o': removeOp(chan, argss, fd); break;
+				case 'l': removeLimit(chan, args, fd); break;
+				case 't': chan.setTopicPriv(false); break;
+				case 'i': chan.setInviteOnly(false); break;
+				default: return buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd);
+			}
+		}
+}
+
+void addKey( Channel& chan, vecString& args, int fd);
+void addOP( Channel& chan, vecString& args, int fd);
+void addChanLimit( Channel& chan, vecString& args, int fd);
+void removeKey( Channel& chan, vecString& args, int fd);
+void removeOP( Channel& chan, vecString& args, int fd);
+void removeChanLimit( Channel& chan, vecString& args, int fd);
+
+
+/*
 	{
 		std::string tmp = *it;
 		if (tmp[0] == '+')
 		{
 			std::string::iterator s = tmp.begin();
 			s++;
-			for (; s != tmp.end(); s++)
-			{
+			for (; s != tmp.end(); s++) {
 				switch (*s)
 				{
 					case 'k':
 					{
 						if (++it == args.end())
-						{
-							buildMsg(ERR_NEEDMOREPARAMS, fd);
-							return ;
-						}
+							return (buildMsg(ERR_NEEDMOREPARAMS, fd));
+
 						else if (chan.isChanKeySet())
-						{
-							buildMsg(ERR_KEYSET(getClientByFD(fd)->getNickname(), chan.getName()), fd);
-							return ;
-						}
-						else if (isKeyValid(*it))
-						{
+							return (buildMsg(ERR_KEYSET(getClientByFD(fd)->getNickname(), chan.getName()), fd));
+
+						else if (isKeyValid(*it)) {
 							chan.setPassword(*it);
 							chan.setChanKeyStatus(true);
 						}
-						else
-						{
-							//Qu'est-ce qu'on envoie au client qui effectue la requete ??
+
+						else //Qu'est-ce qu'on envoie au client qui effectue la requete ??
 							buildMsg("key incorrect\r\n", fd);
-						}
 						break;
 					}
 					case 'o':
 					{
 						if (++it == args.end())
-						{
-							buildMsg(ERR_NEEDMOREPARAMS, fd);
-							return ;
-						}
+							return (buildMsg(ERR_NEEDMOREPARAMS, fd));
 						else if (!chan.isUserOnChan(*it))
-						{
-							buildMsg(ERR_USERNOTINCHANNEL, fd);
-							return ;
-						}
+							return (buildMsg(ERR_USERNOTINCHANNEL, fd));
 						else if (!chan.isUserChanOp(*it))
 							chan.setChanOP(*getClientByName(*it));
 						break;
@@ -84,15 +103,9 @@ void	Server::cmdMode( vecString& args, int fd ) {
 					case 'l':
 					{
 						if (++it == args.end())
-						{
-							buildMsg(ERR_NEEDMOREPARAMS, fd);
-							return ;
-						}
+							return (buildMsg(ERR_NEEDMOREPARAMS, fd));
 						else
-						{
-							//chan.setInviteOnly(true);
 							chan.setChanCapacity(atoi(it->c_str()));
-						}
 						break;
 					}
 					case 't':
@@ -132,15 +145,9 @@ void	Server::cmdMode( vecString& args, int fd ) {
 					case 'o':
 					{
 						if (++it == args.end())
-						{
-							buildMsg(ERR_NEEDMOREPARAMS, fd);
-							return ;
-						}
+							return (buildMsg(ERR_NEEDMOREPARAMS, fd));
 						else if (!chan.isUserOnChan(*it))
-						{
-							buildMsg(ERR_USERNOTINCHANNEL, fd);
-							return ;
-						}
+							return (buildMsg(ERR_USERNOTINCHANNEL, fd));
 						else if (chan.isUserChanOp(*it))
 							chan.unsetChanOP(*getClientByName(*it));
 						break;
@@ -148,15 +155,9 @@ void	Server::cmdMode( vecString& args, int fd ) {
 					case 'l':
 					{
 						if (++it == args.end())
-						{
-							buildMsg(ERR_NEEDMOREPARAMS, fd);
-							return ;
-						}
+							return (buildMsg(ERR_NEEDMOREPARAMS, fd));
 						else
-						{
-							// chan.setInviteOnly(false);
 							chan.setChanCapacity(-1);
-						}
 						break;
 					}
 					case 't':
@@ -178,4 +179,4 @@ void	Server::cmdMode( vecString& args, int fd ) {
 			}
 		}
 	}
-}
+}*/
