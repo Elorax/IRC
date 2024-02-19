@@ -5,12 +5,11 @@
 /* -------------------------------------------------------------------------- */
 
 Channel::Channel( std::string name, Client& client ): _name(name), _password(""), _topic(""),
-_topicPriv(false), _chanCapacity(0), _usersVisible(true), _inviteOnly(false) {
+_isChanKeySet(false), _inviteOnly(false), _topicPriv(false), _chanCapacity(-1) {
 
 	client.addChanToUser(*this);
-	_chanUsers.push_back(client);
 	_chanOp.push_back(client);
-	_isChanKeySet = false;
+	_chanUsers.push_back(client);
 }
 
 Channel::~Channel( void ) {
@@ -20,16 +19,18 @@ Channel::~Channel( void ) {
 /*                                   Getter                                   */
 /* -------------------------------------------------------------------------- */
 
-const refClient	Channel::getChanOp( const std::string& name ) const {
+const Client&	Channel::getChanOp( const std::string& name ) {
 
-    refClient::iterator it = _chanOp.begin();
-
+	vecClient client;
+    vecClient::iterator it = _chanOp.begin();
     for (; it != _chanOp.end(); it++)
-        if (name == it->getUserName())
-	        return (*it);
+        if (name == it->getUsername())
+			return (*it);
+
+	throw std::runtime_error("No matching Client found");
 }
 
-const refClient	Channel::getChanUsers( void ) const {
+const vecClient	Channel::getChanUsers( void ) const {
 	return (_chanUsers);
 }
 
@@ -49,12 +50,13 @@ const Client&	Channel::getClient(int idx) {
 	return (_chanUsers[idx]);
 }
 
-const int	Channel::getNbClients( void ) const { 
+int	Channel::getNbClients( void ) { 
 
 	int i = 0;
-	refClient::iterator it = _chanUsers.begin();
+	vecClient::iterator it = _chanUsers.begin();
 	for (; it != _chanUsers.end(); it++)
 		i++;
+
 	return (i);
 }
 
@@ -67,7 +69,7 @@ void	Channel::setChanCapacity( const size_t capacity ){
 }
 
 void	Channel::setInviteOnly( const bool status ) {
-	_inviteOnly == status;
+	_inviteOnly = status;
 }
 
 void	Channel::setPassword(const std::string& password ) {
@@ -81,10 +83,10 @@ void	Channel::setChanOP( Client& user ){
 void	Channel::unsetChanOP( const Client& user ) {
 
 	std::string name = user.getUsername();
-	refClient::iterator it = _chanOp.begin();
+	vecClient::iterator it = _chanOp.begin();
 
 	for(; it != _chanOp.end(); it++)
-		if (name == it->getUserName())
+		if (name == it->getUsername())
 			_chanOp.erase(it);
 }
 
@@ -106,10 +108,10 @@ void	Channel::addUserOnChan( Client& user ) {
 void	Channel::delUserOnChan( Client& user ) {
 
 	std::string name = user.getUsername();
-	refClient::iterator it = _chanUsers.begin();
+	vecClient::iterator it = _chanUsers.begin();
 
 	for(; it != _chanUsers.end(); it++)
-		if (name == it->getUserName()) {
+		if (name == it->getUsername()) {
 			_chanUsers.erase(it);
 			user.delChanOfUser(*this);
 		}
@@ -146,10 +148,10 @@ bool	Channel::isMatchingKey( const std::string& key ) {
 
 bool	Channel::isUserOnChan( const std::string& nickname ) {
 
-	refClient::iterator it = _chanUsers.begin();
+	vecClient::iterator it = _chanUsers.begin();
 
 	for (; it != _chanUsers.end(); it++)
-		if (it->_name == nickname)
+		if (it->getNickname() == nickname)
 			return (true);
 
 	return (false);
@@ -157,10 +159,10 @@ bool	Channel::isUserOnChan( const std::string& nickname ) {
 
 bool	Channel::isUserChanOp( const std::string& nickname )
 {
-	refClient::iterator it = _chanOp.begin();
+	vecClient::iterator it = _chanOp.begin();
 
 	for (; it != _chanOp.end(); it++)
-		if (it->_name == nickname)
+		if (it->getNickname() == nickname)
 			return (true);
 
 	return (false);
@@ -168,10 +170,10 @@ bool	Channel::isUserChanOp( const std::string& nickname )
 
 bool	Channel::isUserChanOp( int fd ) {
 
-	refClient::iterator it = _chanOp.begin();
+	vecClient::iterator it = _chanOp.begin();
 
 	for (; it != _chanOp.end(); it++)
-		if (it->_clientFD == fd)
+		if (it->getFD() == fd)
 			return (true);
 
 	return (false);
@@ -179,29 +181,11 @@ bool	Channel::isUserChanOp( int fd ) {
 
 bool	Channel::isUserOnChan( int fd ) {
 
-	refClient::iterator it = _chanUsers.begin();
+	vecClient::iterator it = _chanUsers.begin();
 
 	for (; it != _chanUsers.end(); it++)
-		if (it->_clientFD == fd)
+		if (it->getFD() == fd)
 			return (true);
 
 	return (false);
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                    Misc                                    */
-/* -------------------------------------------------------------------------- */
-
-//Envoi d'un message a tous les users d'un channel
-//Fonction d'envoi de message prive d'un user a un autre a faire directement depuis le serveur car ne passe pas par un channel ?
-void	Channel::sendMsg( const std::string &msg ) const
-{
-	refClient::iterator it = _chanUsers.begin();
-	for(; it != _chanUsers.end(); it++)
-	{
-		it->getFD();
-		send(it->getFD(), msg.c_str(), msg.size() + 1, 0);	//+1 pour \0 ?
-		//utilisation de IS_SET ? UNSET a la fin de l'envoi ? A verifier, regarder l'envoi de messages sur des githubs.
-	}
-	//Verifier le retour de send ?
 }

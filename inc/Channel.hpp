@@ -11,23 +11,21 @@ class	Channel {
 		std::string				_password;
 		std::string				_topic;
 		bool					_isChanKeySet;
-		bool					_usersVisible;
 		bool					_inviteOnly;
 		bool					_topicPriv;
 		size_t					_chanCapacity;
-		refClient				_chanOp;
-		refClient				_banUsers;
-		refClient				_chanUsers;
+		vecClient				_chanOp;
+		vecClient				_chanUsers;
 
 	public:
 								Channel( std::string name, Client& client );
 								~Channel( void );
 
 		/* Getters */
-		const int				getNbClients( void ) const;
+		int						getNbClients( void );
 		const Client&			getClient(int idx);
-		const refClient			getChanUsers( void ) const ;
-		const refClient			getChanOp( const std::string& name ) const;
+		const Client&			getChanOp( const std::string& name );
+		const vecClient			getChanUsers( void ) const ;
 		const std::string		getTopic( void ) const;
 		const std::string		getPassword( void ) const;
 		const std::string		getName( void ) const;
@@ -55,8 +53,4 @@ class	Channel {
 		bool					isUserOnChan( const std::string& nickname );
 		bool					isUserChanOp( const std::string& nickname );
 		bool					isMatchingKey( const std::string& key );
-
-		/* Misc */
-		void					sendMsg( const std::string& msg ) const;
-
 };

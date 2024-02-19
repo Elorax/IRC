@@ -1,23 +1,31 @@
 NAME		=	ircserv
 
-SRCS		=	src/Channel.cpp	\
-				src/Client.cpp	\
-				src/Message.cpp	\
-				src/Server.cpp	\
-				cmd/*.cpp		\
-				main.cpp		\
-				
+SRCS		=	src/Channel.cpp		\
+				src/Client.cpp		\
+				src/Message.cpp		\
+				src/Server.cpp		\
+				src/ServerRun.cpp	\
+				src/cmds/invite.cpp	\
+				src/cmds/join.cpp	\
+				src/cmds/kick.cpp	\
+				src/cmds/mode.cpp	\
+				src/cmds/nick.cpp	\
+				src/cmds/notice.cpp	\
+				src/cmds/part.cpp	\
+				src/cmds/pass.cpp	\
+				src/cmds/privmsg.cpp\
+				src/cmds/quit.cpp	\
+				src/cmds/topic.cpp	\
+				src/cmds/user.cpp	\
+				src/cmds/who.cpp	\
+				main.cpp			\
 
-INCS		=	inc/Channel.hpp	\
-				inc/Client.hpp	\
-				inc/IRC.hpp		\
-				inc/Message.hpp	\
-				inc/Server.hpp	\
+INCS		=	-I./inc
 
 
 CC			=	c++
 
-CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3
+CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -I./inc -g3
 
 RM			=	rm -f
 

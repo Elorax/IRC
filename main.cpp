@@ -11,7 +11,6 @@ bool	isNumber(char *s)
 
 int	main(int ac, char **av)
 {
-	//av[1] : port ; av[2] : password
 	if (ac != 3)
 	{
 		std::cerr << "Error: Wrong number of arguments" << std::endl;
@@ -22,11 +21,15 @@ int	main(int ac, char **av)
 		std::cerr << "Error: PORT must be a number" << std::endl;
 		return (1);
 	}
-	std::string port(av[1]);
-	std::string password(av[2]);
-	Server server(port, password);
-	server.run();
-	
+
+	try {
+		std::string port(av[1]);
+		std::string password(av[2]);
+		Server server(port, password);
+		server.run();
+	} catch (std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+
 	return (0);
-	
 }

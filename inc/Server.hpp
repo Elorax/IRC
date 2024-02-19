@@ -6,7 +6,29 @@ class Client;
 class Channel;
 class Message;
 
-//Un message est une classe simple disposant d'un fd et d'une string a lui envoyer
+
+enum	eCommand {
+
+	eINVITE,
+	eJOIN,
+	eKICK,
+	eMODE,
+	eNICK,
+	eNOTICE,
+	ePART,
+	ePASS,
+	ePRIVMSG,
+	eQUIT,
+	eTOPIC,
+	eUSER,
+	eWHO,
+	eNOTFOUND
+};
+
+typedef std::vector<Client>			vecClient;
+typedef std::vector<Channel>		vecChannel;
+typedef std::vector<Message>		vecMessage;
+typedef std::vector<std::string>	vecString;
 
 class	Server {
 
@@ -34,8 +56,8 @@ class	Server {
 		void						addChannel( Channel& toJoin, const std::string& key );
 
 		/* Getters */
-		const int					getFD( void ) const;
-		const int					getMaxFD( void ) const;
+		int							getFD( void ) const;
+		int							getMaxFD( void ) const;
 		const vecClient::iterator	getClientByFD( const int fd );
 		const vecClient::iterator	getClientByName( const std::string& user );
 		Channel&					getChannel( const std::string& channel );
@@ -63,7 +85,7 @@ class	Server {
 		bool						doesUserExist( const std::string& nickname );
 
 		/* Commands */
-		eCommand					findCommand( const std::string const& line );
+		eCommand					findCommand( const std::string& line );
 		void						cmdInvite( vecString& args, int fd );
 		void						cmdJoin( vecString& args, int fd );
 		void						cmdKick( vecString& args, int fd );

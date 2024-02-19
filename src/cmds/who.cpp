@@ -28,8 +28,8 @@ void	Server::whoAll( int requester ) {
 
 	for (; itChan != _channels.end(); itChan++) {
 
-		refClient chanUsers = itChan->getChanUsers();
-		refClient::iterator itUser = chanUsers.begin();
+		vecClient chanUsers = itChan->getChanUsers();
+		vecClient::iterator itUser = chanUsers.begin();
 
 		if (!itChan->isUserOnChan(requester))
 			for (; itUser != chanUsers.end(); itUser++)
@@ -60,8 +60,8 @@ void	Server::whoChannel( const Channel& target, int requesterFD ) {
 	vecString whoMsg;
 	whoMsg.push_back(target.getName());
 
-	refClient chanUsers = target.getChanUsers();
-	refClient::iterator itUser = chanUsers.begin();
+	vecClient chanUsers = target.getChanUsers();
+	vecClient::iterator itUser = chanUsers.begin();
 	for (; itUser != chanUsers.end(); itUser++) {
 		whoMsg.push_back(" ");
 		whoMsg.push_back(itUser->getUsername());
