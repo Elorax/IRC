@@ -43,7 +43,10 @@ class	Server {
 
 		/* Runtime */
 		void						run( void );
-		void    					parseLine( std::string& line, int fd );
+		void						sendMsgs( void );
+		void 						initBuffer( void );
+		void						initReadFDs( void );
+		void						initWriteFDs( void );
 
 		/* Building args */
 		void						buildMsg(const std::string& msg, int fd );
@@ -79,9 +82,10 @@ class	Server {
 		std::string					partMsgInit( vecString& arg, int fd);
 		vecString					splitParamOnComas( std::string& arg );
 		int							createChannel( std::string chanName, std::string key, int fd );
+		void    					parseLine( std::string& line, int fd );
 		void						leaveAllChans( Client& client );
 		void						whoAll( int requester );
-		void						whoClient( const Client& target, int requesterFD );
+		void						whoClient( Client& target, int requesterFD );
 		void						whoChannel( const Channel& target, int requesterFD );
 		void						kickUsers( vecString args, vecString users, vecString chans, int requesterFD );
 		void						kickChans( vecString args, vecString users, vecString chans, int requesterFD );

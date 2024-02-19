@@ -8,6 +8,7 @@
 #include <vector>
 #include <unistd.h>
 #include <cstring>
+#include <csignal>
 
 #include "Server.hpp"
 #include "Client.hpp"
@@ -74,7 +75,8 @@ enum	eCommand {
 	eWHO,
 	eNOTFOUND
 };
-
+typedef void (Server::*Cmd)(vecString, int);
+std::map<int, Cmd>					cmdMap;
 typedef std::vector<Client>			vecClient;
 typedef std::vector<Channel>		vecChannel;
 typedef std::vector<Message>		vecMessage;

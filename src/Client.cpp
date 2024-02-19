@@ -76,7 +76,7 @@ const std::string&  Client::getPassword( void ) const {
     return (_password);
 }
 
-const vecChannel&   Client::getUserChanList( void ) const {
+ vecChannel&   Client::getUserChanList( void ) {
     return (_userChannels);
 }
 
@@ -87,8 +87,8 @@ const vecChannel&   Client::getUserChanList( void ) const {
 
 bool    Client::isChanInList( Channel& chan ) {
 
-    vecChannel::iterator it = getUserChanList();
-    for (; it != getUserChanList.end(); it++)
+    vecChannel::iterator it = getUserChanList().begin();
+    for (; it != getUserChanList().end(); it++)
         if (it->getName() == chan.getName())
             return (true);
 

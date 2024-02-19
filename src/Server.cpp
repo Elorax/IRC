@@ -58,7 +58,7 @@ Server::Server(std::string &port, std::string &password)
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
 
-int	Server::addClient(fd_set &readFDs, fd_set &writeFDs) {
+int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
 
 	int fd;
     fd = accept(_socketFD, (struct sockaddr*) &_clientAddr, (socklen_t *) sizeof(_clientAddr)); //Pas sur du cast. A voir a la compil
@@ -74,7 +74,7 @@ int	Server::addClient(fd_set &readFDs, fd_set &writeFDs) {
     return (0);
 }
 
-void	Server::delClient( vecClient::iterator toDel ) {
+void	Server::delClient( vecClient::iterator& toDel ) {
 
 	close(toDel->getFD());
 	_clients.erase(toDel);
@@ -197,6 +197,50 @@ bool	Server::doesUserExist( const std::string& nickname ) {
 /*                                    Misc                                    */
 /* -------------------------------------------------------------------------- */
 
+void	Server::sendMsgs(){
+
+	if (!_messages.empty() && !_clients.empty()){
+
+		std::vector<Message>::iterator it = _messages.begin();
+		for (; it != _messages.end(); it++){
+
+			if (FD_ISSET(it->getFD(), &_writeFDs)){
+				send(it->getFD(), it->getMsg().c_str(), it->getMsg().size(), 0);
+				// std::cout << "Envoi du msg" + it->getMsg() + "au fd " << it->getFD() << std::endl;;	//Debugging
+			}
+		}
+	}
+	_messages.erase(_messages.begin(), _messages.end());	//Clear de nos messages.
+}
+
+void    Server::parseLine(std::string &line, int fd) {
+
+    if (line.find("\r\n") == std::string::npos)
+        return ;
+
+	else if (line[0] == ':')
+        line = line.substr(line.find(' '));
+    vecString args = buildArgs(line);
+
+	cmdMap = {
+        {eINVITE, &Server::cmdInvite},
+        {eJOIN, &Server::cmdJoin},
+        {eMODE, &Server::cmdMode},
+        {eNICK, &Server::cmdNick},
+        {eNOTICE, &Server::cmdNotice},
+        {ePART, &Server::cmdPart},
+        {ePASS, &Server::cmdPass},
+        {ePRIVMSG, &Server::cmdPrivmsg},
+        {eQUIT, &Server::cmdQuit},
+        {eTOPIC, &Server::cmdTopic},
+        {eUSER, &Server::cmdUser},
+        {eWHO, &Server::cmdWho}
+    };
+
+    if (cmdMap.count(findCommand(line)))
+        (cmdMap[findCommand(line)])(args, fd);
+}
+
 eCommand	Server::findCommand( std::string const& line ) {
 
 	std::string	cmd[] = {	"PASS", "NICK", "USER", "INVITE", "JOIN", "KICK",
@@ -211,141 +255,21 @@ eCommand	Server::findCommand( std::string const& line ) {
 	return (eNOTFOUND);
 }
 
-void    Server::parseLine(std::string &line, int fd) {
-
-    //Si line ne se finit pas par \r\n, return
-    if (line.find("\r\n") == std::string::npos)
-        return ;
-
-	else if (line[0] == ':')//Prefixe : ignoré dans le contexte de ft_IRC
-        line = line.substr(line.find(' '));//":prefixe commande arg1 arg2" --> "commande arg1 arg2"
-    vecString args = buildArgs(line);
-
-	switch (findCommand(line))
-	{
-		case eINVITE:
-			cmdInvite(args, fd);//change by getClient(fd) -- Envoi des notif et des RPL a faire
-			break;
-		case eJOIN:
-			cmdJoin(args, fd);	//Parsing a faire + rpl
-			break;
-		case eMODE:	//A verif plus tard, wip.
-			cmdMode(args, fd);
-			break;
-		case eNICK:
-			cmdNick(args, fd);
-			break;
-		case eNOTICE:
-			cmdNotice(args, fd);
-			break;
-		case ePART: //Parsing a faire + envoi de tous les msg.
-			cmdPart(args, fd);
-			break;
-		case ePASS:
-			cmdPass(args, fd);
-			break;
-		case ePRIVMSG:
-			cmdPrivmsg(args, fd);
-			break;
-		case eQUIT:
-			cmdQuit(args, fd);
-			break;
-		case eTOPIC:
-			cmdTopic(args, fd);
-			break;
-		case eUSER:
-			cmdUser(args, fd);
-			break;
-		case eWHO:
-			cmdWho(args, fd);
-			break;
-		case eNOTFOUND:
-	}
-}
-
-void	Server::run( void ) {
-	FD_ZERO(&_readFDs);
-	FD_ZERO(&_writeFDs);
-	FD_SET(getFD(), &_readFDs);
-
-	while (true)	//variable globale mise a zero par une interruption ?
-	{
-	//Penser a une solution de quitter le programme proprement en cas de ctrl c avec des signaux.
-		if (select(getMaxFD() + 1, &_readFDs, &_writeFDs, NULL, NULL) < 0)
-		{
-			std::cerr << "error ta mere" << std::endl;
-			break ;
-		}
-
-		if (FD_ISSET(getFD(), &_readFDs)) //maginoire listen te titille le donc tu rentres 
-		{
-			if (addClient(_readFDs, _writeFDs) != 0)   //Ptete ca marche pas avec une ref tavu
-			{
-				std::cerr << "accept failed" << std::endl;
-				continue;
-			}
-		}
-
-		int					bytesRead;
-		char				buff[BUFFER_SIZE] = {0};
-		vecClient::iterator	it = _clients.begin();
-
-		for (; it < _clients.end(); it++) {
-
-			int fd = it->getFD();
-			if (FD_ISSET(fd, &_readFDs)) {
-				bytesRead = recv(fd, buff, BUFFER_SIZE, 0);
-
-				if (bytesRead < 0) {
-					delClient(it);
-					FD_CLR(fd, &_readFDs);
-					FD_CLR(fd, &_writeFDs);
-					it = _clients.begin();
-				}
-
-				//if the client exceed the IRC allowed amount of bytes, we don't process it.
-				else if (bytesRead <= 512)
-					//processClient(buff); //processClient vide pour l'instant. parseLine a la place pour faire des tests.
-				{
-					std::string tmp(buff);
-					parseLine(tmp, fd);
-				}
-				memset(buff, '\0', BUFFER_SIZE);
-			}
-		}
-		// faire une fonction qui envoie tous les messages a envoyer (les messages etant des reponses (erreur ou non ERR/RPL/non defini))
-		
-		// faire une boucle sur les clients et quand FD_ISSET(fd_client, read) reussi, read ce que tu recois du client puis parser la ligne, si elle finit par \r\n l executer, si tu reconnais une commande la faire sinon rien faire
-	}
-
-
-
-	//Ajouter un nouveau client (accept, update les fd sets)
-
-	//Verifier si un client deja accepte fait une action
-	//handleClient()
-
-}
-
-
 /* -------------------------------------------------------------------------- */
 /*                                Building Args                               */
 /* -------------------------------------------------------------------------- */
 
-void	Server::buildMsg(const std::string& msg, Channel &chan)
-{
-	for(int i = 0; i < chan.getNbClients(); i++)
-	{
+void	Server::buildMsg(const std::string& msg, Channel &chan) {
+
+	for(int i = 0; i < chan.getNbClients(); i++) {
 		int fd = chan.getClient(i).getFD();
 		_messages.push_back(Message(msg, fd));
 	}
 }
 
-void	Server::buildMsg(const std::string& msg, int fd)
-{
+void	Server::buildMsg(const std::string& msg, int fd) {
 	_messages.push_back(Message(msg, fd));
 }
-
 
 vecString buildArgs( std::string& line) {
 
@@ -361,7 +285,6 @@ vecString buildArgs( std::string& line) {
 
 	return (args);
 }
-
 
 vecString buildModes( std::string& line ) {
 

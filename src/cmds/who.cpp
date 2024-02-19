@@ -5,7 +5,7 @@
 //otherwise return list of info matching the <mask> given
 void	Server::cmdWho( vecString& args, int fd ) {
 
-	if (args.empty() || args[0][0] = '0')
+	if (args.empty() || args[0][0] == '0')
 		whoAll(fd);
 
 	else if (doesChanExist(args[0])) {
@@ -37,7 +37,7 @@ void	Server::whoAll( int requester ) {
 	}
 }
 
-void	Server::whoClient( const Client& target, int requesterFD ) {
+void	Server::whoClient( Client& target, int requesterFD ) {
 
 	vecString	whoMsg;
 
@@ -52,7 +52,7 @@ void	Server::whoClient( const Client& target, int requesterFD ) {
 	whoMsg.push_back(" ");
 	whoMsg.push_back(target.getHostname());
 
-	buildMsg(RPL_WHOREPLY(getClientByFD(requesterFD)->getNickname(), whoMsg), requesterFD);
+	buildMsg(RPL_WHOREPLY(getClientByFD(requesterFD)->getNickname(), convertVecString(whoMsg)), requesterFD);
 }
 
 void	Server::whoChannel( const Channel& target, int requesterFD ) {
@@ -67,5 +67,14 @@ void	Server::whoChannel( const Channel& target, int requesterFD ) {
 		whoMsg.push_back(itUser->getUsername());
 	}
 
-	buildMsg(RPL_WHOREPLY(getClientByFD(requesterFD)->getNickname(), whoMsg), requesterFD);
+	buildMsg(RPL_WHOREPLY(getClientByFD(requesterFD)->getNickname(), convertVecString(whoMsg)), requesterFD);
+}
+
+std::string convertVecString( vecString args ) {
+
+	std::string result;
+	vecString::iterator it = args.begin();
+
+	for (; it != args.end(); it++)
+		result += *it;
 }
