@@ -19,7 +19,7 @@ Channel::~Channel( void ) {
 /*                                   Getter                                   */
 /* -------------------------------------------------------------------------- */
 
-const Client&	Channel::getChanOp( const std::string& name ) {
+const Client&	Channel::getOP( const std::string& name ) {
 
 	vecClient client;
     vecClient::iterator it = _chanOp.begin();
@@ -81,10 +81,10 @@ void	Channel::setKey( const std::string& key ) {
 void	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
 	if (++it == args.end())
-		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (isChanKeySet())
-		serv.buildMsg(ERR_KEYSET(*it, getName()), fd);
+		serv.buildMsg(ERR_KEYSET(getName()), fd);
 
 	else if (isKeyValid(*it)) {
 		_chanKey = *it;
@@ -98,10 +98,10 @@ void	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int
 void	Channel::setOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
 	if (++it == args.end())
-		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (isUserOnChan(*it))
-		serv.buildMsg(ERR_USERNOTINCHANNEL, fd);
+		serv.buildMsg(ERR_USERNOTINCHANNEL(*it, getName()), fd);
 
 	else if (!isUserChanOp(*it))
 		_chanOp.push_back(*serv.getClientByName(*it));
@@ -110,7 +110,7 @@ void	Channel::setOP( Server& serv, vecString& args, vecString::iterator it, int 
 void	Channel::setLimit( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
 	if (++it == args.end())
-		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 	else
 		_chanLimit = atoi(it->c_str());
 }
@@ -152,10 +152,10 @@ void	Channel::unsetKey( void ) {
 void	Channel::unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
 	if (++it == args.end())
-		serv.buildMsg(ERR_NEEDMOREPARAMS, fd);
+		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (isUserOnChan(*it))
-		serv.buildMsg(ERR_USERNOTINCHANNEL, fd);
+		serv.buildMsg(ERR_USERNOTINCHANNEL(*it, getName()), fd);
 
 	else if (isUserChanOp(*it))
 		_chanOp.erase(serv.getClientByName(*it));

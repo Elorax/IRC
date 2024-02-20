@@ -2,7 +2,6 @@
 
 bool isRunning = true;
 
-
 static void signalHandler( int signal ) {
 
 	if (signal == SIGINT) {
@@ -11,6 +10,32 @@ static void signalHandler( int signal ) {
     }
 }
 
+fd_set	Server::initReadFDs( void ) {
+
+	fd_set readFDs;
+	FD_ZERO(&readFDs);
+	FD_SET(getFD(), &readFDs);
+
+	vecClient::iterator it = _clients.begin();
+	for (; it != _clients.end(); it++) {
+		FD_SET(it->getFD(), &readFDs);
+	}
+	return (readFDs);
+
+}
+
+fd_set	Server::initWriteFDs( void ) {
+
+	fd_set writeFDs;
+	FD_ZERO(&writeFDs);
+
+	vecMessage::iterator it = _messages.begin();
+	for (; it != _messages.end(); it++) {
+		if (FD_ISSET(it->getFD(), &_writeFDs) == 0)
+			FD_SET(it->getFD(), &_writeFDs);
+	}
+	return (writeFDs);
+}
 
 void	Server::run( void ) {
 
@@ -18,23 +43,26 @@ void	Server::run( void ) {
 
 		signal(SIGINT, &signalHandler);
 		signal(SIGQUIT, SIG_IGN);
-		initReadFDs();
-		initWriteFDs();
+		fd_set readFDs = initReadFDs();
+		fd_set writeFDs = initWriteFDs();
+		//initReadFDs();
+		//initWriteFDs();
 		std::cout << "message 1" << std::endl;
-		if (select(getMaxFD() + 1, &_readFDs, &_writeFDs, NULL, NULL) < 0)
+		if (select(getMaxFD() + 1, &readFDs, &writeFDs, NULL, NULL) < 0)
 			return;
 
-		if (FD_ISSET(getFD(), &_readFDs))
-			if (addClient(_readFDs, _writeFDs) != 0)
-				;
+		if (FD_ISSET(getFD(), &readFDs))
+			if (addClient(readFDs, writeFDs) != 0)
+				continue;
 
-		initBuffer();
-		sendMsgs();
+		sendMsgs(writeFDs);
+		initBuffer(readFDs, writeFDs);
 		std::cout << "message 2" << std::endl;
 
 	}
 }
 
+/*
 void	Server::initReadFDs( void ) {
 
 	FD_ZERO(&_readFDs);
@@ -61,8 +89,9 @@ void	Server::initWriteFDs( void ) {
 	}
 
 }
+*/
 
-void Server::initBuffer( void ) {
+void Server::initBuffer( fd_set &readFDs, fd_set &writeFDs ) {
 
 	int bytesRead;
 	char buff[BUFFER_SIZE] = {0};
@@ -71,19 +100,27 @@ void Server::initBuffer( void ) {
 	for (; it < _clients.end(); it++) {
 
 		int fd = it->getFD();
-		if (FD_ISSET(fd, &_readFDs)) {
-			bytesRead = recv(fd, buff, BUFFER_SIZE, 0);
+		if (FD_ISSET(fd, &readFDs)) {
+			bytesRead = recv(fd, buff, BUFFER_SIZE, 0);	//recv chez nous, read chez lilian 
 
 			if (bytesRead < 0) {
 				delClient(it);
-				FD_CLR(fd, &_readFDs);
-				FD_CLR(fd, &_writeFDs);
+				FD_CLR(fd, &readFDs);
+				FD_CLR(fd, &writeFDs);
 				it = _clients.begin();
 			}
 
 			else if (bytesRead <= 512) {
-				std::string tmp(buff);
-				parseLine(tmp, fd);
+				it->buffer += buff;
+				while (it->buffer.find("\r\n") != std::string::npos)
+				{
+					parseLine(it->buffer, fd);
+					it->buffer.assign(it->buffer.substr(it->buffer.find('\n') + 1, it->buffer.size()));
+
+				}
+				//voir server.cpp ligne 305 chez fchouky pour gerer le ctrl +d en plein milieu d'une commande (pas de \r\n).
+				//std::string tmp(buff);
+				//parseLine(tmp, fd);
 			}
 			memset(buff, '\0', BUFFER_SIZE);
 		}

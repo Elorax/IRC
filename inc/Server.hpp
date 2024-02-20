@@ -42,10 +42,12 @@ class	Server {
 
 		/* Runtime */
 		void						run( void );
-		void						sendMsgs( void );
-		void 						initBuffer( void );
-		void						initReadFDs( void );
-		void						initWriteFDs( void );
+		void						sendMsgs( fd_set writeFDs );
+		void 						initBuffer( fd_set &readFDs, fd_set &writeFDs );
+		//void						initReadFDs( void );
+		//void						initWriteFDs( void );
+		fd_set						initReadFDs( void );
+		fd_set						initWriteFDs( void );
 
 		/* Building args */
 		void						buildMsg(const std::string& msg, int fd );

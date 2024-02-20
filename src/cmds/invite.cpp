@@ -10,28 +10,30 @@
 void	Server::cmdInvite( vecString& args, int fd ) {
 
 
-	if (args.size() != 2)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
+	if (args.size() != 3)
+		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
-	std::string nickname = args[0];
+	std::string nickname = args[1];
 	Channel& chan = getChannel(args[1]);
 
-	if (!doesChanExist(args[1]) || !doesUserExist(args[0]))
-		buildMsg(ERR_NOSUCHNICK, fd);
+	if (!doesUserExist(args[1]))
+		buildMsg(ERR_NOSUCHNICK(args[1]), fd);
+	else if (!doesChanExist(args[2]))
+		buildMsg(ERR_NOSUCHNICK(args[2]), fd);
 
 	else if (!chan.isUserOnChan(fd))
-		buildMsg(ERR_NOTONCHANNEL, fd);
+		buildMsg(ERR_NOTONCHANNEL(getClientByFD(fd)->getNickname()), fd);
 
 	else if (chan.isInviteOnly() && !chan.isUserChanOp(fd))
-		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
+		buildMsg(ERR_CHANOPRIVSNEEDED(chan.getName()), fd);
 
 	else if (chan.isUserOnChan(nickname))
-		buildMsg(ERR_USERONCHANNEL, fd);
+		buildMsg(ERR_USERONCHANNEL(nickname, chan.getName()), fd);
 
 	else {
 		chan.addUserOnChan(*getClientByName(nickname));
 		 //Send to requester invite in process
-		buildMsg(RPL_INVITING(args[0], chan.getName()), fd);
+		buildMsg(RPL_INVITING(chan.getName(), nickname), fd);
 		// Send to target invite notice
 		buildMsg(INVITENOTICE(getClientByFD(fd)->getNickname(), chan.getName()), getClientByName(nickname)->getFD());
 	}

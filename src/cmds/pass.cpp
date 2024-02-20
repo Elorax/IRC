@@ -5,9 +5,9 @@
 
 void	Server::cmdPass( vecString& args, int fd ) {
 
-	std::cout << "args[1] : " << args[1] << std::endl << "key : " << _chanKey << std::endl;
-	if(args.size() == 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
+	//std::cout << "args[1] : " << args[1] << std::endl << "key : " << _chanKey << std::endl;
+	if(args.size() != 2)
+		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (!getClientByFD(fd)->getPassword().empty())
 		buildMsg(ERR_ALREADYREGISTRED, fd);
@@ -16,5 +16,5 @@ void	Server::cmdPass( vecString& args, int fd ) {
 		buildMsg(ERR_PASSWDMISMATCH, fd);
 
 	else
-		getClientByFD(fd)->setPassword(args[0]);
+		getClientByFD(fd)->setPassword(args[1]);
 }

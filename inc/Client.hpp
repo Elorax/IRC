@@ -16,6 +16,8 @@ class	Client {
 		vecChannel					_userChannels;
 
 	public:
+		std::string					buffer;
+
 									Client( int fd );
 									~Client( void );
 

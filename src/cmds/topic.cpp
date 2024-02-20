@@ -9,25 +9,25 @@
 
 void	Server::cmdTopic( vecString& args, int fd) {
 
-	if (args.size() < 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
+	if (args.size() < 2)
+		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
-	Channel& chan = getChannel(args[0]);
+	Channel& chan = getChannel(args[1]);
 
 	if (!chan.isUserOnChan(fd))
-		buildMsg(ERR_NOTONCHANNEL, fd);
+		buildMsg(ERR_NOTONCHANNEL(chan.getName()), fd);
 
 	else if (chan.isTopicPrivSet() && !chan.isUserChanOp(fd))
-		buildMsg(ERR_CHANOPRIVSNEEDED, fd);
+		buildMsg(ERR_CHANOPRIVSNEEDED(chan.getName()), fd);
 
-	else if (args.size() == 1 && !chan.getTopic().empty())
+	else if (args.size() == 2 && !chan.getTopic().empty())
 		buildMsg(chan.getTopic(), fd);
 
-	else if (args.size() == 1 && chan.getTopic().empty())
-		buildMsg(RPL_NOTOPIC, fd);
+	else if (args.size() == 2 && chan.getTopic().empty())
+		buildMsg(RPL_NOTOPIC(chan.getName()), fd);
 
 	else {
-		chan.setTopic(args[1]);
+		chan.setTopic(args[2]);
 		buildMsg(RPL_TOPIC(chan.getName(), chan.getTopic()), chan);
 	}
 }

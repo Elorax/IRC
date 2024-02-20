@@ -5,16 +5,16 @@
 //otherwise return list of info matching the <mask> given
 void	Server::cmdWho( vecString& args, int fd ) {
 
-	if (args.empty() || args[0][0] == '0')
+	if (args.size() == 1 || args[1][0] == '0')
 		whoAll(fd);
 
-	else if (doesChanExist(args[0])) {
-		Channel& target = getChannel(args[0]);
+	else if (doesChanExist(args[1])) {
+		Channel& target = getChannel(args[1]);
 		whoChannel(target, fd);
 	}
 
-	else if (doesUserExist(args[0])) {
-		Client& target = *getClientByName(args[0]);
+	else if (doesUserExist(args[1])) {
+		Client& target = *getClientByName(args[1]);
 		whoClient(target, fd);
 	}
 }
@@ -51,18 +51,21 @@ void	Server::whoClient( Client& target, int requesterFD ) {
 
 	vecString	whoMsg;
 
-	whoMsg.push_back(target.getNickname());
-	whoMsg.push_back(" ");
-	if (!target.getUserChanList().empty())
+	if (!target.getUserChanList().empty()) {
 		whoMsg.push_back(target.getUserChanList().back().getName());
-	whoMsg.push_back(" ");
+		whoMsg.push_back(" ");
+	}
 	whoMsg.push_back(target.getUsername());
 	whoMsg.push_back(" ");
-	whoMsg.push_back(target.getRealname());
+	whoMsg.push_back(target.getNickname());
 	whoMsg.push_back(" ");
 	whoMsg.push_back(target.getHostname());
+	whoMsg.push_back(" ");
+	whoMsg.push_back(target.getRealname());
 
-	buildMsg(RPL_WHOREPLY(getClientByFD(requesterFD)->getNickname(), convertVecString(whoMsg)), requesterFD);
+	buildMsg(RPL_WHOREPLY(convertVecString(whoMsg)), requesterFD);
+	buildMsg(RPL_ENDOFWHO(target.getNickname()), requesterFD);
+
 }
 
 void	Server::whoChannel( const Channel& target, int requesterFD ) {
@@ -77,6 +80,7 @@ void	Server::whoChannel( const Channel& target, int requesterFD ) {
 		whoMsg.push_back(itUser->getUsername());
 	}
 
-	buildMsg(RPL_WHOREPLY(getClientByFD(requesterFD)->getNickname(), convertVecString(whoMsg)), requesterFD);
+	buildMsg(RPL_WHOREPLY(convertVecString(whoMsg)), requesterFD);
+	buildMsg(RPL_ENDOFWHO(target.getName()), requesterFD);
 }
 

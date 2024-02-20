@@ -25,7 +25,7 @@ class	Channel {
 		/* Getters */
 		size_t					getNbClients( void );
 		const Client&			getClient(int idx);
-		const Client&			getChanOp( const std::string& name );
+		const Client&			getOP( const std::string& name );
 		const vecClient			getChanUsers( void ) const ;
 		const std::string		getTopic( void ) const;
 		const std::string		getPassword( void ) const;

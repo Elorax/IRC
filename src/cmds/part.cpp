@@ -12,11 +12,12 @@
 
 void	Server::cmdPart( vecString& args, int fd ) {
 
-	if (args.size() < 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
+	if (args.size() < 2)
+		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	std::string partMsg = partMsgInit(args, fd);
 	vecString::iterator it = args.begin();
+	it++;
 	for (; it != args.end() - 1; it++) {
 
 		std::istringstream ss(*it);
@@ -27,10 +28,10 @@ void	Server::cmdPart( vecString& args, int fd ) {
 			Channel& toPart = getChannel(channelName);
 
 			if (!doesChanExist(channelName))
-				buildMsg(ERR_NOSUCHCHANNEL, fd);
+				buildMsg(ERR_NOSUCHCHANNEL(channelName), fd);
 
 			if (!toPart.isUserOnChan(fd))
-				buildMsg(ERR_NOTONCHANNEL, fd);
+				buildMsg(ERR_NOTONCHANNEL(channelName), fd);
 
 			else {
 				toPart.delUserOnChan(*getClientByFD(fd));

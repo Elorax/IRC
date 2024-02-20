@@ -15,19 +15,19 @@
 
 void	Server::cmdMode( vecString& args, int fd ) {
 
-	Channel& chan = getChannel(args[0]);
 
-	if (args.size() < 2)
-		return (buildMsg(ERR_NEEDMOREPARAMS, fd));
+	if (args.size() < 3)
+		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
-	else if (!doesChanExist(args[0]))
-		return (buildMsg(ERR_NOSUCHCHANNEL, fd));
+	else if (!doesChanExist(args[1]))
+		return (buildMsg(ERR_NOSUCHCHANNEL(args[1]), fd));
+	Channel& chan = getChannel(args[1]);
 
-	else if (!chan.isUserOnChan(fd))
-		return (buildMsg(ERR_NOTONCHANNEL, fd));
+	if (!chan.isUserOnChan(fd))
+		return (buildMsg(ERR_NOTONCHANNEL(args[1]), fd));
 
 	else if (!chan.isUserChanOp(fd))
-		return (buildMsg(ERR_CHANOPRIVSNEEDED, fd));
+		return (buildMsg(ERR_CHANOPRIVSNEEDED(args[1]), fd));
 
 	vecString::iterator it = args.begin();
 	for(; it != args.end(); it++) {

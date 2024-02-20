@@ -1,7 +1,7 @@
 #include "Client.hpp"
 
 Client::Client(int fd): _clientFD(fd), _chanKey(""), _hostname(""),
-                        _realname(""), _username(""), _nickname("") {
+                        _realname(""), _username(""), _nickname(""), buffer("") {
 }
 
 Client::~Client( void ) {

@@ -25,14 +25,14 @@ std::string	keyInit( vecString passwords, vecString::iterator it_pw ) {
 
 void	Server::cmdJoin( vecString& args, int fd ) {
 
-	if (args.size() < 1)
-		buildMsg(ERR_NEEDMOREPARAMS, fd);
+	if (args.size() < 2)
+		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
-	if (args[0] == "0")
+	if (args[1] == "0")
 		return (leaveAllChans(*getClientByFD(fd)));
 
-	vecString chans = splitParamOnComas(args[0]);
-	vecString passwords = splitParamOnComas(args[1]);
+	vecString chans = splitParamOnComas(args[1]);
+	vecString passwords = splitParamOnComas(args[2]);
 	vecString::iterator it = chans.begin();
 	vecString::iterator it_pw = passwords.begin();
 
@@ -48,18 +48,18 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 		std::string userName = getClientByFD(fd)->getNickname();
 
 		if (toJoin.isInviteOnly())
-			buildMsg(ERR_INVITEONLYCHAN(userName, chanName), fd);
+			buildMsg(ERR_INVITEONLYCHAN(chanName), fd);
 
 		else if (toJoin.isFull())
-			buildMsg(ERR_CHANNELISFULL(userName, chanName), fd);
+			buildMsg(ERR_CHANNELISFULL(chanName), fd);
 
 		else if (!toJoin.isMatchingKey(key))
-			buildMsg(ERR_BADCHANNELKEY(userName, key), fd);
+			buildMsg(ERR_BADCHANNELKEY(chanName), fd);
 
 		else {
 			toJoin.addUserOnChan(*getClientByFD(fd));
 			buildMsg(RPL_NAMEREPLY(userName, chanName), toJoin);
-			buildMsg(RPL_ENDOFNAMES, toJoin);
+			buildMsg(RPL_ENDOFNAMES(chanName), toJoin);
 		}
 	}
 }

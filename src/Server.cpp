@@ -188,7 +188,7 @@ bool	Server::doesUserExist( const std::string& nickname ) {
 /*                                    Misc                                    */
 /* -------------------------------------------------------------------------- */
 
-void	Server::sendMsgs(){
+void	Server::sendMsgs(fd_set writeFDs){
 
 	std::cout << "ON SEND TOUS LES MESSAGES C LE FACTEUR QUI REGALE" << std::endl;
 	if (!_messages.empty() && !_clients.empty()){
@@ -196,7 +196,7 @@ void	Server::sendMsgs(){
 		std::vector<Message>::iterator it = _messages.begin();
 		for (; it != _messages.end(); it++){
 
-			if (FD_ISSET(it->getFD(), &_writeFDs)){
+			if (FD_ISSET(it->getFD(), &writeFDs)){
 				std::cout << "Msg a envoyer : " << it->getMsg() << std::endl;
 				send(it->getFD(), it->getMsg().c_str(), it->getMsg().size(), 0);
 				// std::cout << "Envoi du msg" + it->getMsg() + "au fd " << it->getFD() << std::endl;;	//Debugging

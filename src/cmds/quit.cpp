@@ -8,8 +8,8 @@
 void	Server::cmdQuit( vecString& args, int fd ) {
 
 	std::string quitmsg;
-	if (args.size() == 1)
-		quitmsg = " :" + args[0];
+	if (args.size() == 2)
+		quitmsg = " :" + args[1];
 
 	Client& client = *getClientByFD(fd);
 	vecString quitAllChans;
