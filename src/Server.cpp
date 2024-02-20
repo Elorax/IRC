@@ -210,7 +210,7 @@ void    Server::parseLine(std::string &line, int fd) {
 
 	std::cout << "Ligne recue : >" << line << "<" << std::endl;
     if (line.find("\r\n") == std::string::npos)
-		throw std::invalid_argument("Input must be terminated with '\\r\\n'");
+		return;
 
 	if (line[0] == ':')
     	line = line.substr(line.find(' '));

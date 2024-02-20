@@ -27,7 +27,7 @@ const Client&	Channel::getOP( const std::string& name ) {
         if (name == it->getUsername())
 			return (*it);
 	}
-	throw std::runtime_error("No matching Client found");
+	return (*it);
 }
 
 const vecClient	Channel::getChanUsers( void ) const {
