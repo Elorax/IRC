@@ -47,7 +47,10 @@ Server::~Server( void ) {
 int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
 
 	int fd;
-    fd = accept(_socketFD, (struct sockaddr*) &_clientAddr, (socklen_t *) sizeof(_clientAddr)); //Pas sur du cast. A voir a la compil
+	std::cout << "tentative d'accept" << std::endl;
+	socklen_t clientAddrLen = sizeof(_clientAddr);
+    fd = accept(_socketFD, (struct sockaddr*) &_clientAddr, &clientAddrLen);
+	std::cout << "prout" << fd << std::endl;
     if (fd == -1)
         return (-1);
 
@@ -187,12 +190,14 @@ bool	Server::doesUserExist( const std::string& nickname ) {
 
 void	Server::sendMsgs(){
 
+	std::cout << "ON SEND TOUS LES MESSAGES C LE FACTEUR QUI REGALE" << std::endl;
 	if (!_messages.empty() && !_clients.empty()){
 
 		std::vector<Message>::iterator it = _messages.begin();
 		for (; it != _messages.end(); it++){
 
 			if (FD_ISSET(it->getFD(), &_writeFDs)){
+				std::cout << "Msg a envoyer : " << it->getMsg() << std::endl;
 				send(it->getFD(), it->getMsg().c_str(), it->getMsg().size(), 0);
 				// std::cout << "Envoi du msg" + it->getMsg() + "au fd " << it->getFD() << std::endl;;	//Debugging
 			}
@@ -203,6 +208,7 @@ void	Server::sendMsgs(){
 
 void    Server::parseLine(std::string &line, int fd) {
 
+	std::cout << "Ligne recue : >" << line << "<" << std::endl;
     if (line.find("\r\n") == std::string::npos)
 		throw std::invalid_argument("Input must be terminated with '\\r\\n'");
 
@@ -211,33 +217,42 @@ void    Server::parseLine(std::string &line, int fd) {
 
     vecString args = buildArgs(line);
 
-	switch (findCommand(line)) {
+	for(vecString::iterator it = args.begin(); it != args.end(); it++)
+	{
+		std::cout << "arg : >" << *it << "<" << std::endl;
+	}
 
-		case eINVITE: cmdInvite(args, fd);	break;
-		case eJOIN: cmdJoin(args, fd);		break;
-		case eMODE: cmdMode(args, fd);		break;
-		case eNICK: cmdNick(args, fd);		break;
-		case eNOTICE: cmdNotice(args, fd);	break;
-		case ePART: cmdPart(args, fd);		break;
-		case eKICK: cmdKick(args, fd);		break;
-		case ePASS: cmdPass(args, fd);		break;
-		case ePRIVMSG: cmdPrivmsg(args, fd);break;
-		case eQUIT: cmdQuit(args, fd);		break;
-		case eTOPIC: cmdTopic(args, fd);	break;
-		case eUSER: cmdUser(args, fd);		break;
-		case eWHO: cmdWho(args, fd);		break;
-		case eNOTFOUND: throw std::runtime_error("Command not found :" + line);
+	switch (findCommand(args[0])) {	//!mettre args[0]
+
+		case eINVITE:	cmdInvite(args, fd);	break;
+		case eJOIN: 	cmdJoin(args, fd);		break;
+		case eMODE: 	cmdMode(args, fd);		break;
+		case eNICK: 	cmdNick(args, fd);		break;
+		case eNOTICE: 	cmdNotice(args, fd);	break;
+		case ePART: 	cmdPart(args, fd);		break;
+		case eKICK: 	cmdKick(args, fd);		break;
+		case ePASS:		cmdPass(args, fd);		break;
+		case ePRIVMSG: 	cmdPrivmsg(args, fd);	break;
+		case eQUIT: 	cmdQuit(args, fd);		break;
+		case eTOPIC: 	cmdTopic(args, fd);		break;
+		case eUSER: 	cmdUser(args, fd);		break;
+		case eWHO: 		cmdWho(args, fd);		break;
+		case eNOTFOUND: std::cout << "Command not found :" + line << std::endl;
 	}
 }
 
 eCommand	Server::findCommand( std::string const& line ) {
 
-	std::string	cmd[] = {	"PASS", "NICK", "USER", "INVITE", "JOIN", "KICK",
-							"PART", "TOPIC", "PRIVMSG", "NOTICE", "CAP", "MODE", "WHO", "QUIT" };
-    std::string tmp = line;
-    tmp.erase(tmp.find(' '), tmp.size());
+	std::string	cmd[] = {	"INVITE", "JOIN", "KICK", "MODE", "NICK", "NOTICE",
+							"PART", "PASS", "PRIVMSG", "QUIT", "TOPIC", "USER", "WHO"};
+							//Note pour demain
+							//C'était pas dans le meme ordre, gentille fille.
 
-	for (size_t i = 0; i < 14; i++){
+    std::string tmp = line;
+	if (tmp.find(' ') != std::string::npos)
+    	tmp.erase(tmp.find(' '), tmp.size());
+
+	for (size_t i = 0; i < 13; i++){
 		if (cmd[i] == line)
 			return ((eCommand)i);
 	}
@@ -263,15 +278,23 @@ void	Server::buildMsg( const std::string& msg, int fd ) {
 vecString Server::buildArgs( std::string& line ) {
 
 	vecString args;
-    std::string last = line.substr(line.find(':'));
-    std::string tmp = line.substr(0, line.find(':'));
+	std::string last;
 
+	if (line.find(':') != std::string::npos)
+		last = line.substr(line.find(':'));
+	else
+		last = "";
+
+    std::string tmp = line.substr(0, line.find(':'));
     while (tmp.find(' ') != std::string::npos) {
 		args.push_back(tmp.substr(0, tmp.find(' ')));
         tmp = tmp.substr(tmp.find(' ') + 1);
 	}
-    args.push_back(last);
-
+	if (tmp.find("\r\n") != std::string::npos)
+		tmp.erase(tmp.find("\r\n"));
+	args.push_back(tmp);
+	if (!last.empty())
+   		args.push_back(last);
 	return (args);
 }
 

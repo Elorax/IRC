@@ -12,7 +12,7 @@ bool	isNumber(char *s)
 
 int	main(int ac, char **av) {
 
-	try {
+	//try {
 		if (ac != 3)
 			throw std::invalid_argument("Wrong parameters.\nUse case: './ircserv <port> <password>'");
 		else if (!isNumber(av[1]))
@@ -21,10 +21,10 @@ int	main(int ac, char **av) {
 		std::string password(av[2]);
 		Server server(port, password);
 		server.run();
-	}
+	/*}
 	catch (std::exception& e) {
-		std::cout << e.what() << std::endl;
-	}
+		std::cout << "erreur de throw :" << e.what() << std::endl;
+	}*/
 
 	return (0);
 }

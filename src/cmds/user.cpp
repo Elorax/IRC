@@ -2,7 +2,7 @@
 
 void    Server::cmdUser( vecString& args, int fd)
 {
-    if (args.size() < 4)
+    if (args.size() < 5)
         buildMsg(ERR_NEEDMOREPARAMS, fd);
 
 	else if (!getClientByFD(fd)->getUsername().empty())

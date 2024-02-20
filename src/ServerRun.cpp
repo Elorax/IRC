@@ -20,15 +20,18 @@ void	Server::run( void ) {
 		signal(SIGQUIT, SIG_IGN);
 		initReadFDs();
 		initWriteFDs();
-
+		std::cout << "message 1" << std::endl;
 		if (select(getMaxFD() + 1, &_readFDs, &_writeFDs, NULL, NULL) < 0)
 			return;
 
 		if (FD_ISSET(getFD(), &_readFDs))
 			if (addClient(_readFDs, _writeFDs) != 0)
-				continue;
+				;
 
 		initBuffer();
+		sendMsgs();
+		std::cout << "message 2" << std::endl;
+
 	}
 }
 

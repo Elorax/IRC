@@ -4,18 +4,22 @@
 
 void	Server::cmdNick( vecString& args, int fd ) {
 
-	if (args[0].empty())
+	std::cout << "cmdNick, args[1] = >" << args[1] << "<" << std::endl;
+	if (args[1].empty())
 		buildMsg(ERR_NONICKNAMEGIVEN, fd);
 
-	else if (args.size() != 1)
+	else if (args.size() != 2)
 		buildMsg(ERR_NEEDMOREPARAMS, fd);
 		
-	else if (!isAvailNick(args[0]))
+	else if (!isAvailNick(args[1]))
 		buildMsg(ERR_NICKNAMEINUSE, fd);
 
-	else if (!isValidNick(args[0]))
-		buildMsg(ERR_ERRONEUSNICKNAME, fd);
+	else if (!isValidNick(args[1]))
+		{
+			std::cout << "le nick est pas bon kevin" << std::endl;
+			buildMsg(ERR_ERRONEUSNICKNAME, fd);
+		}
 
 	else
-		getClientByFD(fd)->setNickname(args[0]);
+		getClientByFD(fd)->setNickname(args[1]);
 }

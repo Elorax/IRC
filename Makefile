@@ -25,7 +25,7 @@ INCS		=	-I./inc
 
 CC			=	c++
 
-CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -I./inc -g3
+CFLAGS		=	-Wall -Wextra -std=c++98 -I./inc -g3
 
 RM			=	rm -f
 
