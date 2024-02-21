@@ -12,13 +12,13 @@
 //args[0] : Noms de channels, possiblement separes par des virgules.
 //args[1] : Passwords optionnels, possiblement separes par des virgules.
 
-std::string	keyInit( vecString passwords, vecString::iterator it_pw ) {
+std::string	keyInit( vecString passwords, vecString::iterator it_pwd ) {
 
 	std::string key;
-	if (it_pw >= passwords.end())
+	if (it_pwd >= passwords.end())
 			key = "";
 	else
-		key = *it_pw;
+		key = *it_pwd;
 
 	return (key);
 }
@@ -32,19 +32,22 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
 	if (args[1] == "0")
-		return (leaveAllChans(*getClientByFD(fd)));
+		return (leaveAllChans(*getClientByFD(fd), args));
 
-	vecString chans = splitParamOnComas(args[1]);
-	std::cout << chans[0] << std::endl; // debug
 	vecString passwords;
+	vecString chans = splitParamOnComas(args[1]);
 	if (args.size() > 2)
-		passwords = splitParamOnComas(args[2]);	
+		passwords = splitParamOnComas(args[2]);
+
+	std::cout << chans[0] << std::endl; // debug
 	vecString::iterator it = chans.begin();
-	vecString::iterator it_pw = passwords.begin();
-	for (; it != chans.end(); it++, it_pw++) {
+	vecString::iterator it_pwd = passwords.begin();
+
+	for (; it != chans.end(); it++, it_pwd++) {
 
 		std::string chanName = *it;
-		std::string key = keyInit(passwords, it_pw);
+		std::string key = keyInit(passwords, it_pwd);
+		Channel& toJoin = getChanByRef(chanName);
 
 		if (!doesChanExist(chanName)) {
 			std::cout <<"DEBUG : On cree le channel " << chanName << std::endl;
@@ -53,28 +56,14 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 			continue ;
 		}
 
-		Channel& toJoin = getChannel(chanName);
-		if (toJoin.isInviteOnly())
-			buildMsg(ERR_INVITEONLYCHAN(chanName), fd);
+		switch (toJoin.isChanJoinable(key, fd)) {
 
-		else if (toJoin.isFull())
-			buildMsg(ERR_CHANNELISFULL(chanName), fd);
-
-		else if (!toJoin.isMatchingKey(key))
-		{
-			std::cout << "DEBUG: key entree = >" + key +"<\nkey du serveur : >" + toJoin.getPassword()+"<" << std::endl;
-			buildMsg(ERR_BADCHANNELKEY(chanName), fd);
+			case   0: toJoin.addUser(*getClientByFD(fd)); handleJoinMsg(args, toJoin, fd); break;
+			case 471: buildMsg(ERR_CHANNELISFULL(chanName), fd); break;
+			case 473: buildMsg(ERR_INVITEONLYCHAN(chanName), fd); break;
+			case 475: buildMsg(ERR_BADCHANNELKEY(chanName), fd); std::cout << "DEBUG: key entree = >" + key +"<\nkey du serveur : >" + toJoin.getPassword() + "<" << std::endl;  break;
+			case 666: std::cout << "DEBUG: User already in chan." << std::endl;
 		}
-		else {
-			toJoin.addUserOnChan(*getClientByFD(fd));
-			if (toJoin.getTopic().empty())
-				buildMsg(RPL_NOTOPIC(chanName), fd);
-			else
-				buildMsg(RPL_TOPIC(chanName, toJoin.getTopic()), fd);
-			buildMsg(RPL_NAMEREPLY(chanName, toJoin.getNamesOfChanUsers()), fd);
-			buildMsg(RPL_ENDOFNAMES(chanName), fd);
-			buildMsg(":" + getClientByFD(fd)->getNickname() + "!~" + getClientByFD(fd)->getUsername()
-					+ "@" + _name + " JOIN " + chanName + "\r\n", toJoin);		}
 	}
 }
 
@@ -106,37 +95,37 @@ int	Server::createChannel( std::string chanName, std::string key, int fd ) {
 	return (EXIT_SUCCESS);
 }
 
-bool	Server::isKeyValid( const std::string& key ) {
+void	Server::leaveAllChans( Client& client, vecString& args ) {
 
-	if (key.size() > 23)
-		return (false);
+	vecChannel::iterator it = client.getUserChanList().begin();
 
-	if (!key.empty())
-		for (std::string::const_iterator it = key.begin(); it != key.end(); it++)
-			if ((*it >= 9 && *it <= 13) || *it == ' ' || *it == ':')
-				return (false);
-	return (true);
-}
+	while (it != client.getUserChanList().end()) {
 
-bool	Server::isChanValid( const std::string& chanName ) {
+		it->delUser(client);
+		std::string nameChan = it->getName();
+		buildMsg(initMsgs(client, args, nameChan), *it);
 
-	if (chanName[0] != '#')
-		return (false);
-
-	for (std::string::const_iterator it = chanName.begin(); it != chanName.end(); it++)
-		if (*it == 7 || *it == 13 || *it == 10 || *it == ',' || *it == ':')
-			return (false);
-
-	return (true);
-}
-
-void	Server::leaveAllChans( Client& client ) {
-
-	vecChannel chanList = client.getUserChanList();
-	vecChannel::iterator oni_chan = chanList.begin();
-	for (; oni_chan != chanList.end(); oni_chan++) {
-		client.delChanOfUser(*oni_chan);
-		buildMsg(":" + client.getNickname() + "!~" + client.getUsername()
-				+ "@" + _name + " PART " + oni_chan->getName() + "\r\n", *oni_chan);
+		if (it->getNbClients() == 0) {
+			std::cout << "CASE NO CLIENT :" << it->getNbClients() << " \r\n" << std::endl;
+			vecChannel::iterator toErase = it; it++;
+			_channels.erase(toErase);
+		}
+		else
+			it++;
 	}
+}
+
+void	Server::handleJoinMsg( vecString& args, Channel& chan, int requesterFD ) {
+
+	std::string chanName = chan.getName();
+
+	if (chan.getTopic().empty())
+		buildMsg(RPL_NOTOPIC(chanName), requesterFD);
+
+	else
+		buildMsg(RPL_TOPIC(chanName, chan.getTopic()), requesterFD);
+
+	buildMsg(RPL_NAMEREPLY(chanName, chan.getNamesOfChanUsers()), requesterFD);
+	buildMsg(RPL_ENDOFNAMES(chanName), requesterFD);
+	buildMsg(initMsgs(*getClientByFD(requesterFD), args, chanName), chan);
 }

@@ -11,8 +11,6 @@ class	Server {
 	private:
 		int							_port;
 		int							_socketFD;
-		// fd_set						_readFDs;
-		// fd_set						_writeFDs;
 		vecClient					_clients;
 		vecChannel					_channels;
 		vecMessage					_messages;
@@ -37,23 +35,23 @@ class	Server {
 		int							getMaxFD( void ) const;
 		const vecClient::iterator	getClientByFD( const int fd );
 		const vecClient::iterator	getClientByName( const std::string& nick );
-		Channel&					getChannel( const std::string& chan );
+		const vecChannel::iterator	getChanByIt( const std::string& chan );
+		Channel&					getChanByRef( const std::string& chan );
 
 
 		/* Runtime */
 		void						run( void );
 		void						sendMsgs( fd_set writeFDs );
 		void 						initBuffer( fd_set &readFDs, fd_set &writeFDs );
-		//void						initReadFDs( void );
-		//void						initWriteFDs( void );
 		fd_set						initReadFDs( void );
 		fd_set						initWriteFDs( void );
+		std::string 				initMsgs( Client& user, vecString& args, std::string& target );
 
 		/* Building args */
-		void						buildMsg(const std::string& msg, int fd );
-		void						buildMsg(const std::string& msg, Channel& chan);
 		vecString					buildArgs( std::string& line);
 		vecString					buildModes( std::string& line );
+		void						buildMsg(const std::string& msg, int fd );
+		void						buildMsg(const std::string& msg, Channel& chan);
 
 		/* Checkers */
 		bool						isKeyValid( const std::string& key );
@@ -81,16 +79,19 @@ class	Server {
 		void						cmdWho( vecString& args, int fd );
 
 		/* Misc */
-		std::string					partMsgInit( vecString& arg, int fd);
+		std::string					convertVecString( vecString& args );
 		vecString					splitParamOnComas( std::string& arg );
 		int							createChannel( std::string chanName, std::string key, int fd );
 		void    					parseLine( std::string& line, int fd );
-		void						leaveAllChans( Client& client );
+		void						leaveAllChans( Client& client, vecString& args );
 		void						whoAll( int requesterFD );
 		void						whoClient( Client& target, int requesterFD );
 		void						whoChannel( const Channel& target, int requesterFD );
+		void						handleJoinMsg( vecString& args, Channel& chan, int requesterFD );
 		void						kickUsers( vecString args, vecString users, vecString chans, int requesterFD );
 		void						kickChans( vecString args, vecString users, vecString chans, int requesterFD );
 		void						kickChansUsers( vecString args, vecString users, vecString chans, int requesterFD );
+		void						debug( void );
+
 };
 

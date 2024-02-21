@@ -32,15 +32,15 @@ void	Server::kickUsers( vecString args, vecString users, vecString chans, int re
 	vecString::iterator itChan = chans.begin();
 	vecString::iterator itUser = users.begin();
 
-	if (!getChannel(*itChan).isUserOnChan(requesterFD))
+	if (!getChanByRef(*itChan).isUserOnChan(requesterFD))
 		return (buildMsg(ERR_NOTONCHANNEL(*itChan), requesterFD));
 
-	else if (getChannel(*itChan).isUserOnChan(*itUser))
+	else if (getChanByRef(*itChan).isUserOnChan(*itUser))
 		return (buildMsg(ERR_USERNOTINCHANNEL(*itUser, *itChan), requesterFD));
 
 	kickMsg.push_back(getClientByFD(requesterFD)->getNickname());
 	for (; itUser != users.end(); itUser++) {
-		if (!getChannel(*itChan).isUserChanOp(requesterFD))
+		if (!getChanByRef(*itChan).isUserChanOp(requesterFD))
 			return (buildMsg(ERR_CHANOPRIVSNEEDED(*itChan), requesterFD));
 
 		vecString args_part;
@@ -65,13 +65,13 @@ void	Server::kickChans( vecString args, vecString users, vecString chans, int re
 
 	for (; itChan != chans.end(); itChan++) {
 
-		if (!getChannel(*itChan).isUserOnChan(requesterFD))
+		if (!getChanByRef(*itChan).isUserOnChan(requesterFD))
 			return (buildMsg(ERR_NOTONCHANNEL(*itChan), requesterFD));
 
-		else if (!getChannel(*itChan).isUserOnChan(*itUser))
+		else if (!getChanByRef(*itChan).isUserOnChan(*itUser))
 			return (buildMsg(ERR_USERNOTINCHANNEL(*itUser, *itChan), requesterFD));
 
-		else if (!getChannel(*itChan).isUserChanOp(requesterFD))
+		else if (!getChanByRef(*itChan).isUserChanOp(requesterFD))
 			return (buildMsg(ERR_CHANOPRIVSNEEDED(*itChan), requesterFD));
 
 		vecString args_part;
@@ -96,13 +96,13 @@ void	Server::kickChansUsers( vecString args, vecString users, vecString chans, i
 
 	for (; itUser != users.end() || itChan != chans.end(); itUser++, itChan++) {
 
-		if (!getChannel(*itChan).isUserOnChan(requesterFD))
+		if (!getChanByRef(*itChan).isUserOnChan(requesterFD))
 			return (buildMsg(ERR_NOTONCHANNEL(*itChan), requesterFD));
 
-		else if (getChannel(*itChan).isUserOnChan(*itUser))
+		else if (getChanByRef(*itChan).isUserOnChan(*itUser))
 			return (buildMsg(ERR_USERNOTINCHANNEL(*itUser, *itChan), requesterFD));
 
-		else if (!getChannel(*itChan).isUserChanOp(requesterFD))
+		else if (!getChanByRef(*itChan).isUserChanOp(requesterFD))
 			return (buildMsg(ERR_CHANOPRIVSNEEDED(*itChan), requesterFD));
 
 		vecString args_part;

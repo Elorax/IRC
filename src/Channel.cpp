@@ -4,13 +4,13 @@
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Channel::Channel( std::string name, Client& client ): _name(name), _chanKey(""), _topic(""),
-_isChanKeySet(false), _inviteOnly(false), _topicPriv(false), _chanLimit(-1) {
+Channel::Channel( std::string name, Client& client )
+: _inviteOnly(false), _isChanKeySet(false), _topicPriv(false), _chanLimit(-1), _chanKey(""),  _name(name), _topic("") {
 
 	client.addChanToUser(*this);
 	_chanOp.push_back(client);
 	_chanUsers.push_back(client);
-	std::cout << "DEBUG: channel cree : " + _name + "\nCreateur : " + _chanOp[0].getNickname() << std::endl;
+	std::cout << "DEBUG: channel cree : " + _name + " --- Createur : " + _chanOp[0].getNickname() << std::endl;
 }
 
 Channel::~Channel( void ) {
@@ -53,9 +53,9 @@ const std::string	Channel::getNamesOfChanUsers( void ) const {
 	std::string names;
 	vecClient::const_iterator it = _chanUsers.begin();
 	for (; it != _chanUsers.end() - 1; it++) {
-		names + it->getNickname();
+		names += it->getNickname();
 		if (it != _chanUsers.end() -1)
-			names + " ";
+			names += " ";
 	}
 	return (names);
 	//! J'ai fini rapidement la fonction mais je sais pas ce que tu voulais en faire donc a toi de veirfier
@@ -80,7 +80,7 @@ size_t	Channel::getNbClients( void ) {
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
 
-void	Channel::addUserOnChan( Client& user ) {
+void	Channel::addUser( Client& user ) {
 
 	_chanUsers.push_back(user);
 	user.addChanToUser(*this);
@@ -116,7 +116,7 @@ void	Channel::setOP( Server& serv, vecString& args, vecString::iterator it, int 
 	if (++it == args.end())
 		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
-	else if (isUserOnChan(*it))
+	else if (!isUserOnChan(*it))
 		serv.buildMsg(ERR_USERNOTINCHANNEL(*it, getName()), fd);
 
 	else if (!isUserChanOp(*it))
@@ -147,15 +147,17 @@ void	Channel::setTopic( const std::string& topic ) {
 /*                                  Unsetters                                 */
 /* -------------------------------------------------------------------------- */
 
-void	Channel::delUserOnChan( Client& user ) {
+//remove un user d'un chan ainsi que de la liste des op si il en faisait partie.
+void	Channel::delUser( Client& user ) {
 
 	std::string name = user.getUsername();
 	vecClient::iterator it = _chanUsers.begin();
 
-	for(; it != _chanUsers.end(); it++)
+	for(; it < _chanUsers.end(); it++)
 		if (name == it->getUsername()) {
+			unsetOP(user);
 			_chanUsers.erase(it);
-			user.delChanOfUser(*this);
+			user.delChan(*this);
 		}
 }
 
@@ -165,16 +167,28 @@ void	Channel::unsetKey( void ) {
 	_isChanKeySet = false;
 }
 
+void	Channel::unsetOP( Client& user ) {
+
+	std::string name = user.getUsername();
+	vecClient::iterator it = _chanOp.begin();
+
+	for(; it < _chanOp.end(); it++)
+		if (name == it->getUsername())
+			_chanOp.erase(it);
+}
+
+
 void	Channel::unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
 	if (++it == args.end())
 		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
-	else if (isUserOnChan(*it))
+	else if (!isUserOnChan(*it))
 		serv.buildMsg(ERR_USERNOTINCHANNEL(*it, getName()), fd);
 
 	else if (isUserChanOp(*it))
-		_chanOp.erase(serv.getClientByName(*it));
+		unsetOP(*serv.getClientByName(*it));
+		//_chanOp.erase(serv.getClientByName(*it));
 }
 
 void	Channel::unsetLimit( void ) {
@@ -267,4 +281,29 @@ bool	Channel::isUserOnChan( int fd ) {
 			return (true);
 
 	return (false);
+}
+
+bool	Channel::isUserAlreadyInChan( int fd ) {
+
+	vecClient::iterator it = _chanUsers.begin();
+	for(; it != _chanUsers.end(); it++)
+	{
+		if (it->getFD() == fd)
+			return (true);
+	}
+	return (false);
+}
+
+int	Channel::isChanJoinable( const std::string& key, int fd ) {
+
+	if (isInviteOnly())
+		return (473);
+	if (isFull())
+		return (471);
+	if (!isMatchingKey(key))
+		return (475);
+	if (isUserAlreadyInChan(fd))
+		return (666);
+
+	return (0);
 }

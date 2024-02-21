@@ -23,12 +23,14 @@ void	Server::cmdPrivmsg( vecString& args, int fd ) {
 
 		else {
 
-			Channel &chan = getChannel(args[1]);
+			Channel &chan = getChanByRef(args[1]);
 			if (!chan.isUserOnChan(fd))
+				buildMsg(ERR_CANNOTSENDTOCHAN(chan.getName()), fd);
+			else if (!getClientByFD(fd)->isChanInList(chan))
 				buildMsg(ERR_CANNOTSENDTOCHAN(chan.getName()), fd);
 			else
 				buildMsg(":" + getClientByFD(fd)->getNickname() + "!~" + getClientByFD(fd)->getUsername()
-						+ "@" + _name + " PRIVMSG " + args[1] + " " + args[2] + "\r\n", getChannel(args[1]));
+						+ "@" + _name + " PRIVMSG " + args[1] + " " + args[2] + "\r\n", getChanByRef(args[1]));
 
 		}
 	}

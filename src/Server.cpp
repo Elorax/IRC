@@ -9,6 +9,7 @@ Server::Server(std::string &port, std::string &password)
     //Initialisation des parametres du serveur
     _port = atoi(port.c_str());
     _chanKey = password;
+	_name = "ft_irc";
 
     //Initialisation des sockets et ouverture du serveur
     //AF_INET : IPv4. SOCK_NONBLOCK pour avoir un socket non bloquant pour le multi client sans fork(). 0 pour protocole automatique
@@ -116,15 +117,27 @@ const vecClient::iterator	Server::getClientByName( const std::string& nick ) {
 	return (it);
 }
 
-Channel&	Server::getChannel( const std::string& channel ) {
+
+const vecChannel::iterator	Server::getChanByIt( const std::string& chan ) {
 
 	vecChannel::iterator it = _channels.begin();
 
 	for (; it != _channels.end(); it++){
-		if (it->getName() == channel)
+		if (it->getName() == chan)
+			return (it);
+	}
+	return (it);
+}
+
+Channel&	Server::getChanByRef( const std::string& chan) {
+
+	vecChannel::iterator it = _channels.begin();
+
+	for (; it != _channels.end(); it++){
+		if (it->getName() == chan)
 			return (*it);
 	}
-	return (*it);	//Si on arrive ici, on a renvoyé end()
+	return (*it);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -169,6 +182,30 @@ bool    Server::isValidNick( const std::string& nick ) {
 //nickname   =  ( letter / special ) *8( letter / digit / special / "-" )
 //special    =  %x5B-60 / %x7B-7D
 //                   ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
+
+bool	Server::isKeyValid( const std::string& key ) {
+
+	if (key.size() > 23)
+		return (false);
+
+	if (!key.empty())
+		for (std::string::const_iterator it = key.begin(); it != key.end(); it++)
+			if ((*it >= 9 && *it <= 13) || *it == ' ' || *it == ':')
+				return (false);
+	return (true);
+}
+
+bool	Server::isChanValid( const std::string& chanName ) {
+
+	if (chanName[0] != '#')
+		return (false);
+
+	for (std::string::const_iterator it = chanName.begin(); it != chanName.end(); it++)
+		if (*it == 7 || *it == 13 || *it == 10 || *it == ',' || *it == ':')
+			return (false);
+
+	return (true);
+}
 
 bool	Server::doesChanExist( const std::string& chan ) {
 
@@ -230,7 +267,7 @@ void    Server::parseLine(std::string &line, int fd) {
 		std::cout << "arg : >" << *it << "<" << std::endl;
 	}
 
-	switch (findCommand(args[0])) {	//!mettre args[0]
+	switch (findCommand(args[0])) {
 
 		case eINVITE:	cmdInvite(args, fd);	break;
 		case eJOIN: 	cmdJoin(args, fd);		break;
@@ -318,4 +355,45 @@ vecString Server::buildModes( std::string& line ) {
     modes.push_back(tmp);
 
 	return (modes);
+}
+
+std::string Server::initMsgs( Client& user, vecString& args, std::string& target ) {
+
+	vecString msg;
+	msg.push_back(":");
+	msg.push_back(user.getNickname());
+	msg.push_back("!");
+	msg.push_back(user.getUsername());
+	msg.push_back("@");
+	msg.push_back(_name);
+	msg.push_back(" ");
+	msg.push_back(args[0]);
+	msg.push_back(" ");
+	msg.push_back(target);
+	msg.push_back(" ");
+
+	if (args[0] == "PART" && args.size() == 3) {
+		msg.push_back(args.back());
+	    args.pop_back();
+	}
+	else
+		msg.push_back(user.getNickname());
+
+	msg.push_back("\r\n");
+
+	return (convertVecString(msg));
+}
+
+//DEBUG Fonction : presentation des serveurs et des clients.
+void	Server::debug( void )
+{
+	int i = 0;
+	for (vecChannel::iterator it = _channels.begin(); it < _channels.end();i++, it++)
+	{
+		std::cout << "Channel numero " << i << " : " << it->getName() << "\nNb de clients : " << it->getNbClients() << std::endl;
+		for (size_t j = 0; j < it->getNbClients(); j++)
+		{
+			std::cout << "client " << j << ", fd : " << it->getClient(j).getFD() << "\nNick : " << it->getClient(j).getNickname() << std::endl;
+		}
+	}
 }

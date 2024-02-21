@@ -13,7 +13,7 @@ void	Server::cmdNotice( vecString& args, int fd ) {
 	if (args[1][0] == '#') {
 
 		if (!doesChanExist(args[1])) {
-			Channel &chan = getChannel(args[1]);
+			Channel &chan = getChanByRef(args[1]);
 			if (chan.isUserOnChan(fd))
 				buildMsg(args[2], chan);
 		}

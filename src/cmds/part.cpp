@@ -18,9 +18,41 @@ void	Server::cmdPart( vecString& args, int fd ) {
 	if (args.size() < 2)
 		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
-	std::string partMsg = partMsgInit(args, fd);
+	vecString chans = splitParamOnComas(args[1]);
+	vecString::iterator it = chans.begin();
+
+	for (; it < chans.end(); it++) {
+
+		if (!doesChanExist(*it)) {
+			buildMsg(ERR_NOSUCHCHANNEL(*it), fd); 
+			continue;
+		}
+
+		Channel& toPart = getChanByRef(*it);
+
+		if (!toPart.isUserOnChan(fd))
+			buildMsg(ERR_NOTONCHANNEL(*it), fd);
+
+		else if (toPart.getNbClients() == 1)
+			_channels.erase(getChanByIt(*it));
+
+		else {
+			toPart.delUser(*getClientByFD(fd));
+			std::string str = toPart.getName();
+			buildMsg(initMsgs(*getClientByFD(fd), args, str), toPart);
+			std::cout << "DEBUG: PART : On del user " << getClientByFD(fd)->getNickname() << " de " << *it << std::endl;
+
+		}
+	}
+
+/*
 	vecString::iterator it = args.begin();
 	it++;
+
+
+
+
+
 	for (; it != args.end() - 1; it++) {
 
 		std::istringstream ss(*it);
@@ -28,7 +60,7 @@ void	Server::cmdPart( vecString& args, int fd ) {
 
 		while (std::getline(ss, channelName, ',')) {
 
-			Channel& toPart = getChannel(channelName);
+			Channel& toPart = getChanByRef(channelName);
 
 			if (!doesChanExist(channelName))
 				buildMsg(ERR_NOSUCHCHANNEL(channelName), fd);
@@ -37,24 +69,9 @@ void	Server::cmdPart( vecString& args, int fd ) {
 				buildMsg(ERR_NOTONCHANNEL(channelName), fd);
 
 			else {
-				toPart.delUserOnChan(*getClientByFD(fd));
+				toPart.delUser(*getClientByFD(fd));
 				buildMsg(partMsg, toPart);
 			}
 		}
-	}
-}
-
-/* --------------------------------- Helpers -------------------------------- */
-
-std::string	Server::partMsgInit( vecString& args, int fd) {
-
-	std::string partMsg;
-
-	if (args.size() == 3) {
-		partMsg = args.back();
-	    args.pop_back();
-	}
-	else
-		partMsg = getClientByFD(fd)->getNickname();
-	return (partMsg);
+	}*/
 }

@@ -12,7 +12,7 @@ void	Server::cmdWho( vecString& args, int fd ) {
 		whoAll(fd);
 
 	else if (doesChanExist(args[1])) {
-		Channel& target = getChannel(args[1]);
+		Channel& target = getChanByRef(args[1]);
 		whoChannel(target, fd);
 	}
 
@@ -24,7 +24,7 @@ void	Server::cmdWho( vecString& args, int fd ) {
 
 /* --------------------------------- Helpers -------------------------------- */
 
-std::string convertVecString( vecString args ) {
+std::string Server::convertVecString( vecString& args ) {
 
 	std::string result;
 	vecString::iterator it = args.begin();

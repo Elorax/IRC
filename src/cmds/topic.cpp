@@ -15,7 +15,7 @@ void	Server::cmdTopic( vecString& args, int fd) {
 	if (args.size() < 2)
 		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
-	Channel& chan = getChannel(args[1]);
+	Channel& chan = getChanByRef(args[1]);
 
 	if (!chan.isUserOnChan(fd))
 		buildMsg(ERR_NOTONCHANNEL(chan.getName()), fd);

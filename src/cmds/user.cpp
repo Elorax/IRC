@@ -9,7 +9,7 @@ void    Server::cmdUser( vecString& args, int fd )
 	if (getClientByFD(fd)->getPassword().empty())
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
-    if (args.size() != 5)
+    if (args.size() < 4)
         buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (!getClientByFD(fd)->getUsername().empty())

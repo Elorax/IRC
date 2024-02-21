@@ -48,12 +48,12 @@ void    Client::addChanToUser( const Channel& add ) {
     _userChannels.push_back(add);
 }
 
-void	Client::delChanOfUser( const Channel& del ) {
+void	Client::delChan( const Channel& del ) {
 
-    std::string name = static_cast<std::string>(del.getName());
+    const std::string name = del.getName();
 	vecChannel::iterator it = _userChannels.begin();
 
-	for(; it != _userChannels.end(); it++)
+	for(; it < _userChannels.end(); it++)
 		if (name == it->getName())
 			_userChannels.erase(it);
 }

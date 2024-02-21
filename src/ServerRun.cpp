@@ -47,7 +47,7 @@ void	Server::run( void ) {
 		fd_set writeFDs = initWriteFDs();
 		//initReadFDs();
 		//initWriteFDs();
-		std::cout << "message 1" << std::endl;
+		//std::cout << "message 1" << std::endl;
 		if (select(getMaxFD() + 1, &readFDs, &writeFDs, NULL, NULL) < 0)
 			return;
 
@@ -58,8 +58,9 @@ void	Server::run( void ) {
 			}
 		}
 		sendMsgs(writeFDs);
+		debug();	//Presente tous les chans et tous leurs users.
 		initBuffer(readFDs, writeFDs);
-		std::cout << "message 2" << std::endl;
+		//std::cout << "message 2" << std::endl;
 	}
 }
 

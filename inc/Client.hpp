@@ -29,7 +29,7 @@ class	Client {
 		void						setHostname( const std::string& hostname );
 
 		void						addChanToUser( const Channel& add );
-		void						delChanOfUser( const Channel& del );
+		void						delChan( const Channel& del );
 
 		/* getters */
 		const int&					getFD( void ) const;

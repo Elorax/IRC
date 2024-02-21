@@ -8,13 +8,13 @@ class Client;
 class	Channel {
 
 	private:
-		std::string				_name;
-		std::string				_chanKey;
-		std::string				_topic;
-		bool					_isChanKeySet;
 		bool					_inviteOnly;
+		bool					_isChanKeySet;
 		bool					_topicPriv;
 		size_t					_chanLimit;
+		std::string				_chanKey;
+		std::string				_name;
+		std::string				_topic;
 		vecClient				_chanOp;
 		vecClient				_chanUsers;
 
@@ -26,28 +26,29 @@ class	Channel {
 		size_t					getNbClients( void );
 		const Client&			getClient(int idx);
 		const Client&			getOP( const std::string& name );
-		const vecClient			getChanUsers( void ) const ;
+		const vecClient			getChanUsers( void ) const;
 		const std::string		getName( void ) const;
 		const std::string		getTopic( void ) const;
 		const std::string		getPassword( void ) const;
 		const std::string		getNamesOfChanUsers( void ) const;
 
 		/* Setters */
-		void					addUserOnChan( Client& user );
+		void					setTopicPriv( void );
 		void					setInviteOnly( void );
+		void					addUser( Client& user );
 		void					setKey( const std::string& key );
+		void					setTopic( const std::string& topic );
+		void					setOP( Server& serv, vecString& args, vecString::iterator it, int fd );
 		void					setKey( Server& serv, vecString& args, vecString::iterator it, int fd );
 		void					setLimit( Server& serv, vecString& args, vecString::iterator it, int fd );
-		void					setOP( Server& serv, vecString& args, vecString::iterator it, int fd );
-		void					setTopicPriv( void );
-		void					setTopic( const std::string& topic );
 		/* Unsetters */
-		void					delUserOnChan( Client& user );
-		void					unsetInviteOnly( void );
 		void					unsetKey( void );
 		void					unsetLimit( void );
-		void					unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd );
+		void					unsetInviteOnly( void );
 		void					unsetTopicPriv( void );
+		void					delUser( Client& user );
+		void					unsetOP( Client& user );
+		void					unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd );
 
 		/* Checkers */
 		bool					isFull( void );
@@ -56,8 +57,10 @@ class	Channel {
 		bool					isTopicPrivSet( void );
 		bool					isUserOnChan( int fd );
 		bool					isUserChanOp( int fd );
+		bool					isUserAlreadyInChan( int fd );
 		bool					isKeyValid( const std::string& key );
-		bool					isUserOnChan( const std::string& nickname );
-		bool					isUserChanOp( const std::string& nickname );
 		bool					isMatchingKey( const std::string& key );
+		bool					isUserOnChan( const std::string& nick );
+		bool					isUserChanOp( const std::string& nick );
+		int						isChanJoinable( const std::string& key, int fd );
 };
