@@ -56,7 +56,7 @@ int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
 
     Client newClient(fd);
     std::cout << "NEW CLIENT\n";    //Useless mais utile pour mon debug
-    _clients.push_back(newClient);    //Vecteur<client> a implementer
+    _clients.push_back(newClient);
     FD_SET(fd, &readFDs);
     FD_SET(fd, &writeFDs);
 
@@ -106,11 +106,11 @@ const vecClient::iterator	Server::getClientByFD( int fd ) {
 	return (it);
 }
 
-const vecClient::iterator	Server::getClientByName( const std::string& user ) {
+const vecClient::iterator	Server::getClientByName( const std::string& nick ) {
 
 	vecClient::iterator	it = _clients.begin();
 	for (; it != _clients.end(); it++){
-		if (it->getUsername() == user)
+		if (it->getNickname() == nick)
 			return (it);
 	}
 	return (it);
@@ -138,6 +138,14 @@ bool    Server::isAvailNick( const std::string& nick ) {
 		if (it->getNickname() == nick)
 			return (false);
 	}
+	return (true);
+}
+
+bool	Server::isUserSet( const Client& client ) {
+
+	if (client.getPassword().empty() || client.getUsername().empty()
+		|| client.getNickname().empty() || client.getHostname().empty() || client.getRealname().empty())
+		return (false);
 	return (true);
 }
 
@@ -197,7 +205,7 @@ void	Server::sendMsgs(fd_set writeFDs){
 		for (; it != _messages.end(); it++){
 
 			if (FD_ISSET(it->getFD(), &writeFDs)){
-				std::cout << "Msg a envoyer : " << it->getMsg() << std::endl;
+				std::cout << "Sent message to :" << getClientByFD(it->getFD())->getNickname() << " :" << it->getMsg() << std::endl;
 				send(it->getFD(), it->getMsg().c_str(), it->getMsg().size(), 0);
 				// std::cout << "Envoi du msg" + it->getMsg() + "au fd " << it->getFD() << std::endl;;	//Debugging
 			}
@@ -237,7 +245,7 @@ void    Server::parseLine(std::string &line, int fd) {
 		case eTOPIC: 	cmdTopic(args, fd);		break;
 		case eUSER: 	cmdUser(args, fd);		break;
 		case eWHO: 		cmdWho(args, fd);		break;
-		case eNOTFOUND: std::cout << "Command not found :" + line << std::endl;
+		case eNOTFOUND: buildMsg(ERR_UNKNOWNCOMMAND(args[0]), fd);
 	}
 }
 
@@ -245,8 +253,6 @@ eCommand	Server::findCommand( std::string const& line ) {
 
 	std::string	cmd[] = {	"INVITE", "JOIN", "KICK", "MODE", "NICK", "NOTICE",
 							"PART", "PASS", "PRIVMSG", "QUIT", "TOPIC", "USER", "WHO"};
-							//Note pour demain
-							//C'était pas dans le meme ordre, gentille fille.
 
     std::string tmp = line;
 	if (tmp.find(' ') != std::string::npos)

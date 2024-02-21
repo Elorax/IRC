@@ -4,6 +4,9 @@
 //Kick est censee utiliser la commande Part
 void	Server::cmdKick( vecString& args, int fd ) {
 
+	if (!isUserSet(*getClientByFD(fd)))
+		return (buildMsg(ERR_NOTREGISTERED, fd));
+
 	if (args.size() < 3)
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
@@ -40,10 +43,11 @@ void	Server::kickUsers( vecString args, vecString users, vecString chans, int re
 		if (!getChannel(*itChan).isUserChanOp(requesterFD))
 			return (buildMsg(ERR_CHANOPRIVSNEEDED(*itChan), requesterFD));
 
+		vecString args_part;
 		kickMsg.push_back(" ");
 		kickMsg.push_back(*itUser);
-		vecString args_part;
 		args_part.push_back(*itChan);
+
 		if (args.size() == 3)
 			args_part.push_back(args[2]);
 		else
@@ -70,10 +74,11 @@ void	Server::kickChans( vecString args, vecString users, vecString chans, int re
 		else if (!getChannel(*itChan).isUserChanOp(requesterFD))
 			return (buildMsg(ERR_CHANOPRIVSNEEDED(*itChan), requesterFD));
 
+		vecString args_part;
 		kickMsg.push_back(" ");
 		kickMsg.push_back(*itUser);
-		vecString args_part;
 		args_part.push_back(*itChan);
+
 		if (args.size() == 3)
 			args_part.push_back(args[2]);
 		else
@@ -100,10 +105,11 @@ void	Server::kickChansUsers( vecString args, vecString users, vecString chans, i
 		else if (!getChannel(*itChan).isUserChanOp(requesterFD))
 			return (buildMsg(ERR_CHANOPRIVSNEEDED(*itChan), requesterFD));
 
+		vecString args_part;
 		kickMsg.push_back(" ");
 		kickMsg.push_back(*itUser);
-		vecString args_part;
 		args_part.push_back(*itChan);
+
 		if (args.size() == 3)
 			args_part.push_back(args[2]);
 		else

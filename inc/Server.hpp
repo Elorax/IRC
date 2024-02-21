@@ -11,8 +11,8 @@ class	Server {
 	private:
 		int							_port;
 		int							_socketFD;
-		fd_set						_readFDs;
-		fd_set						_writeFDs;
+		// fd_set						_readFDs;
+		// fd_set						_writeFDs;
 		vecClient					_clients;
 		vecChannel					_channels;
 		vecMessage					_messages;
@@ -36,7 +36,7 @@ class	Server {
 		int							getFD( void ) const;
 		int							getMaxFD( void ) const;
 		const vecClient::iterator	getClientByFD( const int fd );
-		const vecClient::iterator	getClientByName( const std::string& user );
+		const vecClient::iterator	getClientByName( const std::string& nick );
 		Channel&					getChannel( const std::string& chan );
 
 
@@ -56,8 +56,9 @@ class	Server {
 		vecString					buildModes( std::string& line );
 
 		/* Checkers */
-		bool						isKeyValid( std::string& key );
-		bool						isChanValid( std::string& name );
+		bool						isKeyValid( const std::string& key );
+		bool						isUserSet( const Client& client );
+		bool						isChanValid( const std::string& name );
 		bool						isAvailNick( const std::string& nick );
         bool						isValidNick( const std::string& nick );
 		bool						doesChanExist( const std::string& chan );

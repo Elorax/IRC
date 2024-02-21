@@ -10,9 +10,11 @@ _isChanKeySet(false), _inviteOnly(false), _topicPriv(false), _chanLimit(-1) {
 	client.addChanToUser(*this);
 	_chanOp.push_back(client);
 	_chanUsers.push_back(client);
+	std::cout << "DEBUG: channel cree : " + _name + "\nCreateur : " + _chanOp[0].getNickname() << std::endl;
 }
 
 Channel::~Channel( void ) {
+	std::cout << "DEBUG: channel DELETE : " + _name << std::endl;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -45,6 +47,20 @@ const std::string	Channel::getName( void ) const{
 const std::string	Channel::getTopic( void ) const {
 	return (_topic);
 }
+
+const std::string	Channel::getNamesOfChanUsers( void ) const {
+
+	std::string names;
+	vecClient::const_iterator it = _chanUsers.begin();
+	for (; it != _chanUsers.end() - 1; it++) {
+		names + it->getNickname();
+		if (it != _chanUsers.end() -1)
+			names + " ";
+	}
+	return (names);
+	//! J'ai fini rapidement la fonction mais je sais pas ce que tu voulais en faire donc a toi de veirfier
+}
+
 
 const Client&	Channel::getClient(int idx) {
 	return (_chanUsers[idx]);
@@ -196,7 +212,6 @@ bool	Channel::isFull( void ) {
 bool	Channel::isMatchingKey( const std::string& key ) {
 	return (key == _chanKey);
 }
-
 
 bool	Channel::isKeyValid( const std::string& key ) {
 

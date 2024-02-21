@@ -31,8 +31,8 @@ fd_set	Server::initWriteFDs( void ) {
 
 	vecMessage::iterator it = _messages.begin();
 	for (; it != _messages.end(); it++) {
-		if (FD_ISSET(it->getFD(), &_writeFDs) == 0)
-			FD_SET(it->getFD(), &_writeFDs);
+		if (FD_ISSET(it->getFD(), &writeFDs) == 0)
+			FD_SET(it->getFD(), &writeFDs);
 	}
 	return (writeFDs);
 }
@@ -51,14 +51,15 @@ void	Server::run( void ) {
 		if (select(getMaxFD() + 1, &readFDs, &writeFDs, NULL, NULL) < 0)
 			return;
 
-		if (FD_ISSET(getFD(), &readFDs))
-			if (addClient(readFDs, writeFDs) != 0)
+		if (FD_ISSET(getFD(), &readFDs)) {
+			if (addClient(readFDs, writeFDs) != 0){
+				std::cout << "add client failed" << std::endl;
 				continue;
-
+			}
+		}
 		sendMsgs(writeFDs);
 		initBuffer(readFDs, writeFDs);
 		std::cout << "message 2" << std::endl;
-
 	}
 }
 

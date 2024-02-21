@@ -27,9 +27,10 @@ class	Channel {
 		const Client&			getClient(int idx);
 		const Client&			getOP( const std::string& name );
 		const vecClient			getChanUsers( void ) const ;
+		const std::string		getName( void ) const;
 		const std::string		getTopic( void ) const;
 		const std::string		getPassword( void ) const;
-		const std::string		getName( void ) const;
+		const std::string		getNamesOfChanUsers( void ) const;
 
 		/* Setters */
 		void					addUserOnChan( Client& user );

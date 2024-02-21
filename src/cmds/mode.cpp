@@ -15,6 +15,8 @@
 
 void	Server::cmdMode( vecString& args, int fd ) {
 
+	if (!isUserSet(*getClientByFD(fd)))
+		return (buildMsg(ERR_NOTREGISTERED, fd));
 
 	if (args.size() < 3)
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
@@ -35,7 +37,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 		std::string token = *it;
 		if (token[0] == '+') {
 			std::string::iterator s = token.begin();
-			for (; s != token.end(); ++s) {
+			for (++s; s != token.end(); ++s) {
 				switch(*s) {
 					case 'k': chan.setKey(*this, args, it, fd);		break;
 					case 'o': chan.setOP(*this, args, it, fd);		break;
@@ -46,10 +48,9 @@ void	Server::cmdMode( vecString& args, int fd ) {
 				}
 			}
 		}
-
 		else if (token[0] == '-') {
 			std::string::iterator s = token.begin();
-			for (; s != token.end(); ++s) {
+			for (++s; s != token.end(); ++s) {
 				switch(*s) {
 					case 'k': chan.unsetKey();						break;
 					case 'o': chan.unsetOP(*this, args, it, fd);	break;

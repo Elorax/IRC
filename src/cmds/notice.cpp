@@ -3,6 +3,9 @@
 //Param: NOTICE <msgtarget> <text>
 void	Server::cmdNotice( vecString& args, int fd ) {
 
+	if (!isUserSet(*getClientByFD(fd)))
+		return (buildMsg(ERR_NOTREGISTERED, fd));
+
 	if (args.size() < 3 )
 		return;
 

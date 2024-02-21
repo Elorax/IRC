@@ -5,6 +5,9 @@
 //otherwise return list of info matching the <mask> given
 void	Server::cmdWho( vecString& args, int fd ) {
 
+	if (!isUserSet(*getClientByFD(fd)))
+		return (buildMsg(ERR_NOTREGISTERED, fd));
+
 	if (args.size() == 1 || args[1][0] == '0')
 		whoAll(fd);
 

@@ -9,15 +9,18 @@
 
 void	Server::cmdInvite( vecString& args, int fd ) {
 
+	if (!isUserSet(*getClientByFD(fd)))
+		return (buildMsg(ERR_NOTREGISTERED, fd));
 
 	if (args.size() != 3)
-		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
+		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
 	std::string nickname = args[1];
 	Channel& chan = getChannel(args[1]);
 
 	if (!doesUserExist(args[1]))
 		buildMsg(ERR_NOSUCHNICK(args[1]), fd);
+
 	else if (!doesChanExist(args[2]))
 		buildMsg(ERR_NOSUCHNICK(args[2]), fd);
 

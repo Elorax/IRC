@@ -48,9 +48,9 @@ typedef std::vector<std::string>	vecString;
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
 
-#define RPL_WELCOME(nick)							":ft_irc 001 : Welcome to the Internet Relay Network" + nick + "!\r\n"
-#define RPL_YOURHOST(nick)							":ft_irc 002 :" + nick + "Your host is ft_irc, running version 42.1\r\n"
-#define RPL_CREATED(nick)							":ft_irc 003 :" + nick + "This server was created today\r\n"
+#define RPL_WELCOME(nick)							":ft_irc 001 :Welcome to the Internet Relay Network " + nick + " !\r\n"
+#define RPL_YOURHOST								":ft_irc 002 :Your host is ft_irc, running version 42.1\r\n"
+#define RPL_CREATED									":ft_irc 003 :This server was created today\r\n"
 #define RPL_MYINFO									":ft_irc 004 :version 42.1 running with the following channel modes : 'k, o, l, t, i' \r\n"
 
 #define ERR_NOSUCHNICK(nick)						":ft_irc 401 :"	+ nick + " :No such nick/channel\r\n"
@@ -58,12 +58,14 @@ typedef std::vector<std::string>	vecString;
 #define ERR_CANNOTSENDTOCHAN(chan)					":ft_irc 404 :" + chan + " :Cannot send to channel\r\n"
 #define ERR_NORECIPIENT(cmd)						":ft_irc 411 :" + cmd  + ": No recipient given\r\n"
 #define ERR_NOTEXTTOSEND							":ft_irc 412 :No text to send\r\n"
+#define ERR_UNKNOWNCOMMAND(cmd) 					":ft_irc 421 :" + cmd + " :Unknown command\r\n"
 #define ERR_NONICKNAMEGIVEN							":ft_irc 431 :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick)					":ft_irc 432 :" + nick + " :Erroneous nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick)						":ft_irc 433 :" + nick + " :Nickname is already in use\r\n"
 #define ERR_USERNOTINCHANNEL(nick, chan)			":ft_irc 441 :"	+ nick + " " + chan	+ " :They aren't on that channel\r\n"
 #define ERR_NOTONCHANNEL(chan)						":ft_irc 442 :" + chan + " :You're not on that channel\r\n"
 #define ERR_USERONCHANNEL(user, chan)				":ft_irc 443 :" + user + " " + chan + " :is already on channel\r\n"
+#define ERR_NOTREGISTERED 							":ft_irc 451 :You have not registered\r\n"
 #define ERR_NEEDMOREPARAMS(cmd)						":ft_irc 461 :" + cmd  + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTRED						":ft_irc 462 :Unauthorized command (already registered)\r\n"
 #define ERR_PASSWDMISMATCH							":ft_irc 464 :Password incorrect\r\n"
@@ -72,6 +74,7 @@ typedef std::vector<std::string>	vecString;
 #define ERR_UNKNOWNMODE(char, chan)					":ft_irc 472 :" + char + " :is unknown mode char to me for " + chan + "\r\n"
 #define ERR_INVITEONLYCHAN(chan)					":ft_irc 473 :" + chan + " :Cannot join channel (+i)\r\n"
 #define ERR_BADCHANNELKEY(chan)						":ft_irc 475 :" + chan + " :Cannot join channel (+k)\r\n"
+#define ERR_BADCHANMASK(chan)    					":ft_irc 476 :" + chan + " :Bad Channel Mask\r\n"
 #define ERR_CHANOPRIVSNEEDED(chan)					":ft_irc 482 :" + chan + " :You're not channel operator\r\n"
 
 #define RPL_ENDOFWHO(nick)							":ft_irc 315 :" + nick + " :End of WHO list.\r\n"
@@ -81,7 +84,7 @@ typedef std::vector<std::string>	vecString;
 #define RPL_TOPIC(chan, topic)						":ft_irc 332 :" + chan + " :" + topic + "\r\n"
 #define RPL_INVITING(chan, nick)					":ft_irc 341 :" + chan + " " + nick + "\r\n"
 #define RPL_WHOREPLY(who)							":ft_irc 352 :" + who  + "\r\n"
-#define RPL_NAMEREPLY(user, chan)					":ft_irc 353 :" + user + " join " + chan + "\r\n"
+#define RPL_NAMEREPLY(chan, users)					":ft_irc 353 :" + chan + " user :" + users + "\r\n"
 #define RPL_ENDOFNAMES(chan)						":ft_irc 366 :"	+ chan + " :End of NAMES list.\r\n"
 
 #define LEAVENOTICE(user, chan)						user + " has left the channel " + chan + "\r\n"

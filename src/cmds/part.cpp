@@ -12,6 +12,9 @@
 
 void	Server::cmdPart( vecString& args, int fd ) {
 
+	if (!isUserSet(*getClientByFD(fd)))
+		return (buildMsg(ERR_NOTREGISTERED, fd));
+
 	if (args.size() < 2)
 		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
