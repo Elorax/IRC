@@ -48,8 +48,6 @@ const std::string	Channel::getTopic( void ) const {
 	return (_topic);
 }
 
-
-
 const std::string	Channel::getNamesOfChanUsers( void ) const {
 
 	std::string names;
@@ -64,7 +62,6 @@ const std::string	Channel::getNamesOfChanUsers( void ) const {
 	return (names);
 	//! J'ai fini rapidement la fonction mais je sais pas ce que tu voulais en faire donc a toi de veirfier
 }
-
 
 const Client&	Channel::getClient(int idx) {
 	return (_chanUsers[idx]);
