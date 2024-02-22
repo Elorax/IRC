@@ -54,7 +54,7 @@ typedef std::vector<std::string>	vecString;
 #define RPL_CREATED(nick)							":ft_irc 003 " + nick + " :This server was created today\r\n"
 #define RPL_MYINFO(nick)							":ft_irc 004 " + nick + " :Version 42.1 running with the following channel modes : 'k, o, l, t, i' \r\n"
 
-#define ERR_NOSUCHNICK(nick)						":ft_irc 401 "	+ nick + " :No such nick/channel\r\n"
+#define ERR_NOSUCHNICK(nick)						":ft_irc 401 " + nick + " :No such nick/channel\r\n"
 #define ERR_NOSUCHCHANNEL(user, chan)				":ft_irc 403 " + user + " " + chan + " :No such channel\r\n"
 #define ERR_CANNOTSENDTOCHAN(chan)					":ft_irc 404 " + chan + " :Cannot send to channel\r\n"
 #define ERR_NORECIPIENT(cmd)						":ft_irc 411 " + cmd  + ": No recipient given\r\n"
@@ -78,18 +78,21 @@ typedef std::vector<std::string>	vecString;
 #define ERR_BADCHANMASK(chan)    					":ft_irc 476 " + chan + " :Bad Channel Mask\r\n"
 #define ERR_CHANOPRIVSNEEDED(chan)					":ft_irc 482 " + chan + " :You're not channel operator\r\n"
 
-#define RPL_ENDOFWHO(nick)							":ft_irc 315 " + nick + " :End of WHO list.\r\n"
+#define RPL_ENDOFWHO(nick, target)					":ft_irc 315 " + nick + target + " :End of WHO list.\r\n"
 #define RPL_CHANNELMODEIS(nick, chan, mode)			":ft_irc 324 " + nick + " " + chan + " :" + mode + " " + "\r\n"
 #define RPL_UNIQOPIS(chan, nick)					":ft_irc 325 " + chan + " " + nick + "\r\n"
 #define RPL_NOTOPIC(chan)							":ft_irc 331 " + chan + " :No topic is set\r\n"
 #define RPL_TOPIC(chan, topic)						":ft_irc 332 " + chan + " :" + topic + "\r\n"
 #define RPL_INVITING(chan, nick)					":ft_irc 341 " + chan + " " + nick + "\r\n"
-#define RPL_WHOREPLY(who)							":ft_irc 352 " + who  + "\r\n"
+#define RPL_WHOREPLY(nick, who)						":ft_irc 352 " + nick + " :" + who + "\r\n"
 #define RPL_NAMEREPLY(nick, chan, users)			":ft_irc 353 " + nick + " = " + chan + " :" + users + "\r\n"
-#define RPL_ENDOFNAMES(nick, chan)					":ft_irc 366 " + nick + " "	+ chan + " :End of /NAMES list.\r\n"
+#define RPL_ENDOFNAMES(nick, chan)					":ft_irc 366 " + nick + " "	+ chan + " :End of NAMES list.\r\n"
 
-#define LEAVENOTICE(user, chan)						user + " has left the channel " + chan + "\r\n"
-#define INVITENOTICE(user, chan)					user + " invite you to join channel: " + chan + "\r\n"
-#define QUITNOTICE(user, msg)						user + " has quit IRC" + msg + "\r\n"
+/* irssi format replies */
+#define NICKNOTICE(nickname, username, arg)			":" + nickname + "!~" + username + "@ft_irc" + " NICK " + arg + "\r\n"
+#define JOINNOTICE(nickname, username, chan)		":" + nickname + "!~" + username + "@ft_irc" + " JOIN " + chan + "\r\n"
+#define PARTNOTICE(nickname, username, chan, arg)	":" + nickname + "!~" + username + "@ft_irc" + " PART " + chan + " :" + arg + "\r\n"
+#define PRIVMSGNOTICE(nickname, username, dest, msg)":" + nickname + "!~" + username + "@ft_irc" + " PRIVMSG " + dest + " " + msg + "\r\n"
+#define QUITNOTICE(user, msg)						
 
 

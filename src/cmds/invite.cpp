@@ -9,6 +9,7 @@
 
 void	Server::cmdInvite( vecString& args, int fd ) {
 
+
 	if (!isUserSet(*getClientByFD(fd)))
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
@@ -16,7 +17,8 @@ void	Server::cmdInvite( vecString& args, int fd ) {
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
 	std::string nickname = args[1];
-	Channel& chan = getChanByRef(args[1]);
+	Client& client = *getClientByFD(fd);
+	Channel& chan = getChanByRef(args[2]);
 
 	if (!doesUserExist(args[1]))
 		buildMsg(ERR_NOSUCHNICK(args[1]), fd);
@@ -25,7 +27,7 @@ void	Server::cmdInvite( vecString& args, int fd ) {
 		buildMsg(ERR_NOSUCHNICK(args[2]), fd);
 
 	else if (!chan.isUserOnChan(fd))
-		buildMsg(ERR_NOTONCHANNEL(getClientByFD(fd)->getNickname()), fd);
+		buildMsg(ERR_NOTONCHANNEL(client.getNickname()), fd);
 
 	else if (chan.isInviteOnly() && !chan.isUserChanOp(fd))
 		buildMsg(ERR_CHANOPRIVSNEEDED(chan.getName()), fd);
@@ -34,11 +36,10 @@ void	Server::cmdInvite( vecString& args, int fd ) {
 		buildMsg(ERR_USERONCHANNEL(nickname, chan.getName()), fd);
 
 	else {
-		chan.addUser(*getClientByName(nickname));
-		 //Send to requester invite in process
+
 		buildMsg(RPL_INVITING(chan.getName(), nickname), fd);
-		// Send to target invite notice
-		buildMsg(INVITENOTICE(getClientByFD(fd)->getNickname(), chan.getName()), getClientByName(nickname)->getFD());
+		buildMsg(JOINNOTICE(nickname, getClientByName(nickname)->getUsername(), chan.getName()), fd);
+		chan.addUser(*getClientByName(nickname));
 	}
 
 }

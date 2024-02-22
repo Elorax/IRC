@@ -7,7 +7,7 @@
 Channel::Channel( std::string name, Client& client )
 : _inviteOnly(false), _isChanKeySet(false), _topicPriv(false), _chanLimit(-1), _chanKey(""),  _name(name), _topic("") {
 
-	client.addChanToUser(*this);
+	client.addChan(*this);
 	_chanOp.push_back(client);
 	_chanUsers.push_back(client);
 	// std::cout << "DEBUG: channel cree : " + _name + " --- Createur : " + _chanOp[0].getNickname() << std::endl;
@@ -86,7 +86,7 @@ size_t	Channel::getNbClients( void ) {
 void	Channel::addUser( Client& user ) {
 
 	_chanUsers.push_back(user);
-	user.addChanToUser(*this);
+	user.addChan(*this);
 }
 
 void	Channel::setKey( const std::string& key ) {
@@ -111,7 +111,7 @@ void	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int
 	}
 
 	else //Qu'est-ce qu'on envoie au client qui effectue la requete ??
-		serv.buildMsg("Key incorrect\r\n", fd);
+		serv.buildMsg(":ft_irc 467" + getName() + ":Channel key incorrect\r\n", fd);
 }
 
 void	Channel::setOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {

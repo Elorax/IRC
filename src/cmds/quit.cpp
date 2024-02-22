@@ -7,16 +7,12 @@
 
 void	Server::cmdQuit( vecString& args, int fd ) {
 
-	std::string quitmsg;
-	if (args.size() == 2)
-		quitmsg = " :" + args[1];
-
-	Client& client = *getClientByFD(fd);
 	vecString quitAllChans;
+	if (args.size() == 2)
+		quitAllChans.push_back(args[1]);
 	quitAllChans.push_back("JOIN");
 	quitAllChans.push_back("0");
 	cmdJoin(quitAllChans, fd);
-	buildMsg(QUITNOTICE(client.getNickname(), quitmsg), fd);
 
 	close(fd);
 }

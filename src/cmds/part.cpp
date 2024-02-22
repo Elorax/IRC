@@ -12,7 +12,9 @@
 
 void	Server::cmdPart( vecString& args, int fd ) {
 
-	if (!isUserSet(*getClientByFD(fd)))
+	Client& client = *getClientByFD(fd);
+
+	if (!isUserSet(client))
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
 	if (args.size() < 2)
@@ -23,55 +25,24 @@ void	Server::cmdPart( vecString& args, int fd ) {
 
 	for (; it < chans.end(); it++) {
 
+		Channel& toPart = getChanByRef(*it);
 		if (!doesChanExist(*it)) {
-			buildMsg(ERR_NOSUCHCHANNEL(getClientByFD(fd)->getNickname(), *it), fd); 
+			buildMsg(ERR_NOSUCHCHANNEL(client.getNickname(), *it), fd); 
 			continue;
 		}
-
-		Channel& toPart = getChanByRef(*it);
 
 		if (!toPart.isUserOnChan(fd))
 			buildMsg(ERR_NOTONCHANNEL(*it), fd);
 
-		else if (toPart.getNbClients() == 1)
-			_channels.erase(getChanByIt(*it));
-
 		else {
-			toPart.delUser(*getClientByFD(fd));
-			std::string str = toPart.getName();
-			buildMsg(initMsgs(*getClientByFD(fd), args, str), toPart);
-			std::cout << "DEBUG: PART : On del user " << getClientByFD(fd)->getNickname() << " de " << *it << std::endl;
+
+			std::string msg = (args.size() == 3 ? msg = client.getNickname() : msg = args[2]);
+			buildMsg(PARTNOTICE(client.getNickname(), client.getUsername(), toPart.getName(), msg), toPart);
+			toPart.delUser(client);
+			std::cout << "DEBUG: PART : On del user " << client.getNickname() << " de " << *it << std::endl;
 
 		}
+		if (toPart.getNbClients() == 0)
+			_channels.erase(getChanByIt(*it));
 	}
-
-/*
-	vecString::iterator it = args.begin();
-	it++;
-
-
-
-
-
-	for (; it != args.end() - 1; it++) {
-
-		std::istringstream ss(*it);
-        std::string channelName;
-
-		while (std::getline(ss, channelName, ',')) {
-
-			Channel& toPart = getChanByRef(channelName);
-
-			if (!doesChanExist(channelName))
-				buildMsg(ERR_NOSUCHCHANNEL(channelName), fd);
-
-			if (!toPart.isUserOnChan(fd))
-				buildMsg(ERR_NOTONCHANNEL(channelName), fd);
-
-			else {
-				toPart.delUser(*getClientByFD(fd));
-				buildMsg(partMsg, toPart);
-			}
-		}
-	}*/
 }

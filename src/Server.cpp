@@ -370,33 +370,6 @@ vecString Server::buildModes( std::string& line ) {
 	return (modes);
 }
 
-std::string Server::initMsgs( Client& user, vecString& args, std::string& target ) {
-
-	vecString msg;
-	msg.push_back(":");
-	msg.push_back(user.getNickname());
-	msg.push_back("!");
-	msg.push_back(user.getUsername());
-	msg.push_back("@");
-	msg.push_back(_name);
-	msg.push_back(" ");
-	msg.push_back(args[0]);
-	msg.push_back(" ");
-	msg.push_back(target);
-	msg.push_back(" ");
-
-	if (args[0] == "PART" && args.size() == 3) {
-		msg.push_back(args.back());
-	    args.pop_back();
-	}
-	else
-		msg.push_back(user.getNickname());
-
-	msg.push_back("\r\n");
-
-	return (convertVecString(msg));
-}
-
 //DEBUG Fonction : presentation des serveurs et des clients.
 void	Server::debug( void )
 {

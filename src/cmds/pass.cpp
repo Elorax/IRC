@@ -17,7 +17,6 @@ void	Server::cmdPass( vecString& args, int fd ) {
 	else if (args[1] != _chanKey)
 		buildMsg(ERR_PASSWDMISMATCH, fd);
 
-	else{
+	else
 		getClientByFD(fd)->setPassword(args[1]);
-	}
 }

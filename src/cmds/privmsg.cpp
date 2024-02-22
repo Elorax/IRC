@@ -31,7 +31,7 @@ void	Server::cmdPrivmsg( vecString& args, int fd ) {
 			else if (!client.isChanInList(chan))
 				buildMsg(ERR_CANNOTSENDTOCHAN(chan.getName()), fd);
 			else
-				buildMsg(":" + client.getNickname() + "!~" + client.getUsername() + "@" + _name + " PRIVMSG " + args[1] + " " + args[2] + "\r\n", getChanByRef(args[1]));
+				buildMsg(PRIVMSGNOTICE(client.getNickname(), client.getUsername(), args[1], args[2]), chan);
 		}
 	}
 	//Msg to user.
@@ -41,6 +41,6 @@ void	Server::cmdPrivmsg( vecString& args, int fd ) {
 		if (!doesUserExist(args[1]))
 			buildMsg(ERR_NOSUCHNICK(args[1]), fd);
 		else
-			buildMsg(":" + client.getNickname() + "!~" + args[1] + "@" + _name + " PRIVMSG " + args[1] + " :" + args[2] + "\r\n", getClientByName(args[1])->getFD());
+			buildMsg(PRIVMSGNOTICE(client.getNickname(), client.getUsername(), args[1], args[2]), getClientByName(args[1])->getFD());
 	}
 }

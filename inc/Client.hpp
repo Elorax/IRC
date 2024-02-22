@@ -28,7 +28,7 @@ class	Client {
 		void						setRealname( const std::string& realname );
 		void						setHostname( const std::string& hostname );
 
-		void						addChanToUser( const Channel& add );
+		void						addChan( const Channel& add );
 		void						delChan( const Channel& del );
 
 		/* getters */

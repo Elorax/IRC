@@ -80,21 +80,23 @@ class	Server {
 		void						cmdWho( vecString& args, int fd );
 
 		/* Misc */
-		std::string					convertVecString( vecString& args );
-		vecString					splitParamOnComas( std::string& arg );
-		int							createChannel( std::string chanName, std::string key, int fd );
-		void    					parseLine( std::string& line, int fd );
-		void						leaveAllChans( Client& client, vecString& args );
-		void						whoAll( int requesterFD );
-		void						whoClient( Client& target, int requesterFD );
-		void						whoChannel( const Channel& target, int requesterFD );
-		void						handleModeListMsg( std::string chanName, int fd );
-		void						handleJoinMsg( Channel& chan, Client& client );
-		void						handleJoinMsg( std::string chanName, Client& client );
-		void						kickUsers( vecString args, vecString users, vecString chans, int requesterFD );
-		void						kickChans( vecString args, vecString users, vecString chans, int requesterFD );
-		void						kickChansUsers( vecString args, vecString users, vecString chans, int requesterFD );
 		void						debug( void );
+		void						partAllChans( int fd );
+		void    					parseLine( std::string& line, int fd );
+		vecString					splitParamOnComas( std::string& arg );
+		int							createChannel( std::string chan, std::string key, int fd );
+
+		void						handleJoinMsg( Channel& chan, Client& client );
+		void						handleModeListMsg( std::string chan, int fd );
+		void						handleJoinMsg( std::string chan, Client& client );
+
+		void						kickChans( vecString args, vecString users, vecString chans, int fd );
+		void						kickUsers( vecString args, vecString users, vecString chans, int fd );
+		void						kickChansUsers( vecString args, vecString users, vecString chans, int fd );
+
+		void						whoAll( Client& client );
+		void						whoClient( Client& target, Client& client );
+		void						whoChannel( Channel& target, Client& client );
 
 };
 

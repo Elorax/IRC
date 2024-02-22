@@ -16,7 +16,7 @@ std::string	keyInit( vecString passwords, vecString::iterator it_pwd ) {
 
 	std::string key;
 	if (it_pwd >= passwords.end())
-			key = "";
+		key = "";
 	else
 		key = *it_pwd;
 
@@ -32,10 +32,10 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
 	if (args[1] == "0")
-		return (leaveAllChans(*getClientByFD(fd), args));
+		return (partAllChans(fd));
 
 	vecString passwords;
-	vecString chans = splitParamOnComas(args[1]);
+	vecString chans = splitParamOnComas(args[1]); 
 	if (args.size() > 2)
 		passwords = splitParamOnComas(args[2]);
 
@@ -53,12 +53,13 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 			// std::cout <<"DEBUG : On cree le channel " << chanName << std::endl;
 			//if (createChannel(chanName, key, fd) == 1)	//nom du chan incorrect
 			//	buildMsg(ERR_BADCHANMASK(chanName), fd);
-			//else {		
+			//else {
+			if (isChanValid(chanName) && isKeyValid(key)) {
 				handleJoinMsg(chanName, *getClientByFD(fd));
 				createChannel(chanName, key, fd);
-				// Channel& toJoin = getChanByRef(chanName);
-				continue ;
 			}
+			continue;
+		}
 
 		switch (toJoin.isChanJoinable(key, fd)) {
 
@@ -84,7 +85,8 @@ vecString	Server::splitParamOnComas( std::string& arg ) {
 
 	while ((pos = arg.find(",")) != std::string::npos) {
 		ret.push_back(arg.substr(0, pos));
-		arg.erase(0, pos + 1);
+		arg = arg.substr(arg.find(",") + 1);
+		//arg.erase(0, pos + 1);
 	}
 	ret.push_back(arg);
 	return (ret);
@@ -99,24 +101,22 @@ int	Server::createChannel( std::string chanName, std::string key, int fd ) {
 	return (EXIT_SUCCESS);
 }
 
-void	Server::leaveAllChans( Client& client, vecString& args ) {
+void	Server::partAllChans( int fd ) {
 
-	vecChannel::iterator it = client.getUserChanList().begin();
+	std::cout <<"DEBUG: cas JOIN 0" << std::endl;
+	vecString argsPart;
+	argsPart.push_back("PART");
+	std::string chans;
 
-	while (it != client.getUserChanList().end()) {
-
-		it->delUser(client);
-		std::string nameChan = it->getName();
-		buildMsg(initMsgs(client, args, nameChan), *it);
-
-		if (it->getNbClients() == 0) {
-			std::cout << "CASE NO CLIENT :" << it->getNbClients() << " \r\n" << std::endl;
-			vecChannel::iterator toErase = it; it++;
-			_channels.erase(toErase);
-		}
-		else
-			it++;
+	vecChannel userChans = getClientByFD(fd)->getUserChanList();
+	vecChannel::iterator it = userChans.begin();
+	for(; it != userChans.end(); it++) {
+		chans += it->getName();
+		chans += ",";
 	}
+	chans.erase(chans.rfind(","));
+	argsPart.push_back(chans);
+	cmdPart(argsPart, fd);
 }
 
 //Appele lors de la REJOINDATION d'un channel deja existant
@@ -125,9 +125,7 @@ void	Server::handleJoinMsg( Channel& chan, Client& client ) {
 	int fd = client.getFD();
 	std::string chanName = chan.getName();
 
-	std::string send;
-	send = ":" + client.getNickname() + "!" + client.getUsername() + "@" + _name + " JOIN :" + chan.getName() + "\r\n";
-	buildMsg(send, chan);
+	buildMsg(JOINNOTICE(client.getNickname(), client.getUsername(), chanName), chan);
 
 	if (chan.getTopic().empty())
 		buildMsg(RPL_NOTOPIC(chanName), fd);
@@ -143,10 +141,7 @@ void	Server::handleJoinMsg( std::string chanName, Client& client ) {
 
 	int fd = client.getFD();
 
-	std::string send;
-	send = ":" + client.getNickname() + "!" + client.getUsername() + "@" + _name + " JOIN :" + chanName + "\r\n";
-	buildMsg(send, fd);
-
+	buildMsg(JOINNOTICE(client.getNickname(), client.getUsername(), chanName), fd);
 	buildMsg(RPL_NOTOPIC(chanName), fd);
 	buildMsg(RPL_NAMEREPLY(client.getNickname(), chanName, "@" + client.getNickname()), fd);
 	buildMsg(RPL_ENDOFNAMES(client.getNickname(), chanName), fd);

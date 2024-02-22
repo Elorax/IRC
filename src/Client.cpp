@@ -44,7 +44,7 @@ void	Client::setHostname( const std::string& hostname )
 
 }
 
-void    Client::addChanToUser( const Channel& add ) {
+void    Client::addChan( const Channel& add ) {
     _userChannels.push_back(add);
 }
 
@@ -84,7 +84,7 @@ const std::string&  Client::getPassword( void ) const {
     return (_chanKey);
 }
 
- vecChannel&   Client::getUserChanList( void ) {
+vecChannel&   Client::getUserChanList( void ) {
     return (_userChannels);
 }
 
