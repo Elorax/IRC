@@ -85,8 +85,8 @@ typedef std::vector<std::string>	vecString;
 #define RPL_TOPIC(chan, topic)						":ft_irc 332 " + chan + " :" + topic + "\r\n"
 #define RPL_INVITING(chan, nick)					":ft_irc 341 " + chan + " " + nick + "\r\n"
 #define RPL_WHOREPLY(who)							":ft_irc 352 " + who  + "\r\n"
-#define RPL_NAMEREPLY(nick, chan, users)			":ft_irc 353 = " + nick + " " + chan + " :" + users + "\r\n"
-#define RPL_ENDOFNAMES(nick, chan)					":ft_irc 366 " + nick + " "	+ chan + " :End of NAMES list.\r\n"
+#define RPL_NAMEREPLY(nick, chan, users)			":ft_irc 353 " + nick + " = " + chan + " :" + users + "\r\n"
+#define RPL_ENDOFNAMES(nick, chan)					":ft_irc 366 " + nick + " "	+ chan + " :End of /NAMES list.\r\n"
 
 #define LEAVENOTICE(user, chan)						user + " has left the channel " + chan + "\r\n"
 #define INVITENOTICE(user, chan)					user + " invite you to join channel: " + chan + "\r\n"
