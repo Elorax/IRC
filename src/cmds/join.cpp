@@ -24,6 +24,7 @@ std::string	keyInit( vecString passwords, vecString::iterator it_pwd ) {
 }
 
 void	Server::cmdJoin( vecString& args, int fd ) {
+
 	if (!isUserSet(*getClientByFD(fd)))
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
@@ -45,6 +46,7 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 	for (; it != chans.end(); it++, it_pwd++) {
 
 		std::string chanName = *it;
+		Channel& toJoin = getChanByRef(chanName);
 		std::string key = keyInit(passwords, it_pwd);
 
 		if (!doesChanExist(chanName)) {
@@ -52,16 +54,15 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 			//if (createChannel(chanName, key, fd) == 1)	//nom du chan incorrect
 			//	buildMsg(ERR_BADCHANMASK(chanName), fd);
 			//else {		
-				handleJoinMsg(chanName, fd);
+				handleJoinMsg(chanName, *getClientByFD(fd));
 				createChannel(chanName, key, fd);
 				// Channel& toJoin = getChanByRef(chanName);
 				continue ;
 			}
-		Channel& toJoin = getChanByRef(chanName);
 
 		switch (toJoin.isChanJoinable(key, fd)) {
 
-			case   0: toJoin.addUser(*getClientByFD(fd)); handleJoinMsg(args, toJoin, fd); break;
+			case   0: toJoin.addUser(*getClientByFD(fd)); handleJoinMsg(toJoin, *getClientByFD(fd)); break;
 			case 471: buildMsg(ERR_CHANNELISFULL(chanName), fd); break;
 			case 473: buildMsg(ERR_INVITEONLYCHAN(chanName), fd); break;
 			case 475: buildMsg(ERR_BADCHANNELKEY(chanName), fd); std::cout << "DEBUG: key entree = >" + key +"<\nkey du serveur : >" + toJoin.getPassword() + "<" << std::endl;  break;
@@ -119,31 +120,34 @@ void	Server::leaveAllChans( Client& client, vecString& args ) {
 }
 
 //Appele lors de la REJOINDATION d'un channel deja existant
-void	Server::handleJoinMsg( vecString& args, Channel& chan, int requesterFD ) {
+void	Server::handleJoinMsg( Channel& chan, Client& client ) {
 
-	(void)args;
+	int fd = client.getFD();
 	std::string chanName = chan.getName();
-	std::string send;
-	send = ":"+getClientByFD(requesterFD)->getNickname()+"!~"+getClientByFD(requesterFD)->getUsername()+"@"+_name+" JOIN :"+chan.getName()+"\r\n";
-	buildMsg(send, chan);
-	if (chan.getTopic().empty())
-		buildMsg(RPL_NOTOPIC(chanName), requesterFD);
-	else
-		buildMsg(RPL_TOPIC(chanName, chan.getTopic()), requesterFD);
 
-	buildMsg(RPL_NAMEREPLY(getClientByFD(requesterFD)->getNickname(), chanName, chan.getNamesOfChanUsers()), requesterFD);
-	buildMsg(RPL_ENDOFNAMES(getClientByFD(requesterFD)->getNickname(), chanName), requesterFD);
-	// buildMsg(initMsgs(*getClientByFD(requesterFD), args, chanName), chan);
+	std::string send;
+	send = ":" + client.getNickname() + "!" + client.getUsername() + "@" + _name + " JOIN :" + chan.getName() + "\r\n";
+	buildMsg(send, chan);
+
+	if (chan.getTopic().empty())
+		buildMsg(RPL_NOTOPIC(chanName), fd);
+	else
+		buildMsg(RPL_TOPIC(chanName, chan.getTopic()), fd);
+
+	buildMsg(RPL_NAMEREPLY(client.getNickname(), chanName, chan.getNamesOfChanUsers()), fd);
+	buildMsg(RPL_ENDOFNAMES(client.getNickname(), chanName), fd);
 }
 
 //Appele lors de la CREATION d'un channel
-void	Server::handleJoinMsg( std::string chanName, int requesterFD ) {
+void	Server::handleJoinMsg( std::string chanName, Client& client ) {
+
+	int fd = client.getFD();
 
 	std::string send;
-	send = ":"+getClientByFD(requesterFD)->getNickname()+"!~"+getClientByFD(requesterFD)->getUsername()+"@"+_name+" JOIN :"+chanName+"\r\n";
-	buildMsg(send, requesterFD);
-	buildMsg(RPL_NOTOPIC(chanName), requesterFD);
-	buildMsg(RPL_NAMEREPLY(getClientByFD(requesterFD)->getNickname(), chanName, "@"+getClientByFD(requesterFD)->getNickname()), requesterFD);
-	buildMsg(RPL_ENDOFNAMES(getClientByFD(requesterFD)->getNickname(), chanName), requesterFD);
-	// buildMsg(initMsgs(*getClientByFD(requesterFD), args, chanName), requesterFD);
+	send = ":" + client.getNickname() + "!" + client.getUsername() + "@" +_name+ " JOIN :" + chanName + "\r\n";
+	buildMsg(send, fd);
+
+	buildMsg(RPL_NOTOPIC(chanName), fd);
+	buildMsg(RPL_NAMEREPLY(client.getNickname(), chanName, "@" + client.getNickname()), fd);
+	buildMsg(RPL_ENDOFNAMES(client.getNickname(), chanName), fd);
 }
