@@ -7,7 +7,7 @@
 //Ex : PART chan1 :prout
 //Parsing supplementaire pour differencier Part message des differents channels (split ,) comme dans JOIN
 //Si pas de <part message> alors le message par defaut est le nickname
-//Envoyer une reponse non RPL/ERR a tous les autres users du/des channels que l'utilisateur quitte avec part
+//Envoyer une reply non RPL/ERR a tous les autres users du/des channels que l'utilisateur quitte avec part
 //ex : PART chan1,chan2
 
 void	Server::cmdPart( vecString& args, int fd ) {

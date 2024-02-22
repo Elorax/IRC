@@ -71,8 +71,10 @@ size_t	Channel::getNbClients( void ) {
 
 	size_t i = 0;
 	vecClient::iterator it = _chanUsers.begin();
-	for (; it != _chanUsers.end(); it++)
+	for (; it != _chanUsers.end(); it++) {
+		std::cout << "CASE NO CLIENT :" <<  it->getNickname() << " \r\n" << std::endl;
 		i++;
+	}
 
 	return (i);
 }
@@ -226,6 +228,13 @@ bool	Channel::isFull( void ) {
 
 bool	Channel::isMatchingKey( const std::string& key ) {
 	return (key == _chanKey);
+}
+
+bool	Channel::isChanLimitSet( void ) {
+
+	if (_chanLimit == __SIZE_MAX__ )
+		return (false);
+	return (true);
 }
 
 bool	Channel::isKeyValid( const std::string& key ) {

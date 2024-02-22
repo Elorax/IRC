@@ -4,7 +4,9 @@
 
 void	Server::cmdNick( vecString& args, int fd ) {
 
-	if (getClientByFD(fd)->getPassword().empty())
+	Client& client = *getClientByFD(fd);
+
+	if (client.getPassword().empty())
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
 	//std::cout << "cmdNick, args[1] = >" << args[1] << "<" << std::endl;
@@ -15,7 +17,7 @@ void	Server::cmdNick( vecString& args, int fd ) {
 		buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 	
 	else if (!isAvailNick(args[1]))
-		buildMsg(ERR_NICKNAMEINUSE(getClientByFD(fd)->getNickname(), args[1]), fd);
+		buildMsg(ERR_NICKNAMEINUSE(client.getNickname(), args[1]), fd);
 
 	else if (!isValidNick(args[1]))
 		{
@@ -25,13 +27,19 @@ void	Server::cmdNick( vecString& args, int fd ) {
 
 	else
 	{
-		std::string reponse;
-		//! CETTE REPONSE EST RECONNUE PAR IRSSI, S'EN INSPIRER POur LA SUITE
-		//! AVEC OU SANS ~ LA REPONSE EST CORRECTE ET COMPRISE
-		
-		reponse = ":" + getClientByFD(fd)->getNickname() + "!~" + getClientByFD(fd)->getUsername() + "@" + _name + " NICK " + args[1] + "\r\n";
-		buildMsg(reponse, fd);
-		getClientByFD(fd)->setNickname(args[1]);
-		//! reponse informative a mettre pour que irssi interprete et qu il effectue le changement de nick
+		std::string reply;
+		//! CETTE reply EST RECONNUE PAR IRSSI, S'EN INSPIRER POur LA SUITE
+		//! AVEC OU SANS ~ LA reply EST CORRECTE ET COMPRISE
+
+		reply = ":" + client.getNickname() + "!~" + client.getUsername() + "@" + _name + " NICK " + args[1] + "\r\n";
+		buildMsg(reply, fd);
+		client.setNickname(args[1]);
+
+		buildMsg("\n\x1b[1;32m" + (RPL_WELCOME(client.getNickname()) 
+    	+ RPL_YOURHOST(client.getNickname()) 
+    	+ RPL_CREATED(client.getNickname()) 
+    	+ RPL_MYINFO(client.getNickname()))
+    	+ "\x1b[0m", fd);
+		//! reply informative a mettre pour que irssi interprete et qu il effectue le changement de nick
 	}
 }

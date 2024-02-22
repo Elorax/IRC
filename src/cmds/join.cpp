@@ -144,7 +144,7 @@ void	Server::handleJoinMsg( std::string chanName, Client& client ) {
 	int fd = client.getFD();
 
 	std::string send;
-	send = ":" + client.getNickname() + "!" + client.getUsername() + "@" +_name+ " JOIN :" + chanName + "\r\n";
+	send = ":" + client.getNickname() + "!" + client.getUsername() + "@" + _name + " JOIN :" + chanName + "\r\n";
 	buildMsg(send, fd);
 
 	buildMsg(RPL_NOTOPIC(chanName), fd);

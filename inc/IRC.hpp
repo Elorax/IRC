@@ -49,10 +49,10 @@ typedef std::vector<std::string>	vecString;
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
 
-#define RPL_WELCOME(nick)							":ft_irc 001 " + nick + " :Welcome to the Internet Relay Network " + nick + " !\r\n"
+#define RPL_WELCOME(nick)							":ft_irc 001 " + nick + " :Welcome to the Internet Relay Network " + nick + "!\r\n"
 #define RPL_YOURHOST(nick)							":ft_irc 002 " + nick + " :Your host is ft_irc, running version 42.1\r\n"
 #define RPL_CREATED(nick)							":ft_irc 003 " + nick + " :This server was created today\r\n"
-#define RPL_MYINFO(nick)							":ft_irc 004 " + nick + " version 42.1 running with the following channel modes : 'k, o, l, t, i' \r\n"
+#define RPL_MYINFO(nick)							":ft_irc 004 " + nick + " :Version 42.1 running with the following channel modes : 'k, o, l, t, i' \r\n"
 
 #define ERR_NOSUCHNICK(nick)						":ft_irc 401 "	+ nick + " :No such nick/channel\r\n"
 #define ERR_NOSUCHCHANNEL(user, chan)				":ft_irc 403 " + user + " " + chan + " :No such channel\r\n"
@@ -79,7 +79,7 @@ typedef std::vector<std::string>	vecString;
 #define ERR_CHANOPRIVSNEEDED(chan)					":ft_irc 482 " + chan + " :You're not channel operator\r\n"
 
 #define RPL_ENDOFWHO(nick)							":ft_irc 315 " + nick + " :End of WHO list.\r\n"
-#define RPL_CHANNELMODEIS(chan, mode, arg)			":ft_irc 324 " + chan + " " + mode + " " + arg + "\r\n"
+#define RPL_CHANNELMODEIS(nick, chan, mode)			":ft_irc 324 " + nick + " " + chan + " :" + mode + " " + "\r\n"
 #define RPL_UNIQOPIS(chan, nick)					":ft_irc 325 " + chan + " " + nick + "\r\n"
 #define RPL_NOTOPIC(chan)							":ft_irc 331 " + chan + " :No topic is set\r\n"
 #define RPL_TOPIC(chan, topic)						":ft_irc 332 " + chan + " :" + topic + "\r\n"

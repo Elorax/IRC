@@ -54,6 +54,7 @@ class	Channel {
 		bool					isFull( void );
 		bool					isChanKeySet( void );
 		bool					isInviteOnly( void );
+		bool					isChanLimitSet( void );
 		bool					isTopicPrivSet( void );
 		bool					isUserOnChan( int fd );
 		bool					isUserChanOp( int fd ) const;

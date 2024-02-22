@@ -20,14 +20,13 @@ void	Server::cmdMode( vecString& args, int fd ) {
 
 	if (args.size() < 2)
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
+
 	else if (args.size() == 2)
-	{
-		//Liste des modes actifs sur le channel.
-	}
+		handleModeListMsg(args[1], fd);
 
 	else if (!doesChanExist(args[1]))
 	{
-		if (doesUserExist(args[1]))
+		if (doesUserExist(args[1]))//keske
 			return ;
 		else
 			return (buildMsg(ERR_NOSUCHCHANNEL(getClientByFD(fd)->getNickname(), args[1]), fd));
@@ -71,4 +70,24 @@ void	Server::cmdMode( vecString& args, int fd ) {
 			}
 		}
 	}
+}
+
+void	Server::handleModeListMsg( std::string chanName, int fd ) {
+
+	std::string modes = "+";
+	Client& client = *getClientByFD(fd);
+	Channel& chan = getChanByRef(chanName);
+
+	if (chan.isChanKeySet())
+		modes += "k";
+	if (chan.isChanLimitSet())
+		modes += "l";
+	if (chan.isTopicPrivSet())
+		modes += "t";
+	if (chan.isInviteOnly())
+		modes += "i";
+	else
+		modes = "No modes set for this channel";
+
+	buildMsg(RPL_CHANNELMODEIS(client.getNickname(), chanName, modes), fd);
 }

@@ -88,6 +88,7 @@ class	Server {
 		void						whoAll( int requesterFD );
 		void						whoClient( Client& target, int requesterFD );
 		void						whoChannel( const Channel& target, int requesterFD );
+		void						handleModeListMsg( std::string chanName, int fd );
 		void						handleJoinMsg( Channel& chan, Client& client );
 		void						handleJoinMsg( std::string chanName, Client& client );
 		void						kickUsers( vecString args, vecString users, vecString chans, int requesterFD );
