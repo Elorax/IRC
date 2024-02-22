@@ -322,6 +322,15 @@ void	Server::buildMsg( const std::string& msg, Channel &chan ) {
 	}
 }
 
+void	Server::buildMsg( const std::string& msg, Channel &chan, int sender ) {
+
+	for(size_t i = 0; i < chan.getNbClients(); i++) {
+		int fd = chan.getClient(i).getFD();
+		if (fd != sender)
+			_messages.push_back(Message(msg, fd));
+	}
+}
+
 void	Server::buildMsg( const std::string& msg, int fd ) {
 	_messages.push_back(Message(msg, fd));
 }

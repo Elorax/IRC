@@ -52,10 +52,11 @@ class	Server {
 		vecString					buildModes( std::string& line );
 		void						buildMsg(const std::string& msg, int fd );
 		void						buildMsg(const std::string& msg, Channel& chan);
+		void						buildMsg( const std::string& msg, Channel &chan, int sender );
 
 		/* Checkers */
-		bool						isKeyValid( const std::string& key );
 		bool						isUserSet( const Client& client );
+		bool						isKeyValid( const std::string& key );
 		bool						isChanValid( const std::string& name );
 		bool						isAvailNick( const std::string& nick );
         bool						isValidNick( const std::string& nick );
