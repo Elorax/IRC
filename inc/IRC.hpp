@@ -93,6 +93,5 @@ typedef std::vector<std::string>	vecString;
 #define JOINNOTICE(nickname, username, chan)		":" + nickname + "!~" + username + "@ft_irc" + " JOIN " + chan + "\r\n"
 #define PARTNOTICE(nickname, username, chan, arg)	":" + nickname + "!~" + username + "@ft_irc" + " PART " + chan + " :" + arg + "\r\n"
 #define PRIVMSGNOTICE(nickname, username, dest, msg)":" + nickname + "!~" + username + "@ft_irc" + " PRIVMSG " + dest + " " + msg + "\r\n"
-#define QUITNOTICE(user, msg)						
 
 

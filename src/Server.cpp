@@ -17,7 +17,7 @@ Server::Server(std::string &port, std::string &password)
 
     if (_socketFD < 0)
 		throw std::runtime_error("Socket creation failed");
-    
+
 	int optval = 1;
     // Definir l'option pour la socket
     if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1)
@@ -66,8 +66,12 @@ int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
 
 void	Server::delClient( vecClient::iterator& toDel ) {
 
-	close(toDel->getFD());
+	vecString quitServ;
+	quitServ.push_back("JOIN");
+	quitServ.push_back("0");
+	cmdJoin(quitServ, toDel->getFD());
 	_clients.erase(toDel);
+	close(toDel->getFD());
 }
 
 void	Server::addChannel( Channel& newChan, const std::string& key ) {
@@ -253,7 +257,6 @@ void	Server::sendMsgs(fd_set writeFDs){
 
 void    Server::parseLine(std::string &line, int fd) {
 
-	// std::cout << "DEBUG: Ligne recue : >" << line << "<" << std::endl;
     if (line.find("\r\n") == std::string::npos)
 		return;
 
@@ -261,18 +264,7 @@ void    Server::parseLine(std::string &line, int fd) {
     	line = line.substr(line.find(' '));
 
     vecString args = buildArgs(line);
-	/*
-	for (vecString::iterator it = args.begin(); it < args.begin(); it++)
-	{
-		if (it->empty())
-			it = args.erase(it);
-	}*/
-
-
-	// for(vecString::iterator it = args.begin(); it != args.end(); it++)
-	// {
-	// 	std::cout << "DEBUG: arg : >" << *it << "<" << std::endl;
-	// }
+	std::cout << "DEBUG: Ligne recue : >" << args[0] << "<" << std::endl;
 
 	switch (findCommand(args[0])) {
 		case eINVITE:	cmdInvite(args, fd);	break;

@@ -21,7 +21,6 @@ fd_set	Server::initReadFDs( void ) {
 		FD_SET(it->getFD(), &readFDs);
 	}
 	return (readFDs);
-
 }
 
 fd_set	Server::initWriteFDs( void ) {
@@ -64,35 +63,6 @@ void	Server::run( void ) {
 	}
 }
 
-/*
-void	Server::initReadFDs( void ) {
-
-	FD_ZERO(&_readFDs);
-	FD_SET(getFD(), &_readFDs);
-
-	vecClient::iterator it = _clients.begin();
-	for (; it != _clients.end(); it++) {
-		FD_SET(it->getFD(), &_readFDs);
-	}
-
-}
-
-void	Server::initWriteFDs( void ) {
-
-	FD_ZERO(&_writeFDs);
-
-	if (_messages.empty())
-		return;
-
-	vecMessage::iterator it = _messages.begin();
-	for (; it != _messages.end(); it++) {
-		if (FD_ISSET(it->getFD(), &_writeFDs) == 0)
-			FD_SET(it->getFD(), &_writeFDs);
-	}
-
-}
-*/
-
 void Server::initBuffer( fd_set &readFDs, fd_set &writeFDs ) {
 
 	int bytesRead;
@@ -120,8 +90,7 @@ void Server::initBuffer( fd_set &readFDs, fd_set &writeFDs ) {
 					tmp = it->buffer.substr(0, it->buffer.find("\r\n") + 2);
 					// std::cout << "Debug: ligne envoyee dans parseLine -->" + tmp + "<--" << std::endl;
 					parseLine(tmp, fd);
-					it->buffer.assign(it->buffer.substr(it->buffer.find("\r\n") + 2, it->buffer.size()));
-					
+					it->buffer.assign(it->buffer.substr(it->buffer.find("\r\n") + 2, it->buffer.size()));	
 
 				}
 				//voir server.cpp ligne 305 chez fchouky pour gerer le ctrl +d en plein milieu d'une commande (pas de \r\n).

@@ -7,6 +7,7 @@
 
 void	Server::cmdQuit( vecString& args, int fd ) {
 
+	std::cout << "QUIT COMMAND\r\n" << std::endl;
 	vecString quitAllChans;
 	if (args.size() == 2)
 		quitAllChans.push_back(args[1]);
@@ -14,5 +15,6 @@ void	Server::cmdQuit( vecString& args, int fd ) {
 	quitAllChans.push_back("0");
 	cmdJoin(quitAllChans, fd);
 
-	close(fd);
+	vecClient::iterator del = getClientByFD(fd);
+	delClient(del);
 }
