@@ -48,11 +48,15 @@ const std::string	Channel::getTopic( void ) const {
 	return (_topic);
 }
 
+
+
 const std::string	Channel::getNamesOfChanUsers( void ) const {
 
 	std::string names;
 	vecClient::const_iterator it = _chanUsers.begin();
-	for (; it != _chanUsers.end() - 1; it++) {
+	for (; it != _chanUsers.end(); it++) {
+		if (isUserChanOp(it->getNickname()))
+			names += "@";
 		names += it->getNickname();
 		if (it != _chanUsers.end() -1)
 			names += " ";
@@ -250,9 +254,9 @@ bool	Channel::isUserOnChan( const std::string& nickname ) {
 	return (false);
 }
 
-bool	Channel::isUserChanOp( const std::string& nickname )
+bool	Channel::isUserChanOp( const std::string& nickname ) const
 {
-	vecClient::iterator it = _chanOp.begin();
+	vecClient::const_iterator it = _chanOp.begin();
 
 	for (; it != _chanOp.end(); it++)
 		if (it->getNickname() == nickname)
@@ -261,9 +265,20 @@ bool	Channel::isUserChanOp( const std::string& nickname )
 	return (false);
 }
 
-bool	Channel::isUserChanOp( int fd ) {
+bool	Channel::isUserChanOp( std::string& nickname ) const
+{
+	vecClient::const_iterator it = _chanOp.begin();
 
-	vecClient::iterator it = _chanOp.begin();
+	for (; it != _chanOp.end(); it++)
+		if (it->getNickname() == nickname)
+			return (true);
+
+	return (false);
+}
+
+bool	Channel::isUserChanOp( int fd ) const {
+
+	vecClient::const_iterator it = _chanOp.begin();
 
 	for (; it != _chanOp.end(); it++)
 		if (it->getFD() == fd)

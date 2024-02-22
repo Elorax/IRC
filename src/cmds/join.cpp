@@ -24,7 +24,6 @@ std::string	keyInit( vecString passwords, vecString::iterator it_pwd ) {
 }
 
 void	Server::cmdJoin( vecString& args, int fd ) {
-
 	if (!isUserSet(*getClientByFD(fd)))
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
@@ -47,14 +46,18 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 
 		std::string chanName = *it;
 		std::string key = keyInit(passwords, it_pwd);
-		Channel& toJoin = getChanByRef(chanName);
 
 		if (!doesChanExist(chanName)) {
-			std::cout <<"DEBUG : On cree le channel " << chanName << std::endl;
-			if (createChannel(chanName, key, fd) == 1)	//nom du chan incorrect
-				buildMsg(ERR_BADCHANMASK(chanName), fd);
-			continue ;
-		}
+			// std::cout <<"DEBUG : On cree le channel " << chanName << std::endl;
+			//if (createChannel(chanName, key, fd) == 1)	//nom du chan incorrect
+			//	buildMsg(ERR_BADCHANMASK(chanName), fd);
+			//else {		
+				handleJoinMsg(chanName, fd);
+				createChannel(chanName, key, fd);
+				// Channel& toJoin = getChanByRef(chanName);
+				continue ;
+			}
+		Channel& toJoin = getChanByRef(chanName);
 
 		switch (toJoin.isChanJoinable(key, fd)) {
 
@@ -115,17 +118,32 @@ void	Server::leaveAllChans( Client& client, vecString& args ) {
 	}
 }
 
+//Appele lors de la REJOINDATION d'un channel deja existant
 void	Server::handleJoinMsg( vecString& args, Channel& chan, int requesterFD ) {
 
+	(void)args;
 	std::string chanName = chan.getName();
-
+	std::string send;
+	send = ":"+getClientByFD(requesterFD)->getNickname()+"!~"+getClientByFD(requesterFD)->getUsername()+"@"+_name+" JOIN :"+chan.getName()+"\r\n";
+	buildMsg(send, chan);
 	if (chan.getTopic().empty())
 		buildMsg(RPL_NOTOPIC(chanName), requesterFD);
-
 	else
 		buildMsg(RPL_TOPIC(chanName, chan.getTopic()), requesterFD);
 
-	buildMsg(RPL_NAMEREPLY(chanName, chan.getNamesOfChanUsers()), requesterFD);
-	buildMsg(RPL_ENDOFNAMES(chanName), requesterFD);
-	buildMsg(initMsgs(*getClientByFD(requesterFD), args, chanName), chan);
+	buildMsg(RPL_NAMEREPLY(getClientByFD(requesterFD)->getNickname(), chanName, chan.getNamesOfChanUsers()), requesterFD);
+	buildMsg(RPL_ENDOFNAMES(getClientByFD(requesterFD)->getNickname(), chanName), requesterFD);
+	// buildMsg(initMsgs(*getClientByFD(requesterFD), args, chanName), chan);
+}
+
+//Appele lors de la CREATION d'un channel
+void	Server::handleJoinMsg( std::string chanName, int requesterFD ) {
+
+	std::string send;
+	send = ":"+getClientByFD(requesterFD)->getNickname()+"!~"+getClientByFD(requesterFD)->getUsername()+"@"+_name+" JOIN :"+chanName+"\r\n";
+	buildMsg(send, requesterFD);
+	buildMsg(RPL_NOTOPIC(chanName), requesterFD);
+	buildMsg(RPL_NAMEREPLY(getClientByFD(requesterFD)->getNickname(), chanName, "@"+getClientByFD(requesterFD)->getNickname()), requesterFD);
+	buildMsg(RPL_ENDOFNAMES(getClientByFD(requesterFD)->getNickname(), chanName), requesterFD);
+	// buildMsg(initMsgs(*getClientByFD(requesterFD), args, chanName), requesterFD);
 }

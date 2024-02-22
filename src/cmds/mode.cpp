@@ -18,8 +18,12 @@ void	Server::cmdMode( vecString& args, int fd ) {
 	if (!isUserSet(*getClientByFD(fd)))
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
-	if (args.size() < 3)
+	if (args.size() < 2)
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
+	else if (args.size() == 2)
+	{
+		//Liste des modes actifs sur le channel.
+	}
 
 	else if (!doesChanExist(args[1]))
 	{

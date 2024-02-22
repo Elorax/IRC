@@ -56,11 +56,13 @@ class	Channel {
 		bool					isInviteOnly( void );
 		bool					isTopicPrivSet( void );
 		bool					isUserOnChan( int fd );
-		bool					isUserChanOp( int fd );
+		bool					isUserChanOp( int fd ) const;
 		bool					isUserAlreadyInChan( int fd );
 		bool					isKeyValid( const std::string& key );
 		bool					isMatchingKey( const std::string& key );
 		bool					isUserOnChan( const std::string& nick );
-		bool					isUserChanOp( const std::string& nick );
+		bool					isUserChanOp( const std::string& nick ) const;
+		bool					isUserChanOp( std::string& nickname ) const;
+
 		int						isChanJoinable( const std::string& key, int fd );
 };
