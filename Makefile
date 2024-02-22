@@ -54,7 +54,7 @@ all			:	$(NAME)
 
 $(NAME)		:	$(OBJSDIR) $(OBJS)
 				@$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
-				@echo "\033[1;32mft_irc: Done!\033[0m"
+				@echo "\033[1;32m\nft_irc: Done!\033[0m"
 
 
 clean		:
