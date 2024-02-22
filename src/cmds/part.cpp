@@ -24,7 +24,7 @@ void	Server::cmdPart( vecString& args, int fd ) {
 	for (; it < chans.end(); it++) {
 
 		if (!doesChanExist(*it)) {
-			buildMsg(ERR_NOSUCHCHANNEL(*it), fd); 
+			buildMsg(ERR_NOSUCHCHANNEL(getClientByFD(fd)->getNickname(), *it), fd); 
 			continue;
 		}
 

@@ -36,11 +36,13 @@ void	Server::cmdPrivmsg( vecString& args, int fd ) {
 	}
 
 	//Msg to user.
+	//args[1] : nom du destinataire
+	//args[2] : message
 	else {
 		if (!doesUserExist(args[1]))
 			buildMsg(ERR_NOSUCHNICK(args[1]), fd);
 		else
 			buildMsg(":" + getClientByFD(fd)->getNickname() + "!~" + args[1]
-					+ "@" + _name + " PRIVMSG " + args[1] + " " + args[2] + "\r\n", getClientByName(args[1])->getFD());
+					+ "@" + _name + " PRIVMSG " + args[1] + " :" + args[2] + "\r\n", getClientByName(args[1])->getFD());
 	}
 }

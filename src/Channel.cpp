@@ -10,11 +10,11 @@ Channel::Channel( std::string name, Client& client )
 	client.addChanToUser(*this);
 	_chanOp.push_back(client);
 	_chanUsers.push_back(client);
-	std::cout << "DEBUG: channel cree : " + _name + " --- Createur : " + _chanOp[0].getNickname() << std::endl;
+	// std::cout << "DEBUG: channel cree : " + _name + " --- Createur : " + _chanOp[0].getNickname() << std::endl;
 }
 
 Channel::~Channel( void ) {
-	std::cout << "DEBUG: channel DELETE : " + _name << std::endl;
+	// std::cout << "DEBUG: channel DELETE : " + _name << std::endl;
 }
 
 /* -------------------------------------------------------------------------- */

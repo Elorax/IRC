@@ -48,15 +48,15 @@ Server::~Server( void ) {
 int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
 
 	int fd;
-	std::cout << "tentative d'accept" << std::endl;
+	// std::cout << "tentative d'accept" << std::endl;
 	socklen_t clientAddrLen = sizeof(_clientAddr);
     fd = accept(_socketFD, (struct sockaddr*) &_clientAddr, &clientAddrLen);
-	std::cout << "prout" << fd << std::endl;
+	// std::cout << "prout" << fd << std::endl;
     if (fd == -1)
         return (-1);
 
     Client newClient(fd);
-    std::cout << "NEW CLIENT\n";    //Useless mais utile pour mon debug
+    // std::cout << "NEW CLIENT\n";    //Useless mais utile pour mon debug
     _clients.push_back(newClient);
     FD_SET(fd, &readFDs);
     FD_SET(fd, &writeFDs);
@@ -155,7 +155,6 @@ bool    Server::isAvailNick( const std::string& nick ) {
 }
 
 bool	Server::isUserSet( const Client& client ) {
-
 	if (client.getPassword().empty() || client.getUsername().empty()
 		|| client.getNickname().empty() || client.getHostname().empty() || client.getRealname().empty())
 		return (false);
@@ -235,14 +234,15 @@ bool	Server::doesUserExist( const std::string& nickname ) {
 
 void	Server::sendMsgs(fd_set writeFDs){
 
-	std::cout << "ON SEND TOUS LES MESSAGES C LE FACTEUR QUI REGALE" << std::endl;
+	// std::cout << "DEBUG: ON SEND TOUS LES MESSAGES C LE FACTEUR QUI REGALE" << std::endl;
 	if (!_messages.empty() && !_clients.empty()){
 
 		std::vector<Message>::iterator it = _messages.begin();
 		for (; it != _messages.end(); it++){
 
 			if (FD_ISSET(it->getFD(), &writeFDs)){
-				std::cout << "Sent message to :" << getClientByFD(it->getFD())->getNickname() << " :" << it->getMsg() << std::endl;
+				//std::cout << "Sent message to :" << getClientByFD(it->getFD())->getNickname() << " :" << it->getMsg() << std::endl;
+				std::cout << it->getMsg();
 				send(it->getFD(), it->getMsg().c_str(), it->getMsg().size(), 0);
 				// std::cout << "Envoi du msg" + it->getMsg() + "au fd " << it->getFD() << std::endl;;	//Debugging
 			}
@@ -253,7 +253,7 @@ void	Server::sendMsgs(fd_set writeFDs){
 
 void    Server::parseLine(std::string &line, int fd) {
 
-	std::cout << "Ligne recue : >" << line << "<" << std::endl;
+	// std::cout << "DEBUG: Ligne recue : >" << line << "<" << std::endl;
     if (line.find("\r\n") == std::string::npos)
 		return;
 
@@ -261,14 +261,20 @@ void    Server::parseLine(std::string &line, int fd) {
     	line = line.substr(line.find(' '));
 
     vecString args = buildArgs(line);
-
-	for(vecString::iterator it = args.begin(); it != args.end(); it++)
+	/*
+	for (vecString::iterator it = args.begin(); it < args.begin(); it++)
 	{
-		std::cout << "arg : >" << *it << "<" << std::endl;
-	}
+		if (it->empty())
+			it = args.erase(it);
+	}*/
+
+
+	// for(vecString::iterator it = args.begin(); it != args.end(); it++)
+	// {
+	// 	std::cout << "DEBUG: arg : >" << *it << "<" << std::endl;
+	// }
 
 	switch (findCommand(args[0])) {
-
 		case eINVITE:	cmdInvite(args, fd);	break;
 		case eJOIN: 	cmdJoin(args, fd);		break;
 		case eMODE: 	cmdMode(args, fd);		break;
@@ -282,20 +288,22 @@ void    Server::parseLine(std::string &line, int fd) {
 		case eTOPIC: 	cmdTopic(args, fd);		break;
 		case eUSER: 	cmdUser(args, fd);		break;
 		case eWHO: 		cmdWho(args, fd);		break;
-		case eNOTFOUND: buildMsg(ERR_UNKNOWNCOMMAND(args[0]), fd);
+		case eCAP:		cmdCap();				break;
+		case eNOTFOUND: ;
+		//buildMsg(ERR_UNKNOWNCOMMAND(getClientByFD(fd)->getNickname(), args[0]), fd);
 	}
 }
 
 eCommand	Server::findCommand( std::string const& line ) {
 
 	std::string	cmd[] = {	"INVITE", "JOIN", "KICK", "MODE", "NICK", "NOTICE",
-							"PART", "PASS", "PRIVMSG", "QUIT", "TOPIC", "USER", "WHO"};
+							"PART", "PASS", "PRIVMSG", "QUIT", "TOPIC", "USER", "WHO", "CAP"};
 
     std::string tmp = line;
 	if (tmp.find(' ') != std::string::npos)
     	tmp.erase(tmp.find(' '), tmp.size());
 
-	for (size_t i = 0; i < 13; i++){
+	for (size_t i = 0; i < 14; i++){
 		if (cmd[i] == line)
 			return ((eCommand)i);
 	}
@@ -324,20 +332,25 @@ vecString Server::buildArgs( std::string& line ) {
 	std::string last;
 
 	if (line.find(':') != std::string::npos)
-		last = line.substr(line.find(':'));
+		last = line.substr(line.find(':') + 1);
 	else
 		last = "";
 
     std::string tmp = line.substr(0, line.find(':'));
     while (tmp.find(' ') != std::string::npos) {
-		args.push_back(tmp.substr(0, tmp.find(' ')));
+		//std::string str = tmp.substr(0, tmp.find(' '));
+		//if (str != "")
+			args.push_back(tmp.substr(0, tmp.find(' ')));
         tmp = tmp.substr(tmp.find(' ') + 1);
 	}
 	if (tmp.find("\r\n") != std::string::npos)
 		tmp.erase(tmp.find("\r\n"));
 	args.push_back(tmp);
 	if (!last.empty())
+	{
+		args.pop_back();
    		args.push_back(last);
+	}
 	return (args);
 }
 
@@ -396,4 +409,8 @@ void	Server::debug( void )
 			std::cout << "client " << j << ", fd : " << it->getClient(j).getFD() << "\nNick : " << it->getClient(j).getNickname() << std::endl;
 		}
 	}
+}
+
+void	Server::cmdCap( void ){
+	std::cout << "\x1b[8mDEBUG: C'est le bruit de mes couilles contre tes fesses\x1b[0m" << std::endl;
 }

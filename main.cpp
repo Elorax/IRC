@@ -13,10 +13,15 @@ bool	isNumber(char *s)
 int	main(int ac, char **av) {
 
 	//try {
-		if (ac != 3)
-			throw std::invalid_argument("Wrong parameters.\nUse case: './ircserv <port> <password>'");
-		else if (!isNumber(av[1]))
-			throw std::invalid_argument("Wrong parameters.\n'PORT' must be a number");
+		std::cout << "\x1b[2J\x1b[H\n";
+		if (ac != 3) {
+			std::cerr << "Wrong parameters.\n'PORT' must be a number\n";
+			return (EXIT_FAILURE);
+		}
+		else if (!isNumber(av[1])) {
+			std::cerr << "Wrong parameters.\n'PORT' must be a number\n";
+			return (EXIT_FAILURE);
+		}
 		std::string port(av[1]);
 		std::string password(av[2]);
 		Server server(port, password);

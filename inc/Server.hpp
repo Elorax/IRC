@@ -64,6 +64,7 @@ class	Server {
 
 		/* Commands */
 		eCommand					findCommand( const std::string& line );
+		void						cmdCap( void );
 		void						cmdInvite( vecString& args, int fd );
 		void						cmdJoin( vecString& args, int fd );
 		void						cmdKick( vecString& args, int fd );

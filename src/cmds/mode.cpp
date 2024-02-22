@@ -22,7 +22,12 @@ void	Server::cmdMode( vecString& args, int fd ) {
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
 	else if (!doesChanExist(args[1]))
-		return (buildMsg(ERR_NOSUCHCHANNEL(args[1]), fd));
+	{
+		if (doesUserExist(args[1]))
+			return ;
+		else
+			return (buildMsg(ERR_NOSUCHCHANNEL(getClientByFD(fd)->getNickname(), args[1]), fd));
+	}
 	Channel& chan = getChanByRef(args[1]);
 
 	if (!chan.isUserOnChan(fd))

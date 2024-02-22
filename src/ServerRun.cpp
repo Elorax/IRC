@@ -58,7 +58,7 @@ void	Server::run( void ) {
 			}
 		}
 		sendMsgs(writeFDs);
-		debug();	//Presente tous les chans et tous leurs users.
+		//debug();	//Presente tous les chans et tous leurs users.
 		initBuffer(readFDs, writeFDs);
 		//std::cout << "message 2" << std::endl;
 	}
@@ -104,7 +104,7 @@ void Server::initBuffer( fd_set &readFDs, fd_set &writeFDs ) {
 		int fd = it->getFD();
 		if (FD_ISSET(fd, &readFDs)) {
 			bytesRead = recv(fd, buff, BUFFER_SIZE, 0);	//recv chez nous, read chez lilian 
-
+			std::cout << buff;
 			if (bytesRead < 0) {
 				delClient(it);
 				FD_CLR(fd, &readFDs);
@@ -116,8 +116,12 @@ void Server::initBuffer( fd_set &readFDs, fd_set &writeFDs ) {
 				it->buffer += buff;
 				while (it->buffer.find("\r\n") != std::string::npos)
 				{
-					parseLine(it->buffer, fd);
-					it->buffer.assign(it->buffer.substr(it->buffer.find('\n') + 1, it->buffer.size()));
+					std::string tmp;
+					tmp = it->buffer.substr(0, it->buffer.find("\r\n") + 2);
+					// std::cout << "Debug: ligne envoyee dans parseLine -->" + tmp + "<--" << std::endl;
+					parseLine(tmp, fd);
+					it->buffer.assign(it->buffer.substr(it->buffer.find("\r\n") + 2, it->buffer.size()));
+					
 
 				}
 				//voir server.cpp ligne 305 chez fchouky pour gerer le ctrl +d en plein milieu d'une commande (pas de \r\n).

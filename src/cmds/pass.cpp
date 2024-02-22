@@ -4,18 +4,20 @@
 //Must be done first when a client try to register
 
 void	Server::cmdPass( vecString& args, int fd ) {
+	// std::cout << "DEBUG: JE SUIS LA PERDU QUELQUE PART DANS L'ESPACE TEMPS ENTRE L'INGLORIUM ET LE NEANT"<< std::endl;
 
 	//std::cout << "args[1] : " << args[1] << std::endl << "key : " << _chanKey << std::endl;
-	std::cout << "DEBUG: password = >" + _chanKey + "<" << std::endl;
+	// std::cout << "DEBUG: password = >" + _chanKey + "<" << std::endl;
 	if (!getClientByFD(fd)->getPassword().empty())
 		return (buildMsg(ERR_ALREADYREGISTRED, fd));
 
-	if(args.size() != 2)
+	if(args.size() < 2)
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
 	else if (args[1] != _chanKey)
 		buildMsg(ERR_PASSWDMISMATCH, fd);
 
-	else
+	else{
 		getClientByFD(fd)->setPassword(args[1]);
+	}
 }

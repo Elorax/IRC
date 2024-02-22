@@ -5,7 +5,7 @@ Client::Client(int fd): _clientFD(fd), _chanKey(""), _hostname(""),
 }
 
 Client::~Client( void ) {
-    std::cout << "Client " << _username << " (" << _nickname << ") deleted" << std:: endl;  //debug
+    // std::cout << "Client " << _username << " (" << _nickname << ") deleted" << std:: endl;  //debug
 }
 
 /* -------------------------------------------------------------------------- */
@@ -14,18 +14,18 @@ Client::~Client( void ) {
 
 void    Client::setPassword( std::string const& password ) {
     _chanKey = password;
-    std::cout << "DEBUG: password set : " + _chanKey << std::endl;
+    // std::cout << "DEBUG: password set : " + _chanKey << std::endl;
 }
 
 void    Client::setNickname(std::string const& nickname ) {
     _nickname = nickname;
-     std::cout << "DEBUG: nick set : " + _nickname << std::endl;
+    //  std::cout << "DEBUG: nick set : " + _nickname << std::endl;
 
 }
 
 void    Client::setUsername(std::string const& username ) {
     _username = username;
-    std::cout << "DEBUG: username set : " + _username << std::endl;
+    // std::cout << "DEBUG: username set : " + _username << std::endl;
 
 }
 
@@ -33,14 +33,14 @@ void	Client::setRealname( const std::string& realname )
 {
     _realname = realname;
 
-    std::cout << "DEBUG: realname set : " + _realname << std::endl;
+    // std::cout << "DEBUG: realname set : " + _realname << std::endl;
 
 }
 
 void	Client::setHostname( const std::string& hostname )
 {
     _hostname = hostname;
-     std::cout << "DEBUG: hostname set : " + _hostname << std::endl;
+    //  std::cout << "DEBUG: hostname set : " + _hostname << std::endl;
 
 }
 
