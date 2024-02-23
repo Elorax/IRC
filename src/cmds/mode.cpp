@@ -21,11 +21,11 @@ void	Server::cmdMode( vecString& args, int fd ) {
 	if (args.size() < 2)
 		return (buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd));
 
-	
+	// ! ENTOINE ranger mode plus tard
 
 	else if (!doesChanExist(args[1]))
 	{
-		if (doesUserExist(args[1]))//keske
+		if (doesUserExist(args[1]))//!keske
 			return ;
 		else
 			return (buildMsg(ERR_NOSUCHCHANNEL(getClientByFD(fd)->getNickname(), args[1]), fd));
@@ -72,7 +72,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 						break;
 					case 't': chan.setTopicPriv(); rep[0] += "t";	break;
 					case 'i': chan.setInviteOnly();	rep[0] += "i";	break;
-					default: buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd);	//J'ai enleve le return parce qu'on fait quand meme les commandes suivantes.
+					default: return (buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd));	//J'ai enleve le return parce qu'on fait quand meme les commandes suivantes.
 				}
 			}
 		}
@@ -93,18 +93,21 @@ void	Server::cmdMode( vecString& args, int fd ) {
 					case 'l': chan.unsetLimit(); rep[0] += "l";		break;
 					case 't': chan.unsetTopicPriv(); rep[0] += "t";	break;
 					case 'i': chan.unsetInviteOnly();rep[0] += "i";	break;
-					default: buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd);
+					default: return (buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd));
 				}
 			}
 		}
+		else if (token == "b")
+			return ;	//on ignore MODE #chan b, envoye par defaut depuis irssi
+		else
+			return (buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd));
 		vecString::iterator ite = rep.begin();
 		std::string repStr = "";
 		for (;ite != rep.end(); ite++){
 			repStr += *ite;
 			if (ite + 1 != rep.end())
 				repStr += " ";
-		}
-
+		} 
 		std::string toSend = ":" + getClientByFD(fd)->getNickname() +"!~"+ getClientByFD(fd)->getUsername()+"@"+_name+" MODE "+ chan.getName() + " " + repStr + "\r\n";
 		buildMsg(toSend, chan);//! C'etait tosend, fd avant mais je pense que chan c'est mieux. A tester et reverse si pas bien
 	//}

@@ -43,16 +43,17 @@ void	Server::whoClient( Client& target, Client& client ) {
 
 	std::string whoMsg;
 
-	if (!target.getUserChanList().empty()) {
-		whoMsg += target.getUserChanList().back().getName() + " ";
-	}
-	whoMsg += target.getUsername() + " "
-		+ "ft_irc" + " "
-		+ "ft_irc" + " "
-		+ target.getNickname() + " "
-		+ " H@ :0 "
-		+ target.getRealname();
 
+	std::cout << "DEBUG WHO : " << target.getUserChanList().back().getName() << std::endl;
+	whoMsg = target.getNickname() + " ";
+	if (!target.getUserChanList().empty())
+		whoMsg += target.getUserChanList().back().getName();
+	whoMsg += target.getUsername() + " ft_irc" + " ft_irc ~" + target.getNickname() + " H@ :@ " + target.getRealname();
+
+//to_send = ":"+_name+" 352 " + get_client_by_fd(param.get_fd()).get_nickname()+" "+get_client_by_fd(param.get_fd()).get_last_channel()+" ~"+get_client_by_fd(param.get_fd()).get_username()+" "+_name+" " + _name + " " + args[0] + " H@ :0 " + get_client_by_fd(param.get_fd()).get_realname()+"\r\n";
+//to_send = ":ft_irc_all 352 " + (*it).get_nickname()+" "+chan_name+" ~"+(*it).get_username()+" "+_name+" " + _name + " " + (*it).get_nickname() + " H :0 " + (*it).get_realname()+"\r\n";
+
+	buildMsg(WHONOTICE(client.getNickname(), client.getUsername(), target.getNickname()), client.getFD());
 	buildMsg(RPL_WHOREPLY(client.getNickname(), whoMsg), client.getFD());
 }
 

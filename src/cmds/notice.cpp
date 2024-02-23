@@ -3,6 +3,8 @@
 //Param: NOTICE <msgtarget> <text>
 void	Server::cmdNotice( vecString& args, int fd ) {
 
+	Client& client = *getClientByFD(fd);
+
 	if (!isUserSet(*getClientByFD(fd)))
 		return (buildMsg(ERR_NOTREGISTERED, fd));
 
@@ -15,11 +17,11 @@ void	Server::cmdNotice( vecString& args, int fd ) {
 		if (!doesChanExist(args[1])) {
 			Channel &chan = getChanByRef(args[1]);
 			if (chan.isUserOnChan(fd))
-				buildMsg(args[2], chan);	//Formatte ton message connard.
+				buildMsg(MSGNOTICE(client.getNickname(), client.getUsername(), args[1], args[2]), chan, fd);
 		}
 	}
 
 	else if (doesUserExist(args[1]))
-		if (doesUserExist(args[1]))
-			buildMsg(args[2], getClientByName(args[1])->getFD());
+		buildMsg(MSGNOTICE(client.getNickname(), client.getUsername(), args[1], args[2]), getClientByName(args[1])->getFD());
+
 }

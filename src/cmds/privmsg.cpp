@@ -31,8 +31,7 @@ void	Server::cmdPrivmsg( vecString& args, int fd ) {
 			else if (!client.isChanInList(chan))
 				buildMsg(ERR_CANNOTSENDTOCHAN(chan.getName()), fd);
 			else
-				buildMsg(PRIVMSGNOTICE(client.getNickname(), client.getUsername(),
-						args[1], args[2]), chan, fd);
+				buildMsg(PRIVMSGNOTICE(client.getNickname(), client.getUsername(), args[1], args[2]), chan, fd);
 		}
 	}
 	//Msg to user.

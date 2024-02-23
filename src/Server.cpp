@@ -281,6 +281,8 @@ void    Server::parseLine(std::string &line, int fd) {
 		case eUSER: 	cmdUser(args, fd);		break;
 		case eWHO: 		cmdWho(args, fd);		break;
 		case eCAP:		cmdCap();				break;
+		case ePING:		cmdPong(args, fd);		break;
+
 		case eNOTFOUND: ;
 		//buildMsg(ERR_UNKNOWNCOMMAND(getClientByFD(fd)->getNickname(), args[0]), fd);
 	}
@@ -289,13 +291,13 @@ void    Server::parseLine(std::string &line, int fd) {
 eCommand	Server::findCommand( std::string const& line ) {
 
 	std::string	cmd[] = {	"INVITE", "JOIN", "KICK", "MODE", "NICK", "NOTICE",
-							"PART", "PASS", "PRIVMSG", "QUIT", "TOPIC", "USER", "WHO", "CAP"};
+							"PART", "PASS", "PRIVMSG", "QUIT", "TOPIC", "USER", "WHO", "CAP", "PING"};
 
     std::string tmp = line;
 	if (tmp.find(' ') != std::string::npos)
     	tmp.erase(tmp.find(' '), tmp.size());
 
-	for (size_t i = 0; i < 14; i++){
+	for (size_t i = 0; i < 15; i++){
 		if (cmd[i] == line)
 			return ((eCommand)i);
 	}

@@ -74,11 +74,13 @@ class	Server {
 		void						cmdNotice( vecString& args, int fd );
 		void						cmdPart( vecString& args, int fd );
 		void						cmdPass( vecString& args, int fd );
+		void						cmdPong( vecString& args, int fd ); 
 		void						cmdPrivmsg( vecString& args, int fd );
 		void						cmdQuit( vecString& args, int fd );
 		void						cmdTopic( vecString& args, int fd );
 		void						cmdUser( vecString& args, int fd );
 		void						cmdWho( vecString& args, int fd );
+
 
 		/* Misc */
 		void						debug( void );

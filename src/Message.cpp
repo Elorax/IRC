@@ -14,3 +14,12 @@ const std::string   &Message::getMsg( void ) const {
 const int           &Message::getFD( void) const {
     return (_fd);
 }
+
+void                Message::setMsg(std::string &string)
+{
+    _msg = string;
+}
+void                Message::setFD(int fd)
+{
+    _fd = fd;
+}
