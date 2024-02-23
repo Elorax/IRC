@@ -84,6 +84,15 @@ const std::string&  Client::getPassword( void ) const {
     return (_chanKey);
 }
 
+const std::string	Client::getLastChan( void ) const {
+
+	if (_userChannels.empty())
+		return ("*");
+
+	return (_userChannels.back().getName());
+}
+
+
 vecChannel&   Client::getUserChanList( void ) {
     return (_userChannels);
 }

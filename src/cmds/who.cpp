@@ -22,7 +22,7 @@ void	Server::cmdWho( vecString& args, int fd ) {
 		Client& target = *getClientByName(args[1]);
 		whoClient(target, client);
 	}
-	buildMsg(RPL_ENDOFWHO(client.getNickname(), args[1]), fd);
+	// buildMsg(RPL_ENDOFWHO(client.getNickname(), args[1]), fd);
 }
 /* --------------------------------- Helpers -------------------------------- */
 
@@ -41,17 +41,12 @@ void	Server::whoAll( Client& client ) {
 
 void	Server::whoClient( Client& target, Client& client ) {
 
-	std::string whoMsg;
-
-
-	std::cout << "DEBUG WHO : " << target.getUserChanList().back().getName() << std::endl;
-	whoMsg = target.getNickname() + " ";
-	if (!target.getUserChanList().empty())
-		whoMsg += target.getUserChanList().back().getName();
-	whoMsg += target.getUsername() + " ft_irc" + " ft_irc ~" + target.getNickname() + " H@ :@ " + target.getRealname();
-
-//to_send = ":"+_name+" 352 " + get_client_by_fd(param.get_fd()).get_nickname()+" "+get_client_by_fd(param.get_fd()).get_last_channel()+" ~"+get_client_by_fd(param.get_fd()).get_username()+" "+_name+" " + _name + " " + args[0] + " H@ :0 " + get_client_by_fd(param.get_fd()).get_realname()+"\r\n";
-//to_send = ":ft_irc_all 352 " + (*it).get_nickname()+" "+chan_name+" ~"+(*it).get_username()+" "+_name+" " + _name + " " + (*it).get_nickname() + " H :0 " + (*it).get_realname()+"\r\n";
+	std::string whoMsg = target.getNickname() + " " 
+	+ target.getLastChan() + " ~"
+	+ target.getUsername() + " " 
+	+ _name + " " + _name + " " 
+	+ target.getNickname() + " H@ :0 " 
+	+ target.getRealname() + RPL_ENDOFWHO(client.getNickname(), target.getNickname());
 
 	buildMsg(WHONOTICE(client.getNickname(), client.getUsername(), target.getNickname()), client.getFD());
 	buildMsg(RPL_WHOREPLY(client.getNickname(), whoMsg), client.getFD());

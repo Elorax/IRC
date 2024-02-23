@@ -38,6 +38,7 @@ class	Client {
 		const std::string&			getNickname( void ) const;
 		const std::string&			getRealname( void ) const;
 		const std::string&			getPassword( void ) const;
+		const std::string			getLastChan( void ) const;
 		vecChannel&					getUserChanList( void );
 
 		/* checker */
