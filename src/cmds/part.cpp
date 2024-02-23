@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! Pas teste plusieurs part avec virgule. test avec message.
 //Parametres : PART <channel> *( "," <channel> ) [ <Part Message>]
 //Ex : PART chan1 :j'me casse !
 //Ex : PART chan1,chan2 :j'me casse !

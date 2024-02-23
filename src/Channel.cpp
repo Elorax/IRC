@@ -221,7 +221,7 @@ void	Channel::unsetTopicPriv( void ) {
 }
 
 void	Channel::unsetInviteOnly( void ) {
-	_topicPriv = false;
+	_inviteOnly = false;
 }
 
 /* -------------------------------------------------------------------------- */

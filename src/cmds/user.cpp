@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! Ca refonctionne un peu plus tard que prevu mais ca refonctionne quand meme. bisous lele.
 //VERIFIER QUE PASS A ETE CORRECTEMENT EXECUTE : _chanKey n'est PAS VIDE
 //Sinon user non registered sur le serveur et interdit d'accès
 //

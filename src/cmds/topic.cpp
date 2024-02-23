@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! Fonctionne, a l'air de fonctionner comme il faut avec MODE #chan +t ou -t
 //Parametres : TOPIC <channel> [ <topic> ]
 //Si pas de parametre topic, on envoie au user un RPL_TOPIC ou un RPL_NOTOPIC suivant s'il existe ou non
 //Ex : TOPIC chan1 prout -->On remplace le topic existant de chan1 par prout

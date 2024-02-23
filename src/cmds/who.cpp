@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//!Affichage pas correct (teste avec /who Elo), manque des morceaux, verifier en copiant sur fchouky.
 //if no mask, show all visible users without common channel with requester
 //same with 0
 //otherwise return list of info matching the <mask> given
@@ -24,7 +24,6 @@ void	Server::cmdWho( vecString& args, int fd ) {
 	}
 	buildMsg(RPL_ENDOFWHO(client.getNickname(), args[1]), fd);
 }
-
 /* --------------------------------- Helpers -------------------------------- */
 
 void	Server::whoAll( Client& client ) {

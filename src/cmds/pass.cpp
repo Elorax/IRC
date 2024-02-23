@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! fonctionne
 //Param: <password>
 //Must be done first when a client try to register
 

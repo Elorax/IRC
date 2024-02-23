@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! Ca fonctionne, verifier join 0
 ///Parametres : JOIN ( <channel> *( "," <channel> ) [ <key> *( "," <key> ) ] ) / "0"
 //Entre crochets : optionnels
 //JOIN 0 --> L'utilisateur quitte tous les channels dont il est membre.

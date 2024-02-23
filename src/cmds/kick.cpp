@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//!Pas teste
 //Parameters: <channel> *( "," <channel> ) <user> *( "," <user> ) [<comment>]
 //Kick est censee utiliser la commande Part
 void	Server::cmdKick( vecString& args, int fd ) {

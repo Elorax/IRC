@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//!Ca refonctionne depuis pas assez longtemps
 //Param: NICK <nickname>
 
 void	Server::cmdNick( vecString& args, int fd ) {

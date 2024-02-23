@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//!fonctionne mais pas avec dcc pour envoi fichier. Pas bonus atm.
 //Parametres : PRIVMSG <target> <message>
 //Ex : PRIVMSG lea :coucou ca va ?
 //Ex : PRIVMSG #iciclafete :salut les zboubs

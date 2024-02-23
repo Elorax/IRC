@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! A tester, il marche pas parce que pas bon format de message recu.
 //Param: NOTICE <msgtarget> <text>
 void	Server::cmdNotice( vecString& args, int fd ) {
 
@@ -15,7 +15,7 @@ void	Server::cmdNotice( vecString& args, int fd ) {
 		if (!doesChanExist(args[1])) {
 			Channel &chan = getChanByRef(args[1]);
 			if (chan.isUserOnChan(fd))
-				buildMsg(args[2], chan);
+				buildMsg(args[2], chan);	//Formatte ton message connard.
 		}
 	}
 

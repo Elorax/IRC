@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! Quitte le serveur : FAut CARREMENT LE REVOIR. J'l'ai pas fait cettenuit deso pas deso.
 //Param: QUIT [ <quitmsg> ]
 // A client session is terminated with a quit message.
 // Te server acknowledges this by sending an ERROR message to the client.

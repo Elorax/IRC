@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+//! Pas mal teste, a finir de tester + invite only une fois que invite est bon. Voir les msg d'erreur, fchouky il a des doutes.
 //Parametres : MODE <channel> *( ("-" / "+") *<modes> *<modeparams> )
 //Ex : MODE #chan1 +k password
 //k pour pw (avec param)
@@ -40,7 +40,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 
 
 	vecString::iterator it = args.begin() + 2;
-	for(; it != args.end(); it++) {	//Pas sur que ce soit un FOR, ca nous arrangerait que non en fait.
+	//for(; it != args.end(); it++) {	//Pas sur que ce soit un FOR, ca nous arrangerait que non en fait.
 		vecString rep;
 		//rep doit contenir +, tous les flags QUI ONT FONCTIONNE, et les parametres de ces flags.
 		
@@ -97,17 +97,17 @@ void	Server::cmdMode( vecString& args, int fd ) {
 				}
 			}
 		}
-		vecString::iterator it = rep.begin();
+		vecString::iterator ite = rep.begin();
 		std::string repStr = "";
-		for (;it != rep.end(); it++){
-			repStr += *it;
-			if (it + 1 != rep.end())
+		for (;ite != rep.end(); ite++){
+			repStr += *ite;
+			if (ite + 1 != rep.end())
 				repStr += " ";
 		}
 
 		std::string toSend = ":" + getClientByFD(fd)->getNickname() +"!~"+ getClientByFD(fd)->getUsername()+"@"+_name+" MODE "+ chan.getName() + " " + repStr + "\r\n";
-		buildMsg(toSend, fd);
-	}
+		buildMsg(toSend, chan);//! C'etait tosend, fd avant mais je pense que chan c'est mieux. A tester et reverse si pas bien
+	//}
 }
 
 /*
@@ -152,7 +152,7 @@ void	Server::handleModeListMsg( std::string chanName, int fd ) {
 		modes += " " + chan.getPassword();
 	if (chan.isChanLimitSet())
 		modes += " " + size_t_to_string(chan.getChanLimit());
-	else
+	if (modes == "+")
 		modes = "No modes set for this channel";
 
 	buildMsg(RPL_CHANNELMODEIS(client.getNickname(), chanName, modes), fd);
