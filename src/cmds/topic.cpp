@@ -31,6 +31,6 @@ void	Server::cmdTopic( vecString& args, int fd) {
 
 	else {
 		chan.setTopic(args[2]);
-		buildMsg(RPL_TOPIC(chan.getName(), chan.getTopic()), chan);
+		buildMsg(RPL_TOPIC(getClientByFD(fd)->getNickname(), chan.getName(), chan.getTopic()), chan);
 	}
 }

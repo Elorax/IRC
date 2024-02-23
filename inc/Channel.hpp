@@ -23,6 +23,7 @@ class	Channel {
 								~Channel( void );
 
 		/* Getters */
+		size_t					getChanLimit( void );
 		size_t					getNbClients( void );
 		const Client&			getClient(int idx);
 		const Client&			getOP( const std::string& name );
@@ -38,9 +39,9 @@ class	Channel {
 		void					addUser( Client& user );
 		void					setKey( const std::string& key );
 		void					setTopic( const std::string& topic );
-		void					setOP( Server& serv, vecString& args, vecString::iterator it, int fd );
-		void					setKey( Server& serv, vecString& args, vecString::iterator it, int fd );
-		void					setLimit( Server& serv, vecString& args, vecString::iterator it, int fd );
+		int						setOP( Server& serv, vecString& args, vecString::iterator it, int fd );
+		int						setKey( Server& serv, vecString& args, vecString::iterator it, int fd );
+		int						setLimit( Server& serv, vecString& args, vecString::iterator it, int fd );
 		/* Unsetters */
 		void					unsetKey( void );
 		void					unsetLimit( void );
@@ -48,7 +49,7 @@ class	Channel {
 		void					unsetTopicPriv( void );
 		void					delUser( Client& user );
 		void					unsetOP( Client& user );
-		void					unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd );
+		int						unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd );
 
 		/* Checkers */
 		bool					isFull( void );

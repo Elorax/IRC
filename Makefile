@@ -43,11 +43,11 @@ $(OBJSDIR)/%.o : %.cpp
 				@$(CC) $(CFLAGS) -c $< -o $@ -MMD $(INCSDIR)
 
 $(OBJSDIR)/%.o : src/%.cpp
-				@printf "\033[0;33mGenerating ft_irc object... %-38.38s \r" $@
+				@printf "\033[1;33mGenerating ft_irc object... %-38.38s \r" $@
 				@$(CC) $(CFLAGS) -c $< -o $@ -MMD $(INCSDIR)
 
 $(OBJSDIR)/%.o : src/cmds/%.cpp
-				@printf "\033[0;33mGenerating ft_irc object... %-38.38s \r" $@
+				@printf "\033[1;33mGenerating ft_irc object... %-38.38s \r" $@
 				@$(CC) $(CFLAGS) -c $< -o $@ -MMD $(INCSDIR)
 
 all			:	$(NAME)

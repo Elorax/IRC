@@ -25,18 +25,17 @@ void	Server::cmdPart( vecString& args, int fd ) {
 
 	for (; it < chans.end(); it++) {
 
-		Channel& toPart = getChanByRef(*it);
 		if (!doesChanExist(*it)) {
 			buildMsg(ERR_NOSUCHCHANNEL(client.getNickname(), *it), fd); 
 			continue;
 		}
+		Channel& toPart = getChanByRef(*it);	//reessayer de le mettre quatre lignes au dessus juste pour voir
 
 		if (!toPart.isUserOnChan(fd))
 			buildMsg(ERR_NOTONCHANNEL(*it), fd);
 
 		else {
-
-			std::string msg = (args.size() == 3 ? msg = client.getNickname() : msg = args[2]);
+			std::string msg = (args.size() == 3 ? args[2] : client.getNickname());
 			buildMsg(PARTNOTICE(client.getNickname(), client.getUsername(), toPart.getName(), msg), toPart);
 			toPart.delUser(client);
 			std::cout << "DEBUG: PART : On del user " << client.getNickname() << " de " << *it << std::endl;

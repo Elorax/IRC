@@ -19,5 +19,9 @@ void    Server::cmdUser( vecString& args, int fd )
 		getClientByFD(fd)->setUsername(args[1]);
 		getClientByFD(fd)->setHostname("Placeholder");
 		getClientByFD(fd)->setRealname(args[4]);//setrealname, realname can have spaces
+		buildMsg(RPL_WELCOME(getClientByFD(fd)->getNickname())
+    	+ RPL_YOURHOST(getClientByFD(fd)->getNickname())
+    	+ RPL_CREATED(getClientByFD(fd)->getNickname())
+    	+ RPL_MYINFO(getClientByFD(fd)->getNickname()), fd);
 	}
 }

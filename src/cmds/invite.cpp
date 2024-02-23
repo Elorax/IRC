@@ -37,7 +37,7 @@ void	Server::cmdInvite( vecString& args, int fd ) {
 
 	else {
 
-		buildMsg(RPL_INVITING(chan.getName(), nickname), fd);
+		buildMsg(RPL_INVITING(getClientByFD(fd)->getNickname(), chan.getName(), nickname), fd);
 		buildMsg(JOINNOTICE(nickname, getClientByName(nickname)->getUsername(), chan.getName()), fd);
 		chan.addUser(*getClientByName(nickname));
 	}

@@ -21,12 +21,18 @@ Channel::~Channel( void ) {
 /*                                   Getter                                   */
 /* -------------------------------------------------------------------------- */
 
+size_t	Channel::getChanLimit( void )
+{
+	return (_chanLimit);
+}
+
+
 const Client&	Channel::getOP( const std::string& name ) {
 
 	vecClient client;
     vecClient::iterator it = _chanOp.begin();
     for (; it != _chanOp.end(); it++) {
-        if (name == it->getUsername())
+        if (name == it->getNickname())
 			return (*it);
 	}
 	return (*it);
@@ -96,10 +102,10 @@ void	Channel::setKey( const std::string& key ) {
 		_isChanKeySet = true;
 	}
 }
+// MODE #chan1 +k
+int	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
-void	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int fd ) {
-
-	if (++it == args.end())
+	if (it == args.end())
 		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (isChanKeySet())
@@ -108,30 +114,38 @@ void	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int
 	else if (isKeyValid(*it)) {
 		_chanKey = *it;
 		_isChanKeySet = true;
+		return (EXIT_SUCCESS);
 	}
 
 	else //Qu'est-ce qu'on envoie au client qui effectue la requete ??
 		serv.buildMsg(":ft_irc 467" + getName() + ":Channel key incorrect\r\n", fd);
+	return (EXIT_FAILURE);
 }
 
-void	Channel::setOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
+int	Channel::setOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
-	if (++it == args.end())
+	if (it == args.end())
 		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (!isUserOnChan(*it))
 		serv.buildMsg(ERR_USERNOTINCHANNEL(*it, getName()), fd);
 
-	else if (!isUserChanOp(*it))
+	else if (!isUserChanOp(*it)){
 		_chanOp.push_back(*serv.getClientByName(*it));
+		return (EXIT_SUCCESS);
+	}
+	return (EXIT_FAILURE);
 }
 
-void	Channel::setLimit( Server& serv, vecString& args, vecString::iterator it, int fd ) {
+int	Channel::setLimit( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
-	if (++it == args.end())
+	if (it == args.end()){
 		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
+		return (EXIT_FAILURE);
+	}
 	else
-		_chanLimit = atoi(it->c_str());
+		_chanLimit = atoi(it->c_str());	//!VERIFIER QUE it->c_str EST DU BON FORMAT, C'est a dire UNIQUEMENT COMPOSE DE CHIFFRES.
+	return (EXIT_SUCCESS);
 }
 
 void	Channel::setTopicPriv( void ) {
@@ -153,14 +167,15 @@ void	Channel::setTopic( const std::string& topic ) {
 //remove un user d'un chan ainsi que de la liste des op si il en faisait partie.
 void	Channel::delUser( Client& user ) {
 
-	std::string name = user.getUsername();
+	std::string name = user.getNickname();
 	vecClient::iterator it = _chanUsers.begin();
 
 	for(; it < _chanUsers.end(); it++)
-		if (name == it->getUsername()) {
+		if (name == it->getNickname()) {
 			unsetOP(user);
 			_chanUsers.erase(it);
 			user.delChan(*this);
+			break ;
 		}
 }
 
@@ -172,26 +187,29 @@ void	Channel::unsetKey( void ) {
 
 void	Channel::unsetOP( Client& user ) {
 
-	std::string name = user.getUsername();
+	std::string name = user.getNickname();
 	vecClient::iterator it = _chanOp.begin();
 
 	for(; it < _chanOp.end(); it++)
-		if (name == it->getUsername())
+		if (name == it->getNickname())
 			_chanOp.erase(it);
 }
 
 
-void	Channel::unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
+int	Channel::unsetOP( Server& serv, vecString& args, vecString::iterator it, int fd ) {
 
-	if (++it == args.end())
+	if (it == args.end())
 		serv.buildMsg(ERR_NEEDMOREPARAMS(args[0]), fd);
 
 	else if (!isUserOnChan(*it))
 		serv.buildMsg(ERR_USERNOTINCHANNEL(*it, getName()), fd);
 
 	else if (isUserChanOp(*it))
+	{
 		unsetOP(*serv.getClientByName(*it));
-		//_chanOp.erase(serv.getClientByName(*it));
+		return (EXIT_SUCCESS);
+	}
+	return (EXIT_FAILURE);
 }
 
 void	Channel::unsetLimit( void ) {

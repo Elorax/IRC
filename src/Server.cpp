@@ -264,7 +264,7 @@ void    Server::parseLine(std::string &line, int fd) {
     	line = line.substr(line.find(' '));
 
     vecString args = buildArgs(line);
-	std::cout << "DEBUG: Ligne recue : >" << args[0] << "<" << std::endl;
+	//std::cout << "DEBUG: Ligne recue : >" << args[0] << "<" << std::endl;
 
 	switch (findCommand(args[0])) {
 		case eINVITE:	cmdInvite(args, fd);	break;

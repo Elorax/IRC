@@ -30,12 +30,8 @@ void	Server::cmdNick( vecString& args, int fd ) {
 		std::string nickMsg;
 		//! CETTE reply EST RECONNUE PAR IRSSI, S'EN INSPIRER POur LA SUITE
 		//! AVEC OU SANS ~ LA reply EST CORRECTE ET COMPRISE
-		client.setNickname(args[1]);
 		buildMsg(NICKNOTICE(client.getNickname(), client.getUsername(), args[1]), fd);
-		buildMsg(RPL_WELCOME(client.getNickname())
-    	+ RPL_YOURHOST(client.getNickname())
-    	+ RPL_CREATED(client.getNickname())
-    	+ RPL_MYINFO(client.getNickname()), fd);
+		client.setNickname(args[1]);
 		//! reply informative a mettre pour que irssi interprete et qu il effectue le changement de nick
 	}
 }

@@ -64,9 +64,9 @@ void	Server::cmdJoin( vecString& args, int fd ) {
 		switch (toJoin.isChanJoinable(key, fd)) {
 
 			case   0: toJoin.addUser(*getClientByFD(fd)); handleJoinMsg(toJoin, *getClientByFD(fd)); break;
-			case 471: buildMsg(ERR_CHANNELISFULL(chanName), fd); break;
-			case 473: buildMsg(ERR_INVITEONLYCHAN(chanName), fd); break;
-			case 475: buildMsg(ERR_BADCHANNELKEY(chanName), fd); std::cout << "DEBUG: key entree = >" + key +"<\nkey du serveur : >" + toJoin.getPassword() + "<" << std::endl;  break;
+			case 471: buildMsg(ERR_CHANNELISFULL(getClientByFD(fd)->getNickname(), chanName), fd); break;
+			case 473: buildMsg(ERR_INVITEONLYCHAN(getClientByFD(fd)->getNickname(), chanName), fd); break;
+			case 475: buildMsg(ERR_BADCHANNELKEY(getClientByFD(fd)->getNickname(), chanName), fd); std::cout << "DEBUG: key entree = >" + key +"<\nkey du serveur : >" + toJoin.getPassword() + "<" << std::endl;  break;
 			case 666: std::cout << "DEBUG: User already in chan." << std::endl;
 		}
 	}
@@ -130,7 +130,7 @@ void	Server::handleJoinMsg( Channel& chan, Client& client ) {
 	if (chan.getTopic().empty())
 		buildMsg(RPL_NOTOPIC(chanName), fd);
 	else
-		buildMsg(RPL_TOPIC(chanName, chan.getTopic()), fd);
+		buildMsg(RPL_TOPIC(client.getNickname(), chanName, chan.getTopic()), fd);
 
 	buildMsg(RPL_NAMEREPLY(client.getNickname(), chanName, chan.getNamesOfChanUsers()), fd);
 	buildMsg(RPL_ENDOFNAMES(client.getNickname(), chanName), fd);
