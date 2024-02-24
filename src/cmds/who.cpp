@@ -22,7 +22,7 @@ void	Server::cmdWho( vecString& args, int fd ) {
 		Client& target = *getClientByName(args[1]);
 		whoClient(target, client);
 	}
-	// buildMsg(RPL_ENDOFWHO(client.getNickname(), args[1]), fd);
+	buildMsg(RPL_ENDOFWHO(client.getNickname(), args[1]), fd);
 }
 /* --------------------------------- Helpers -------------------------------- */
 
@@ -41,21 +41,18 @@ void	Server::whoAll( Client& client ) {
 
 void	Server::whoClient( Client& target, Client& client ) {
 
-	std::string whoMsg = target.getNickname() + " " 
-	+ target.getLastChan() + " ~"
-	+ target.getUsername() + " " 
-	+ _name + " " + _name + " " 
-	+ target.getNickname() + " H@ :0 " 
-	+ target.getRealname() + RPL_ENDOFWHO(client.getNickname(), target.getNickname());
+	std::string whoMsg = target.getNickname()
+	+ " " + target.getLastChan()
+	+ " ~"+ target.getUsername()
+	+ " " + _name + " " + _name
+	+ " " + target.getNickname()
+	+ " H@ :0 " + target.getRealname();
 
 	buildMsg(WHONOTICE(client.getNickname(), client.getUsername(), target.getNickname()), client.getFD());
 	buildMsg(RPL_WHOREPLY(client.getNickname(), whoMsg), client.getFD());
 }
 
 void	Server::whoChannel( Channel& target, Client& client ) {
-
-	vecString whoMsg;
-	whoMsg.push_back(target.getName());
 
 	vecClient chanUsers = target.getChanUsers();
 	vecClient::iterator itUser = chanUsers.begin();
