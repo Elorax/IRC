@@ -6,15 +6,11 @@
 
 Server::Server(std::string &port, std::string &password)
 {
-    //Initialisation des parametres du serveur
     _port = atoi(port.c_str());
     _chanKey = password;
 	_name = "ft_irc";
 
-    //Initialisation des sockets et ouverture du serveur
-    //AF_INET : IPv4. SOCK_NONBLOCK pour avoir un socket non bloquant pour le multi client sans fork(). 0 pour protocole automatique
     _socketFD = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-
     if (_socketFD < 0)
 		throw std::runtime_error("Socket creation failed");
 
@@ -24,7 +20,7 @@ Server::Server(std::string &port, std::string &password)
    		throw std::runtime_error("Socket option configuration failed");
 
     //Configuration adresse et port pour pouvoir lier la socket a une adresse et un port specifique
-    _serverAddr.sin_family = AF_INET;    //IPv4
+    _serverAddr.sin_family = AF_INET;//IPv4
     _serverAddr.sin_addr.s_addr = INADDR_ANY;
     _serverAddr.sin_port = htons(_port);
 
@@ -38,7 +34,6 @@ Server::Server(std::string &port, std::string &password)
 }
 
 Server::~Server( void ) {
-	//truc dedans
 }
 
 /* -------------------------------------------------------------------------- */
@@ -48,15 +43,12 @@ extern std::vector<int> my_fds;
 int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
 
 	int fd;
-	// std::cout << "tentative d'accept" << std::endl;
 	socklen_t clientAddrLen = sizeof(_clientAddr);
     fd = accept(_socketFD, (struct sockaddr*) &_clientAddr, &clientAddrLen);
-	// std::cout << "prout" << fd << std::endl;
     if (fd == -1)
         return (-1);
 
     Client newClient(fd);
-    // std::cout << "NEW CLIENT\n";    //Useless mais utile pour mon debug
     _clients.push_back(newClient);
 	_clientsFD.push_back(fd);
 
@@ -184,9 +176,6 @@ bool    Server::isValidNick( const std::string& nick ) {
 	}
 	return (true);
 }
-//nickname   =  ( letter / special ) *8( letter / digit / special / "-" )
-//special    =  %x5B-60 / %x7B-7D
-//                   ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
 
 bool	Server::isKeyValid( const std::string& key ) {
 
@@ -240,21 +229,18 @@ bool	Server::doesUserExist( const std::string& nickname ) {
 
 void	Server::sendMsgs(fd_set writeFDs){
 
-	// std::cout << "DEBUG: ON SEND TOUS LES MESSAGES C LE FACTEUR QUI REGALE" << std::endl;
 	if (!_messages.empty() && !_clients.empty()){
 
 		std::vector<Message>::iterator it = _messages.begin();
 		for (; it != _messages.end(); it++){
 
 			if (FD_ISSET(it->getFD(), &writeFDs)){
-				//std::cout << "Sent message to :" << getClientByFD(it->getFD())->getNickname() << " :" << it->getMsg() << std::endl;
 				std::cout << it->getMsg();
 				send(it->getFD(), it->getMsg().c_str(), it->getMsg().size(), 0);
-				// std::cout << "Envoi du msg" + it->getMsg() + "au fd " << it->getFD() << std::endl;;	//Debugging
 			}
 		}
 	}
-	_messages.erase(_messages.begin(), _messages.end());	//Clear de nos messages.
+	_messages.erase(_messages.begin(), _messages.end());
 }
 
 int    Server::parseLine(std::string &line, int fd) {
@@ -266,8 +252,6 @@ int    Server::parseLine(std::string &line, int fd) {
     	line = line.substr(line.find(' '));
 
     vecString args = buildArgs(line);
-	//std::cout << "DEBUG: Ligne recue : >" << args[0] << "<" << std::endl;
-
 	switch (findCommand(args[0])) {
 		case eINVITE:	cmdInvite(args, fd);	break;
 		case eJOIN: 	cmdJoin(args, fd);		break;
@@ -281,12 +265,11 @@ int    Server::parseLine(std::string &line, int fd) {
 		case eQUIT: 	cmdQuit(args, fd);		return (1);
 		case eTOPIC: 	cmdTopic(args, fd);		break;
 		case eUSER: 	cmdUser(args, fd);		break;
-		case eWHO: 		cmdWho(args, fd);		break;
+		case eWHO: 		cmdWho();				break;
 		case eCAP:		cmdCap();				break;
 		case ePING:		cmdPong(args, fd);		break;
 
-		case eNOTFOUND: ;
-		//buildMsg(ERR_UNKNOWNCOMMAND(getClientByFD(fd)->getNickname(), args[0]), fd);
+		case eNOTFOUND: buildMsg(ERR_UNKNOWNCOMMAND(getClientByFD(fd)->getNickname(), args[0]), fd);
 	}
 	return (0);
 }
@@ -344,9 +327,7 @@ vecString Server::buildArgs( std::string& line ) {
 
     std::string tmp = line.substr(0, line.find(':'));
     while (tmp.find(' ') != std::string::npos) {
-		//std::string str = tmp.substr(0, tmp.find(' '));
-		//if (str != "")
-			args.push_back(tmp.substr(0, tmp.find(' ')));
+		args.push_back(tmp.substr(0, tmp.find(' ')));
         tmp = tmp.substr(tmp.find(' ') + 1);
 	}
 	if (tmp.find("\r\n") != std::string::npos)
@@ -374,22 +355,4 @@ vecString Server::buildModes( std::string& line ) {
     modes.push_back(tmp);
 
 	return (modes);
-}
-
-//DEBUG Fonction : presentation des serveurs et des clients.
-void	Server::debug( void )
-{
-	int i = 0;
-	for (vecChannel::iterator it = _channels.begin(); it < _channels.end();i++, it++)
-	{
-		std::cout << "Channel numero " << i << " : " << it->getName() << "\nNb de clients : " << it->getNbClients() << std::endl;
-		for (size_t j = 0; j < it->getNbClients(); j++)
-		{
-			std::cout << "client " << j << ", fd : " << it->getClient(j).getFD() << "\nNick : " << it->getClient(j).getNickname() << std::endl;
-		}
-	}
-}
-
-void	Server::cmdCap( void ){
-	std::cout << "\x1b[8mDEBUG: C'est le bruit de mes couilles contre tes fesses\x1b[0m" << std::endl;
 }

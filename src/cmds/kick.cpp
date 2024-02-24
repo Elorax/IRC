@@ -1,5 +1,5 @@
 #include "Server.hpp"
-//!En cours de tests
+
 //Parameters: KICK <channel> *( "," <channel> ) <user> *( "," <user> ) [<comment>]
 //Kick est censee utiliser la commande Part
 void	Server::cmdKick( vecString& args, int fd ) {
@@ -59,7 +59,6 @@ void	Server::kickUsers( vecString args, vecString users, vecString chans, int re
 // Kick one user from multiple channels
 void	Server::kickChans( vecString args, vecString users, vecString chans, int requesterFD ) {
 
-	//vecString kickMsg;
 	vecString::iterator itChan = chans.begin();
 	vecString::iterator itUser = users.begin();
 
@@ -78,8 +77,6 @@ void	Server::kickChans( vecString args, vecString users, vecString chans, int re
 			continue ;
 		}
 		vecString args_part;
-		//kickMsg.push_back(" ");
-		//kickMsg.push_back(*itUser);
 		args_part.push_back("PART");
 		args_part.push_back(*itChan);
 
@@ -102,32 +99,28 @@ void	Server::kickChansUsers( vecString args, vecString users, vecString chans, i
 
 	for (; itUser != users.end() || itChan != chans.end(); itUser++, itChan++) {
 
-		if (!getChanByRef(*itChan).isUserOnChan(requesterFD))
-		{
+		if (!getChanByRef(*itChan).isUserOnChan(requesterFD)) {
 			buildMsg(ERR_NOTONCHANNEL(*itChan), requesterFD);
 			continue ;
 		}
-		else if (!getChanByRef(*itChan).isUserOnChan(*itUser))
-		{
+		else if (!getChanByRef(*itChan).isUserOnChan(*itUser)) {
 			buildMsg(ERR_USERNOTINCHANNEL(*itUser, *itChan), requesterFD);
 			continue ;
 		}
-		else if (!getChanByRef(*itChan).isUserChanOp(requesterFD))
-		{
+		else if (!getChanByRef(*itChan).isUserChanOp(requesterFD)) {
 			buildMsg(ERR_CHANOPRIVSNEEDED(*itChan), requesterFD);
 			continue ;
 		}
+
 		vecString args_part;
 		args_part.push_back("PART");
 		args_part.push_back(*itChan);
-
 		if (args.size() == 4)
 			args_part.push_back(args[3]);
 		else
 			args_part.push_back(getClientByFD(requesterFD)->getNickname());
-		
+
 		cmdPart(args_part, getClientByName(*itUser)->getFD(), 0);
 		buildMsg(KICKNOTICE(getClientByFD(requesterFD)->getNickname(), getClientByFD(requesterFD)->getUsername(), *itChan, *itUser, args_part.back()), getChanByRef(*itChan), getClientByName(*itUser)->getFD());
-
 	}
 }

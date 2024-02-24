@@ -1,5 +1,5 @@
 #include "Server.hpp"
 
-void	Server::cmdWho( void ) {
+void	Server::cmdCap( void ) {
 	return;
 }

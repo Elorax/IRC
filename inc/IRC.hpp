@@ -42,12 +42,11 @@ typedef std::vector<Channel>		vecChannel;
 typedef std::vector<Message>		vecMessage;
 typedef std::vector<std::string>	vecString;
 
-
-
 #include "Server.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"
+
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
 
@@ -81,29 +80,19 @@ typedef std::vector<std::string>	vecString;
 #define ERR_BADCHANMASK(chan)    						":ft_irc 476 "	+ chan	+ " :Bad Channel Mask\r\n"
 #define ERR_CHANOPRIVSNEEDED(chan)						":ft_irc 482 "	+ chan	+ " :You're not channel operator\r\n"
 
-#define RPL_ENDOFWHO(nick, target)						":ft_irc 315 "	+ nick	+ target + " :End of WHO list.\r\n"
 #define RPL_CHANNELMODEIS(nick, chan, mode)				":ft_irc 324 "	+ nick	+ " " + chan + " :" + mode + " " + "\r\n"
 #define RPL_UNIQOPIS(chan, nick)						":ft_irc 325 "	+ chan	+ " " + nick + "\r\n"
 #define RPL_NOTOPIC(chan)								":ft_irc 331 "	+ chan	+ " :No topic is set\r\n"
 #define RPL_TOPIC(nick, chan, topic)					":ft_irc 332 "	+ nick	+ " " + chan + " :" + topic + "\r\n"
 #define RPL_INVITING(src, chan, dest)					":ft_irc 341 "	+ src	+ " " + chan + " " + dest + "\r\n"
-#define RPL_WHOREPLY(nick, who)							":ft_irc 352 "	+ nick	+ " :" + who + "\r\n"
 #define RPL_NAMEREPLY(nick, chan, users)				":ft_irc 353 "	+ nick	+ " = "	+ chan + " :" + users + "\r\n"
 #define RPL_ENDOFNAMES(nick, chan)						":ft_irc 366 "	+ nick	+ " " + chan + " :End of NAMES list.\r\n"
 
 /* irssi format replies */
 #define PONGNOTICE(client)								":ft_irc PONG "	+ client + "\r\n"
-#define WHONOTICE(nickname, username, arg)				":"	+ nickname	+ "!~" + username + "@ft_irc" + " WHO " + arg + "\r\n"
 #define NICKNOTICE(nickname, username, arg)				":" + nickname	+ "!~" + username + "@ft_irc" + " NICK " + arg + "\r\n"
 #define JOINNOTICE(nickname, username, chan)			":" + nickname	+ "!~" + username + "@ft_irc" + " JOIN " + chan	+ "\r\n"
 #define PARTNOTICE(nickname, username, chan, arg)		":" + nickname	+ "!~" + username + "@ft_irc" + " PART " + chan	+ " :"+ arg + "\r\n"
 #define MSGNOTICE(nickname, username, dest, msg)		":" + nickname	+ "!~" + username + "@ft_irc" + " NOTICE "	+ dest	+ " " + msg + "\r\n"
 #define PRIVMSGNOTICE(nickname, username, dest, msg)	":" + nickname	+ "!~" + username + "@ft_irc" + " PRIVMSG "	+ dest	+ " " + msg + "\r\n"
 #define KICKNOTICE(nickname, username, chan, dest, msg)	":" + nickname  + "!~" + username + "@ft_irc KICK " + chan + " " + dest + " :" + msg + "\r\n"
-
-// WHO #chan.
-// Elo et Lea sont sur chan.
-// :ft_irc 352 Elo #chan ~abiersoh ft_irc ft_irc Elo H :0 :Antoine BIERSOHN
-// :ft_irc 352 Lea #chan ~abiersoh ft_irc fr_irc Lea H :0 :Antoine BIERSOHN
-// :ft_irc 352 nick_targer chan ~username ft_irc nick H :0 :realname
-#define RPL_WHOREPLY(nick, who)							":ft_irc 352 "	+ nick	+ " :" + who + "\r\n"

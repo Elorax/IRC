@@ -18,9 +18,7 @@ class	Server {
 		std::string					_name;
 		std::string 				_chanKey;
 		sockaddr_in					_serverAddr;
-		sockaddr_in					_clientAddr;	//Non initialise a la construction,
-
-									//initialisé a l'utilisation de accept pour un nouveau client.
+		sockaddr_in					_clientAddr;
 
 	public:
 									Server( std::string& port, std::string& key );
@@ -38,7 +36,6 @@ class	Server {
 		const vecClient::iterator	getClientByName( const std::string& nick );
 		const vecChannel::iterator	getChanByIt( const std::string& chan );
 		Channel&					getChanByRef( const std::string& chan );
-
 
 		/* Runtime */
 		void						run( void );
@@ -67,6 +64,7 @@ class	Server {
 		/* Commands */
 		eCommand					findCommand( const std::string& line );
 		void						cmdCap( void );
+		void						cmdWho( void );
 		void						cmdInvite( vecString& args, int fd );
 		void						cmdJoin( vecString& args, int fd );
 		void						cmdKick( vecString& args, int fd );
@@ -80,32 +78,17 @@ class	Server {
 		void						cmdQuit( vecString& args, int fd );
 		void						cmdTopic( vecString& args, int fd );
 		void						cmdUser( vecString& args, int fd );
-		void						cmdWho( vecString& args, int fd );
-
 
 		/* Misc */
-		void						debug( void );
-		void						partAllChans( int fd );
 		int	    					parseLine( std::string& line, int fd );
-		vecString					splitParamOnComas( std::string& arg );
 		int							createChannel( std::string chan, std::string key, int fd );
-
+		vecString					splitParamOnComas( std::string& arg );
+		void						partAllChans( int fd );
 		void						handleJoinMsg( Channel& chan, Client& client );
 		void						handleModeListMsg( std::string chan, int fd );
 		void						handleJoinMsg( std::string chan, Client& client );
-
 		void						kickChans( vecString args, vecString users, vecString chans, int fd );
 		void						kickUsers( vecString args, vecString users, vecString chans, int fd );
 		void						kickChansUsers( vecString args, vecString users, vecString chans, int fd );
-
-		void						whoAll( Client& client );
-		void						whoClient( Client& target, Client& client );
-		void						whoChannel( Channel& target, Client& client );
-		/*chatGPT*/
-		void 						removeClosedClients();
-		/*debug, a retirer*/
-		void						close_fd();
-
-
 };
 

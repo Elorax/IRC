@@ -10,19 +10,16 @@ Channel::Channel( std::string name, Client& client )
 	client.addChan(*this);
 	_chanOp.push_back(client);
 	_chanUsers.push_back(client);
-	// std::cout << "DEBUG: channel cree : " + _name + " --- Createur : " + _chanOp[0].getNickname() << std::endl;
 }
 
 Channel::~Channel( void ) {
-	// std::cout << "DEBUG: channel DELETE : " + _name << std::endl;
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                   Getter                                   */
 /* -------------------------------------------------------------------------- */
 
-size_t	Channel::getChanLimit( void )
-{
+size_t	Channel::getChanLimit( void ) {
 	return (_chanLimit);
 }
 
@@ -66,7 +63,6 @@ const std::string	Channel::getNamesOfChanUsers( void ) const {
 			names += " ";
 	}
 	return (names);
-	//! J'ai fini rapidement la fonction mais je sais pas ce que tu voulais en faire donc a toi de veirfier
 }
 
 const Client&	Channel::getClient(int idx) {
@@ -78,7 +74,6 @@ size_t	Channel::getNbClients( void ) {
 	size_t i = 0;
 	vecClient::iterator it = _chanUsers.begin();
 	for (; it != _chanUsers.end(); it++) {
-		//std::cout << "CASE NO CLIENT :" <<  it->getNickname() << " \r\n" << std::endl;
 		i++;
 	}
 
@@ -117,7 +112,7 @@ int	Channel::setKey( Server& serv, vecString& args, vecString::iterator it, int 
 		return (EXIT_SUCCESS);
 	}
 
-	else //Qu'est-ce qu'on envoie au client qui effectue la requete ??
+	else
 		serv.buildMsg(":ft_irc 467" + getName() + ":Channel key incorrect\r\n", fd);
 	return (EXIT_FAILURE);
 }
@@ -151,10 +146,8 @@ int	Channel::setLimit( Server& serv, vecString& args, vecString::iterator it, in
 			if (!((*ite <= '9' && *ite >= '0') || *ite == '\0'))
 				return (EXIT_FAILURE);
 		}
-		_chanLimit = atoi(it->c_str());	//!VERIFIER QUE it->c_str EST DU BON FORMAT, C'est a dire UNIQUEMENT COMPOSE DE CHIFFRES. Normalement c'est bon avec le for du dessus	
+		_chanLimit = atoi(it->c_str());
 	}
-	
-	
 	return (EXIT_SUCCESS);
 }
 

@@ -1,8 +1,6 @@
 #include "Server.hpp"
-//! Ca refonctionne un peu plus tard que prevu mais ca refonctionne quand meme. bisous lele.
-//VERIFIER QUE PASS A ETE CORRECTEMENT EXECUTE : _chanKey n'est PAS VIDE
-//Sinon user non registered sur le serveur et interdit d'accès
-//
+
+//Si user non registered sur le serveur et interdit d'accès
 void    Server::cmdUser( vecString& args, int fd )
 {
 	if (getClientByFD(fd)->getPassword().empty())
@@ -18,7 +16,7 @@ void    Server::cmdUser( vecString& args, int fd )
 	{
 		getClientByFD(fd)->setUsername(args[1]);
 		getClientByFD(fd)->setHostname("Placeholder");
-		getClientByFD(fd)->setRealname(args[4]);//setrealname, realname can have spaces
+		getClientByFD(fd)->setRealname(args[4]);
 		buildMsg(RPL_WELCOME(getClientByFD(fd)->getNickname())
     	+ RPL_YOURHOST(getClientByFD(fd)->getNickname())
     	+ RPL_CREATED(getClientByFD(fd)->getNickname())

@@ -1,9 +1,8 @@
 #include "Server.hpp"
-//!fonctionne mais pas avec dcc pour envoi fichier. Pas bonus atm.
+
 //Parametres : PRIVMSG <target> <message>
 //Ex : PRIVMSG lea :coucou ca va ?
 //Ex : PRIVMSG #iciclafete :salut les zboubs
-
 void	Server::cmdPrivmsg( vecString& args, int fd ) {
 
 	Client& client = *getClientByFD(fd);

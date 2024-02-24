@@ -5,6 +5,7 @@ SRCS		=	src/Channel.cpp		\
 				src/Message.cpp		\
 				src/Server.cpp		\
 				src/ServerRun.cpp	\
+				src/cmds/cap.cpp	\
 				src/cmds/invite.cpp	\
 				src/cmds/join.cpp	\
 				src/cmds/kick.cpp	\
@@ -25,7 +26,7 @@ INCSDIR		=	-I./inc
 
 CC			=	c++
 
-CFLAGS		=	-Wall -Wextra -std=c++98 -I./inc -g3
+CFLAGS		=	-Wall -Wextra -Werror -std=c++98 -I./inc -g3
 
 RM			=	rm -rf
 

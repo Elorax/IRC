@@ -1,14 +1,11 @@
 #include "Server.hpp"
-//!test wip, a ameliorer
+
 //Parametres : INVITE <nickname> <channel>
 //Invite un utilisateur a rejoindre un channel, il recoit une notif qui lui dit que qqn veut qu'il rejoigne tel chan
 //Il faut etre membre du chan pour inviter quelqu'un sinon la commande echoue
 //L'utilisateur invite recoit une notif, l'utilisateur qui invite recoit une RPL_INVITING
 //La notification est une repoonse non ERR/RPL
-//Reste a faire : Envoi notification, envoi RPL_INVITING.
-
 void	Server::cmdInvite( vecString& args, int fd ) {
-
 
 	if (!isUserSet(*getClientByFD(fd)))
 		return (buildMsg(ERR_NOTREGISTERED, fd));
@@ -35,10 +32,8 @@ void	Server::cmdInvite( vecString& args, int fd ) {
 	else if (chan.isUserOnChan(nickname))
 		buildMsg(ERR_USERONCHANNEL(nickname, chan.getName()), fd);
 
-	else if (chan.isChanLimitSet() && chan.getNbClients() >= chan.getChanLimit())	//Ajoute en fin de nuit j'suis dcd je sais pas c'que j'ecris frerotte
-	{
+	else if (chan.isChanLimitSet() && chan.getNbClients() >= chan.getChanLimit())
 		buildMsg(ERR_CHANNELISFULL(nickname, chan.getName()), fd);
-	}
 
 	else {
 

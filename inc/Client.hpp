@@ -24,7 +24,7 @@ class	Client {
 		/* setters */
 		void						setPassword( const std::string& password );
 		void						setNickname( const std::string& nickname );
-		void						setUsername( const std::string& username );//set username, realname and hostname: Parameters: <user> <mode> <unused> <realname>
+		void						setUsername( const std::string& username );
 		void						setRealname( const std::string& realname );
 		void						setHostname( const std::string& hostname );
 
