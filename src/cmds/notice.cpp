@@ -14,7 +14,7 @@ void	Server::cmdNotice( vecString& args, int fd ) {
 	//Cible : channel
 	if (args[1][0] == '#') {
 
-		if (!doesChanExist(args[1])) {
+		if (doesChanExist(args[1])) {
 			Channel &chan = getChanByRef(args[1]);
 			if (chan.isUserOnChan(fd))
 				buildMsg(MSGNOTICE(client.getNickname(), client.getUsername(), args[1], args[2]), chan, fd);

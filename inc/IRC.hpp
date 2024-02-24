@@ -66,9 +66,9 @@ typedef std::vector<std::string>	vecString;
 #define ERR_NONICKNAMEGIVEN							":ft_irc 431 :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick)					":ft_irc 432 "	+ nick 	+ " :Erroneous nickname\r\n"
 #define ERR_NICKNAMEINUSE(user, nick)				":ft_irc 433 "	+ user 	+ " " + nick + " :Nickname is already in use\r\n"
-#define ERR_USERNOTINCHANNEL(nick, chan)			":ft_irc 441 "	+ nick 	+ " " + chan + " :They aren't on that channel\r\n"
+#define ERR_USERNOTINCHANNEL(nick, chan)			":ft_irc 441 "	+ chan 	+ " " + nick + " :They aren't on that channel\r\n"
 #define ERR_NOTONCHANNEL(chan)						":ft_irc 442 "	+ chan 	+ " :You're not on that channel\r\n"
-#define ERR_USERONCHANNEL(user, chan)				":ft_irc 443 "	+ user 	+ " " + chan + " :is already on channel\r\n"
+#define ERR_USERONCHANNEL(user, chan)				":ft_irc 443 "	+ chan 	+ " " + user + " :is already on channel\r\n"
 #define ERR_NOTREGISTERED 							":ft_irc 451 :You have not registered\r\n"
 #define ERR_NEEDMOREPARAMS(cmd)						":ft_irc 461 "	+ cmd 	+ " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTRED						":ft_irc 462 :Unauthorized command (already registered)\r\n"
@@ -92,11 +92,20 @@ typedef std::vector<std::string>	vecString;
 #define RPL_ENDOFNAMES(nick, chan)					":ft_irc 366 "	+ nick	+ " " + chan + " :End of NAMES list.\r\n"
 
 /* irssi format replies */
-#define PONGNOTICE(client)							":ft_irc PONG "	+ client + "\r\n"
-#define WHONOTICE(nickname, username, arg)			":"	+ nickname	+ "!~" + username + "@ft_irc" + " WHO " + arg + "\r\n"
-#define NICKNOTICE(nickname, username, arg)			":" + nickname	+ "!~" + username + "@ft_irc" + " NICK " + arg + "\r\n"
-#define JOINNOTICE(nickname, username, chan)		":" + nickname	+ "!~" + username + "@ft_irc" + " JOIN " + chan	+ "\r\n"
-#define PARTNOTICE(nickname, username, chan, arg)	":" + nickname	+ "!~" + username + "@ft_irc" + " PART " + chan	+ " :"+ arg + "\r\n"
-#define MSGNOTICE(nickname, username, dest, msg)	":" + nickname	+ "!~" + username + "@ft_irc" + " NOTICE "	+ dest	+ " " + msg + "\r\n"
-#define PRIVMSGNOTICE(nickname, username, dest, msg)":" + nickname	+ "!~" + username + "@ft_irc" + " PRIVMSG "	+ dest	+ " " + msg + "\r\n"
+#define PONGNOTICE(client)								":ft_irc PONG "	+ client + "\r\n"
+#define WHONOTICE(nickname, username, arg)				":"	+ nickname	+ "!~" + username + "@ft_irc" + " WHO " + arg + "\r\n"
+#define NICKNOTICE(nickname, username, arg)				":" + nickname	+ "!~" + username + "@ft_irc" + " NICK " + arg + "\r\n"
+#define JOINNOTICE(nickname, username, chan)			":" + nickname	+ "!~" + username + "@ft_irc" + " JOIN " + chan	+ "\r\n"
+#define PARTNOTICE(nickname, username, chan, arg)		":" + nickname	+ "!~" + username + "@ft_irc" + " PART " + chan	+ " :"+ arg + "\r\n"
+#define MSGNOTICE(nickname, username, dest, msg)		":" + nickname	+ "!~" + username + "@ft_irc" + " NOTICE "	+ dest	+ " " + msg + "\r\n"
+#define PRIVMSGNOTICE(nickname, username, dest, msg)	":" + nickname	+ "!~" + username + "@ft_irc" + " PRIVMSG "	+ dest	+ " " + msg + "\r\n"
+#define KICKNOTICE(nickname, username, chan, dest, msg)	":" + nickname  + "!~" + username + "@ft_irc KICK " + chan + " " + dest + " :" + msg + "\r\n"
 // #define TESTPONGNOTICE								"PONG :ft_irc\r\n"
+
+
+WHO #chan.
+Elo et Lea sont sur chan.
+:ft_irc 352 Elo #chan ~abiersoh ft_irc ft_irc Elo H :0 :Antoine BIERSOHN
+:ft_irc 352 Lea #chan ~abiersoh ft_irc fr_irc Lea H :0 :Antoine BIERSOHN
+:ft_irc 352 nick_targer chan ~username ft_irc nick H :0 :realname
+#define RPL_WHOREPLY(nick, who)						":ft_irc 352 "	+ nick	+ " :" + who + "\r\n"

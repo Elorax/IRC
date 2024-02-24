@@ -73,7 +73,7 @@ class	Server {
 		void						cmdMode( vecString& args, int fd );
 		void						cmdNick( vecString& args, int fd );
 		void						cmdNotice( vecString& args, int fd );
-		void						cmdPart( vecString& args, int fd );
+		void						cmdPart( vecString& args, int fd, int send_msg );
 		void						cmdPass( vecString& args, int fd );
 		void						cmdPong( vecString& args, int fd ); 
 		void						cmdPrivmsg( vecString& args, int fd );

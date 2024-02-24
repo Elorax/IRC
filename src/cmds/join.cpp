@@ -117,7 +117,7 @@ void	Server::partAllChans( int fd ) {
 	}
 	//chans.erase(chans.rfind(","));
 	argsPart.push_back(chans);
-	cmdPart(argsPart, fd);
+	cmdPart(argsPart, fd, 1);
 }
 
 //Appele lors de la REJOINDATION d'un channel deja existant

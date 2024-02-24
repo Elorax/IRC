@@ -72,7 +72,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 						break;
 					case 't': chan.setTopicPriv(); rep[0] += "t";	break;
 					case 'i': chan.setInviteOnly();	rep[0] += "i";	break;
-					default: return (buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd));	//J'ai enleve le return parce qu'on fait quand meme les commandes suivantes.
+					default: return (buildMsg(ERR_UNKNOWNMODE(token, chan.getName()), fd));	//J'ai enleve le return parce qu'on fait quand meme les commandes suivantes.
 				}
 			}
 		}
@@ -93,7 +93,7 @@ void	Server::cmdMode( vecString& args, int fd ) {
 					case 'l': chan.unsetLimit(); rep[0] += "l";		break;
 					case 't': chan.unsetTopicPriv(); rep[0] += "t";	break;
 					case 'i': chan.unsetInviteOnly();rep[0] += "i";	break;
-					default: return (buildMsg(ERR_UNKNOWNMODE(*it, chan.getName()), fd));
+					default: return (buildMsg(ERR_UNKNOWNMODE(token, chan.getName()), fd));
 				}
 			}
 		}
@@ -109,7 +109,8 @@ void	Server::cmdMode( vecString& args, int fd ) {
 				repStr += " ";
 		} 
 		std::string toSend = ":" + getClientByFD(fd)->getNickname() +"!~"+ getClientByFD(fd)->getUsername()+"@"+_name+" MODE "+ chan.getName() + " " + repStr + "\r\n";
-		buildMsg(toSend, chan);//! C'etait tosend, fd avant mais je pense que chan c'est mieux. A tester et reverse si pas bien
+		if (!(rep[0] == "+" || rep[0] == "-"))	//Les modes ajoutes ou enleve n'ont pas fonctionne ou ont renvoye une erreur
+			buildMsg(toSend, chan);
 	//}
 }
 

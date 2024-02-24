@@ -144,7 +144,17 @@ int	Channel::setLimit( Server& serv, vecString& args, vecString::iterator it, in
 		return (EXIT_FAILURE);
 	}
 	else
-		_chanLimit = atoi(it->c_str());	//!VERIFIER QUE it->c_str EST DU BON FORMAT, C'est a dire UNIQUEMENT COMPOSE DE CHIFFRES.
+	{
+		std::string str = *it;
+		std::string::iterator ite = str.begin();
+		for (;ite != str.end();ite++){
+			if (!((*ite <= '9' && *ite >= '0') || *ite == '\0'))
+				return (EXIT_FAILURE);
+		}
+		_chanLimit = atoi(it->c_str());	//!VERIFIER QUE it->c_str EST DU BON FORMAT, C'est a dire UNIQUEMENT COMPOSE DE CHIFFRES. Normalement c'est bon avec le for du dessus	
+	}
+	
+	
 	return (EXIT_SUCCESS);
 }
 

@@ -274,7 +274,7 @@ int    Server::parseLine(std::string &line, int fd) {
 		case eMODE: 	cmdMode(args, fd);		break;
 		case eNICK: 	cmdNick(args, fd);		break;
 		case eNOTICE: 	cmdNotice(args, fd);	break;
-		case ePART: 	cmdPart(args, fd);		break;
+		case ePART: 	cmdPart(args, fd, 1);		break;
 		case eKICK: 	cmdKick(args, fd);		break;
 		case ePASS:		cmdPass(args, fd);		break;
 		case ePRIVMSG: 	cmdPrivmsg(args, fd);	break;

@@ -10,7 +10,7 @@
 //Envoyer une reply non RPL/ERR a tous les autres users du/des channels que l'utilisateur quitte avec part
 //ex : PART chan1,chan2
 
-void	Server::cmdPart( vecString& args, int fd ) {
+void	Server::cmdPart( vecString& args, int fd, int send_msg) {
 
 	Client& client = *getClientByFD(fd);
 
@@ -36,7 +36,10 @@ void	Server::cmdPart( vecString& args, int fd ) {
 
 		else {
 			std::string msg = (args.size() == 3 ? args[2] : client.getNickname());
-			buildMsg(PARTNOTICE(client.getNickname(), client.getUsername(), toPart.getName(), msg), toPart);
+			if (send_msg == 1)
+				buildMsg(PARTNOTICE(client.getNickname(), client.getUsername(), toPart.getName(), msg), toPart);
+			else
+				buildMsg(PARTNOTICE(client.getNickname(), client.getUsername(), toPart.getName(), msg), fd);
 			toPart.delUser(client);
 			std::cout << "DEBUG: PART : On del user " << client.getNickname() << " de " << *it << std::endl;
 
