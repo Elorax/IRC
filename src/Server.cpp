@@ -44,7 +44,7 @@ Server::~Server( void ) {
 /* -------------------------------------------------------------------------- */
 /*                                   Setters                                  */
 /* -------------------------------------------------------------------------- */
-
+extern std::vector<int> my_fds;
 int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
 
 	int fd;
@@ -58,6 +58,8 @@ int	Server::addClient( fd_set& readFDs, fd_set& writeFDs ) {
     Client newClient(fd);
     // std::cout << "NEW CLIENT\n";    //Useless mais utile pour mon debug
     _clients.push_back(newClient);
+	_clientsFD.push_back(fd);
+
     FD_SET(fd, &readFDs);
     FD_SET(fd, &writeFDs);
 
@@ -255,10 +257,10 @@ void	Server::sendMsgs(fd_set writeFDs){
 	_messages.erase(_messages.begin(), _messages.end());	//Clear de nos messages.
 }
 
-void    Server::parseLine(std::string &line, int fd) {
+int    Server::parseLine(std::string &line, int fd) {
 
     if (line.find("\r\n") == std::string::npos)
-		return;
+		return (0);
 
 	if (line[0] == ':')
     	line = line.substr(line.find(' '));
@@ -276,7 +278,7 @@ void    Server::parseLine(std::string &line, int fd) {
 		case eKICK: 	cmdKick(args, fd);		break;
 		case ePASS:		cmdPass(args, fd);		break;
 		case ePRIVMSG: 	cmdPrivmsg(args, fd);	break;
-		case eQUIT: 	cmdQuit(args, fd);		break;
+		case eQUIT: 	cmdQuit(args, fd);		return (1);
 		case eTOPIC: 	cmdTopic(args, fd);		break;
 		case eUSER: 	cmdUser(args, fd);		break;
 		case eWHO: 		cmdWho(args, fd);		break;
@@ -286,6 +288,7 @@ void    Server::parseLine(std::string &line, int fd) {
 		case eNOTFOUND: ;
 		//buildMsg(ERR_UNKNOWNCOMMAND(getClientByFD(fd)->getNickname(), args[0]), fd);
 	}
+	return (0);
 }
 
 eCommand	Server::findCommand( std::string const& line ) {

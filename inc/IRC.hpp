@@ -42,11 +42,12 @@ typedef std::vector<Channel>		vecChannel;
 typedef std::vector<Message>		vecMessage;
 typedef std::vector<std::string>	vecString;
 
+
+
 #include "Server.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"
-
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
 
@@ -85,7 +86,7 @@ typedef std::vector<std::string>	vecString;
 #define RPL_UNIQOPIS(chan, nick)					":ft_irc 325 "	+ chan	+ " " + nick + "\r\n"
 #define RPL_NOTOPIC(chan)							":ft_irc 331 "	+ chan	+ " :No topic is set\r\n"
 #define RPL_TOPIC(nick, chan, topic)				":ft_irc 332 "	+ nick	+ " " + chan + " :" + topic + "\r\n"
-#define RPL_INVITING(src, dest, chan)				":ft_irc 341 "	+ src	+ " " + dest + " " + chan + "\r\n"
+#define RPL_INVITING(src, chan, dest)				":ft_irc 341 "	+ src	+ " " + chan + " " + dest + "\r\n"
 #define RPL_WHOREPLY(nick, who)						":ft_irc 352 "	+ nick	+ " :" + who + "\r\n"
 #define RPL_NAMEREPLY(nick, chan, users)			":ft_irc 353 "	+ nick	+ " = "	+ chan + " :" + users + "\r\n"
 #define RPL_ENDOFNAMES(nick, chan)					":ft_irc 366 "	+ nick	+ " " + chan + " :End of NAMES list.\r\n"

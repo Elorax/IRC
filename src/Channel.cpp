@@ -78,7 +78,7 @@ size_t	Channel::getNbClients( void ) {
 	size_t i = 0;
 	vecClient::iterator it = _chanUsers.begin();
 	for (; it != _chanUsers.end(); it++) {
-		std::cout << "CASE NO CLIENT :" <<  it->getNickname() << " \r\n" << std::endl;
+		//std::cout << "CASE NO CLIENT :" <<  it->getNickname() << " \r\n" << std::endl;
 		i++;
 	}
 
@@ -339,7 +339,7 @@ int	Channel::isChanJoinable( const std::string& key, int fd ) {
 		return (473);
 	if (isFull())
 		return (471);
-	if (!isMatchingKey(key))
+	if (isChanKeySet() && !isMatchingKey(key))
 		return (475);
 	if (isUserAlreadyInChan(fd))
 		return (666);

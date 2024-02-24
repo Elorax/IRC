@@ -112,9 +112,10 @@ void	Server::partAllChans( int fd ) {
 	vecChannel::iterator it = userChans.begin();
 	for(; it != userChans.end(); it++) {
 		chans += it->getName();
-		chans += ",";
+		if (it + 1 != userChans.end())
+			chans += ",";
 	}
-	chans.erase(chans.rfind(","));
+	//chans.erase(chans.rfind(","));
 	argsPart.push_back(chans);
 	cmdPart(argsPart, fd);
 }

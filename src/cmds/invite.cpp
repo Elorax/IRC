@@ -42,8 +42,8 @@ void	Server::cmdInvite( vecString& args, int fd ) {
 
 	else {
 
-		buildMsg(RPL_INVITING(getClientByFD(fd)->getNickname(), chan.getName(), nickname), fd);
-		buildMsg(RPL_INVITING(getClientByFD(fd)->getNickname(), chan.getName(), nickname), getClientByName(nickname)->getFD());
+		buildMsg(RPL_INVITING(getClientByFD(fd)->getNickname(), nickname, chan.getName()), fd);
+		buildMsg(RPL_INVITING(getClientByFD(fd)->getNickname(), nickname, chan.getName()), getClientByName(nickname)->getFD());
 
 		buildMsg(JOINNOTICE(nickname, getClientByName(nickname)->getUsername(), chan.getName()), fd);
 		buildMsg(JOINNOTICE(nickname, getClientByName(nickname)->getUsername(), chan.getName()), getClientByName(nickname)->getFD());

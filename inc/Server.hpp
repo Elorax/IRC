@@ -11,6 +11,7 @@ class	Server {
 	private:
 		int							_port;
 		int							_socketFD;
+		std::vector<int>			_clientsFD;
 		vecClient					_clients;
 		vecChannel					_channels;
 		vecMessage					_messages;
@@ -85,7 +86,7 @@ class	Server {
 		/* Misc */
 		void						debug( void );
 		void						partAllChans( int fd );
-		void    					parseLine( std::string& line, int fd );
+		int	    					parseLine( std::string& line, int fd );
 		vecString					splitParamOnComas( std::string& arg );
 		int							createChannel( std::string chan, std::string key, int fd );
 
@@ -100,6 +101,11 @@ class	Server {
 		void						whoAll( Client& client );
 		void						whoClient( Client& target, Client& client );
 		void						whoChannel( Channel& target, Client& client );
+		/*chatGPT*/
+		void 						removeClosedClients();
+		/*debug, a retirer*/
+		void						close_fd();
+
 
 };
 

@@ -7,7 +7,7 @@
 
 void	Server::cmdQuit( vecString& args, int fd ) {
 
-	std::cout << "DEBUG: QUIT COMMAND" << std::endl;
+	//std::cout << "DEBUG: QUIT COMMAND" << std::endl;
 	vecString quitAllChans;
 	quitAllChans.push_back("JOIN");
 	quitAllChans.push_back("0");
@@ -26,18 +26,25 @@ void	Server::cmdQuit( vecString& args, int fd ) {
 			}
 		}
 	}
-	close(fd);
-	//Effacer tous les messages destines à fd dans _messages. Essayer avec et sans.
+	vecMessage::iterator it = _messages.begin();
+	while (it != _messages.end())
 	{
-		vecMessage::iterator it = _messages.begin();
-		for(; it != _messages.begin(); it++)
-		{
-			if (it->getFD() == fd)
-			{
-				std::string tmp = "";
-				it->setMsg(tmp);
-				it->setFD(0);
-			}
-		}
+		if (it->getFD() == fd)
+			it = _messages.erase(it);
+		else
+			it++;
 	}
+	/*//!ancienne version, avec le it != messages.begin() pour la posterite...
+	vecMessage::iterator it = _messages.begin();
+	for(; it != _messages.begin(); it++)
+	{
+		if (it->getFD() == fd)
+		{
+			std::string tmp = "";
+			it->setMsg(tmp);
+			it->setFD(0);
+		}
+	}*/
+	close(fd);
+
 }
